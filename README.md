@@ -15,7 +15,7 @@ apt-get install libsdl2-ttf-dev
 #include <SDL2/SDL_mixer.h>  
 
 # Compiler linker comands:
--lSDL2main -lSDL2 
--lSDL2_image 
--lSDL2_ttf 
--lSDL2_mixer
+-lSDL2main -lSDL2 </br>
+-lSDL2_image </br>
+-lSDL2_ttf  </br>
+-lSDL2_mixer </br>
