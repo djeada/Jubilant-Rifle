@@ -1,5 +1,9 @@
-# SDL
-Game projects with SDL library
+# Jubilant Rifle
+
+A platform shooter game inspired by classic arcade run and gun games.
+
+* Mr autofire: https://www.youtube.com/watch?v=sTcLMHT_t90
+* Platformer: https://youtu.be/uwWRv9PNqWU
 
 # In the terminal:
 ```bash
