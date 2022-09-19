@@ -16,13 +16,11 @@ void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
   SDL_Surface *sheet;
   loadTexture(sheet_path, &sheet);
 
-  man->sheetTexture = SDL_CreateTextureFromSurface(renderer, sheet);
+  man->texture = SDL_CreateTextureFromSurface(renderer, sheet);
   SDL_FreeSurface(sheet);
 }
 
-void humanoidDestructor(Humanoid *man) {
-  SDL_DestroyTexture(man->sheetTexture);
-}
+void humanoidDestructor(Humanoid *man) { SDL_DestroyTexture(man->texture); }
 
 void jump(Humanoid *man) { man->dy = -4 * DELTA_Y; }
 
@@ -54,26 +52,19 @@ void die(Humanoid *man) {
   man->currentSprite = 6;
 }
 
-void shoot(Humanoid *man, Bullet **bullets) {
+void shoot(Humanoid *man, void *bullets) {
   if (man->currentSprite == 4)
     man->currentSprite = 5;
   else
     man->currentSprite = 4;
 
   if (man->facingLeft) {
-    addBullet(man->x, man->y + BULLET_Y_OFFSET, -3, bullets);
-  } else {
-    //addBullet(man->x + 30, man->y + BULLET_Y_OFFSET, 3, bullets);
     Bullet bullet;
-    bullet.x = man->x + 30;
-    bullet.y = man->y + BULLET_Y_OFFSET;
-    bullet.dx = 3;
-    Vector vector;
-    vector.size = 100;
-    vector.maxSize = 100;
-    vector.type = BULLET;
-    vector.data = (void**) bullets;
-    append(&vector, &bullet);
-
+    bulletConstructor(&bullet, man->x, man->y + BULLET_Y_OFFSET, -3);
+    append(bullets, &bullet);
+  } else {
+    Bullet bullet;
+    bulletConstructor(&bullet, man->x + 30, man->y + BULLET_Y_OFFSET, 3);
+    append(bullets, &bullet);
   }
 }

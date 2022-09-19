@@ -1,13 +1,14 @@
 #include "bullet.h"
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
+
 typedef struct {
   float x, y, dy;
   short life;
   int currentSprite, walking, facingLeft, shooting, visible;
   bool alive;
 
-  SDL_Texture *sheetTexture;
+  SDL_Texture *texture;
 } Humanoid;
 
 void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
@@ -20,4 +21,4 @@ void stop(Humanoid *man);
 void moveLeft(Humanoid *man);
 void moveRight(Humanoid *man);
 void die(Humanoid *man);
-void shoot(Humanoid *man, Bullet **bullets);
+void shoot(Humanoid *man, void *bullets);
