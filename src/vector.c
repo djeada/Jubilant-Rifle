@@ -3,36 +3,6 @@
 
 #include "humanoid.h"
 
-/*
-void append(Info *info, void** vector, void* data) {
-
-  int found = -1;
-  for (int i = 0; i < 1000; i++) {
-    if (vector[i] == NULL) {
-      found = i;
-      break;
-    }
-  }
-
-  if (found >= 0) {
-    int i = found;
-
-    switch(info->type) {
-      case BULLET:
-        vector[i] = malloc(sizeof(Bullet));
-        Bullet *bulletData = (Bullet*)data;
-        ((Bullet*)vector[i])->x = bulletData->x;
-        ((Bullet*)vector[i])->y = bulletData->y;
-        ((Bullet*)vector[i])->dx = bulletData->dx;
-        break;
-      case HUMANOID:
-        vector[i] = malloc(sizeof(Humanoid));
-        break;
-    }
-
-  }
-}*/
-
 void append(Vector* vector, void* newElement) {
   int found = -1;
   for (int i = 0; i < 1000; i++) {
