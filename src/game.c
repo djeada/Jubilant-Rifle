@@ -5,6 +5,7 @@
 
 #include "consts.h"
 #include "game.h"
+
 int globalTime = 0;
 
 bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
@@ -181,9 +182,7 @@ void run_game() {
   Humanoid player;
   SDL_Texture *texture_a;
   loadTexture(SHEET_PATH, renderer, &texture_a);
-  Point position;
-  pointConstructor(&position, 0, 310);
-  humanoidConstructor(&player, position, 4, true, true, false, texture_a);
+  humanoidConstructor(&player, texture_a,  createPoint(0, 310), false, 4, true, true);
 
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
@@ -192,8 +191,7 @@ void run_game() {
 
   for (int i = 0; i < 10; i++) {
     Humanoid enemy;
-    pointConstructor(&position, i * 30, 110);
-    humanoidConstructor(&enemy, position, 4, true, true, true, texture_b);
+    humanoidConstructor(&enemy, texture_b,     createPoint(i * 30, 110), true, 4, true, true);
     append(&enemies, &enemy);
   }
 
@@ -226,7 +224,7 @@ void run_game() {
     SDL_Delay(10); // don't burn up the CPU
   }
 
-  // Clean up
+  // cleanup
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(backgroundTexture);

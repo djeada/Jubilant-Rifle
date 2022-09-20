@@ -27,3 +27,9 @@ void pointConstructor(Point *point, float x, float y) {
 void pointCopyConstructor(Point *destination, Point *source) {
   pointConstructor(destination, source->x, source->y);
 }
+
+Point createPoint(float x, float y) {
+  Point point;
+  pointConstructor(&point, x, y);
+  return point;
+}

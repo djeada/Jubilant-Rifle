@@ -4,6 +4,8 @@
 
 typedef struct {
   Point position;
+  Point start;
+  Point end;
   float dy;
   short life;
   int currentSprite;
@@ -12,9 +14,8 @@ typedef struct {
   SDL_Texture *texture;
 } Humanoid;
 
-void humanoidConstructor(Humanoid *humanoid, Point position, int currentSprite,
-                         bool alive, bool visible, bool facingLeft,
-                         SDL_Texture *texture);
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, Point position,  bool facingLeft, int currentSprite,
+                         bool alive, bool visible);
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);
 void humanoidDestructor(Humanoid *humanoid);
 void jump(Humanoid *humanoid);

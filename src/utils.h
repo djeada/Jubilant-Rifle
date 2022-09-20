@@ -11,3 +11,4 @@ void loadTexture(const char *file, SDL_Renderer *renderer,
                  SDL_Texture **texture);
 void pointConstructor(Point *point, float x, float y);
 void pointCopyConstructor(Point *destination, Point *source);
+Point createPoint(float x, float y);

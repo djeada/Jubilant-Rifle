@@ -3,22 +3,24 @@
 #include "map.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *humanoid, Point position, int currentSprite,
-                         bool alive, bool visible, bool facingLeft,
-                         SDL_Texture *texture) {
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, Point position, bool facingLeft, int currentSprite,
+                         bool alive, bool visible) {
 
   pointCopyConstructor(&humanoid->position, &position);
+  //pointCopyConstructor(&humanoid->start, &start);
+  //pointCopyConstructor(&humanoid->end, &end);
+
   humanoid->currentSprite = currentSprite;
   humanoid->alive = alive;
   humanoid->visible = visible;
   humanoid->facingLeft = facingLeft;
   humanoid->texture = texture;
+
 }
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
-  humanoidConstructor(destination, source->position, source->currentSprite,
-                      source->alive, source->visible, source->facingLeft,
-                      source->texture);
+  humanoidConstructor(destination, source->texture, source->position, source->facingLeft, source->currentSprite,
+                      source->alive, source->visible);
 }
 
 void humanoidDestructor(Humanoid *humanoid) {
@@ -28,7 +30,6 @@ void humanoidDestructor(Humanoid *humanoid) {
 void jump(Humanoid *humanoid) { humanoid->dy = -4 * DELTA_Y; }
 
 void incrementSprite(Humanoid *humanoid) {
-
   humanoid->currentSprite++;
   humanoid->currentSprite %= 4;
 }
@@ -62,15 +63,14 @@ void shoot(Humanoid *humanoid, void *bullets) {
     humanoid->currentSprite = 4;
 
   Bullet bullet;
-  Point position;
   if (humanoid->facingLeft) {
-    pointConstructor(&position, humanoid->position.x,
-                     humanoid->position.y + BULLET_Y_OFFSET);
-    bulletConstructor(&bullet, position, -3);
+   
+    bulletConstructor(&bullet,  createPoint(humanoid->position.x,
+                     humanoid->position.y + BULLET_Y_OFFSET), -3);
   } else {
-    pointConstructor(&position, humanoid->position.x + 30,
-                     humanoid->position.y + BULLET_Y_OFFSET);
-    bulletConstructor(&bullet, position, 3);
+    
+    bulletConstructor(&bullet, createPoint(humanoid->position.x + 30,
+                     humanoid->position.y + BULLET_Y_OFFSET), 3);
   }
   append(bullets, &bullet);
 }
