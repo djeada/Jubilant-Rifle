@@ -7,7 +7,7 @@
 #include "game.h"
 int globalTime = 0;
 
-bool processEvents(SDL_Window *window, Humanoid *man, Vector *bullets) {
+bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
   SDL_Event event;
 
   while (SDL_PollEvent(&event)) {
@@ -32,45 +32,45 @@ bool processEvents(SDL_Window *window, Humanoid *man, Vector *bullets) {
   }
 
   const unsigned char *state = SDL_GetKeyboardState(NULL);
-  if (!man->shooting) {
+  if (!player->shooting) {
     if (state[SDL_SCANCODE_LEFT]) {
-      moveLeft(man);
+      moveLeft(player);
 
       if (globalTime % 6 == 0) {
-        incrementSprite(man);
+        incrementSprite(player);
       }
     } else if (state[SDL_SCANCODE_RIGHT]) {
-      moveRight(man);
+      moveRight(player);
 
       if (globalTime % 6 == 0) {
-        incrementSprite(man);
+        incrementSprite(player);
       }
     } else {
-      stop(man);
+      stop(player);
     }
 
     if (state[SDL_SCANCODE_UP]) {
-      jump(man);
+      jump(player);
     }
   }
 
-  if (!man->walking) {
-    if (state[SDL_SCANCODE_SPACE]) // && !man->dy)
+  if (!player->walking) {
+    if (state[SDL_SCANCODE_SPACE]) // && !player->dy)
     {
       if (globalTime % 6 == 0) {
-        shoot(man, bullets);
+        shoot(player, bullets);
       }
 
     } else {
-      man->currentSprite = 4;
-      man->shooting = 0;
+      player->currentSprite = 4;
+      player->shooting = 0;
     }
   }
 
   return true;
 }
 
-void render(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
+void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
             Vector *bullets, SDL_Texture *backgroundTexture,
             SDL_Texture *bulletTexture) {
 
@@ -79,65 +79,70 @@ void render(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
-  // warrior
-  if (man->visible) {
-    SDL_Rect srcRect = {40 * man->currentSprite, 0, 40, 50};
-    SDL_Rect rect = {man->position.x, man->position.y, 40, 50};
-    SDL_RenderCopyEx(renderer, man->texture, &srcRect, &rect, 0, NULL,
-                     man->facingLeft);
+  // render player
+  if (player->visible) {
+    SDL_Rect srcRect = {40 * player->currentSprite, 0, HUMANOID_WIDTH,
+                        HUMANOID_HEIGHT};
+    SDL_Rect rect = {player->position.x, player->position.y, HUMANOID_WIDTH,
+                     HUMANOID_HEIGHT};
+    SDL_RenderCopyEx(renderer, player->texture, &srcRect, &rect, 0, NULL,
+                     player->facingLeft);
   }
 
-  // enemy
-
+  // render enemies
   for (int i = 0; i < enemies->size; i++) {
-    if (((Humanoid *)enemies->data[i])->visible) {
-      SDL_Rect eSrcRect = {40 * ((Humanoid *)enemies->data[i])->currentSprite,
-                           0, 40, 50};
-      SDL_Rect eRect = {((Humanoid *)enemies->data[i])->position.x,
-                        ((Humanoid *)enemies->data[i])->position.y, 40, 50};
-      SDL_RenderCopyEx(renderer, ((Humanoid *)enemies->data[i])->texture,
-                       &eSrcRect, &eRect, 0, NULL,
-                       ((Humanoid *)enemies->data[i])->facingLeft);
+    Humanoid *enemy = ((Humanoid *)enemies->data[i]);
+    if (enemy->visible) {
+      SDL_Rect eSrcRect = {HUMANOID_WIDTH * enemy->currentSprite, 0,
+                           HUMANOID_WIDTH, HUMANOID_HEIGHT};
+      SDL_Rect eRect = {enemy->position.x, enemy->position.y, HUMANOID_WIDTH,
+                        HUMANOID_HEIGHT};
+      SDL_RenderCopyEx(renderer, enemy->texture, &eSrcRect, &eRect, 0, NULL,
+                       enemy->facingLeft);
     }
   }
-  for (int i = 0; i < MAX_BULLETS; i++)
-    if (bullets->data[i]) {
-      SDL_Rect rect = {((Bullet *)bullets->data[i])->position.x,
-                       ((Bullet *)bullets->data[i])->position.y, 8, 8};
+
+  // render bullets
+  for (int i = 0; i < MAX_BULLETS; i++) {
+    Bullet *bullet = (Bullet *)bullets->data[i];
+    if (bullet) {
+      SDL_Rect rect = {bullet->position.x, bullet->position.y, BULLET_WIDTH,
+                       BULLET_HEIGHT};
       SDL_RenderCopy(renderer, bulletTexture, NULL, &rect);
     }
+  }
 
   SDL_RenderPresent(renderer);
 }
 
-void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
+void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
 
-  moveHumanoid(man);
+  moveHumanoid(player);
 
   for (int i = 0; i < bullets->size; i++) {
+    Bullet *bullet = (Bullet *)bullets->data[i];
 
-    moveBullet(((Bullet *)bullets->data[i]));
+    moveBullet(bullet);
 
-    if (bulletOutOfScreen(((Bullet *)bullets->data[i]))) {
+    if (bulletOutOfScreen(bullet)) {
       removeFromVector(bullets, i);
       continue;
     }
 
     for (int j = 0; j < enemies->size; j++) {
+      Humanoid *enemy = (Humanoid *)enemies->data[j];
 
-      if (collidesWithBullet(((Humanoid *)enemies->data[j]),
-                             ((Bullet *)bullets->data[i]))) {
-        die(((Humanoid *)enemies->data[j]));
+      if (collidesWithBullet(enemy, bullet)) {
+        die(enemy);
         removeFromVector(bullets, i);
         break;
       }
 
       if (globalTime % 15 == 0) {
 
-        if (!((Humanoid *)enemies->data[j])->alive &&
-            ((Humanoid *)enemies->data[j])->visible) {
+        if (!enemy->alive && enemy->visible) {
 
-          ((Humanoid *)enemies->data[j])->visible = false;
+          hide(enemy);
           // removeFromVector(enemies, j);
           // j--;
           break;
@@ -173,12 +178,12 @@ void run_game() {
   SDL_RenderSetLogicalSize(renderer, BOARD_WIDTH, BOARD_HEIGHT);
 
   // create the the entities
-  Humanoid man;
+  Humanoid player;
   SDL_Texture *texture_a;
   loadTexture(SHEET_PATH, renderer, &texture_a);
   Point position;
   pointConstructor(&position, 0, 310);
-  humanoidConstructor(&man, position, 4, true, true, false, texture_a);
+  humanoidConstructor(&player, position, 4, true, true, false, texture_a);
 
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
@@ -213,9 +218,9 @@ void run_game() {
   bool gameFlag = true;
 
   while (gameFlag) {
-    gameFlag = processEvents(window, &man, &bullets);
-    updateLogic(&man, &enemies, &bullets);
-    render(renderer, &man, &enemies, &bullets, backgroundTexture,
+    gameFlag = processEvents(window, &player, &bullets);
+    updateLogic(&player, &enemies, &bullets);
+    render(renderer, &player, &enemies, &bullets, backgroundTexture,
            bulletTexture);
 
     SDL_Delay(10); // don't burn up the CPU
@@ -229,7 +234,7 @@ void run_game() {
   SDL_DestroyTexture(texture_a);
   SDL_DestroyTexture(texture_b);
 
-  humanoidDestructor(&man);
+  humanoidDestructor(&player);
   clear(&enemies);
   clear(&bullets);
   SDL_Quit();

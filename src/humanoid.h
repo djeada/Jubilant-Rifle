@@ -12,17 +12,19 @@ typedef struct {
   SDL_Texture *texture;
 } Humanoid;
 
-void humanoidConstructor(Humanoid *man, Point position, int currentSprite,
+void humanoidConstructor(Humanoid *humanoid, Point position, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
                          SDL_Texture *texture);
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);
-void humanoidDestructor(Humanoid *man);
-void jump(Humanoid *man);
-void incrementSprite(Humanoid *man);
-void stop(Humanoid *man);
-void moveLeft(Humanoid *man);
-void moveRight(Humanoid *man);
-void die(Humanoid *man);
-void shoot(Humanoid *man, void *bullets);
-void moveHumanoid(Humanoid *man);
-bool collidesWithBullet(Humanoid *man, Bullet *bullet);
+void humanoidDestructor(Humanoid *humanoid);
+void jump(Humanoid *humanoid);
+void incrementSprite(Humanoid *humanoid);
+void stop(Humanoid *humanoid);
+void moveLeft(Humanoid *humanoid);
+void moveRight(Humanoid *humanoid);
+void die(Humanoid *humanoid);
+void shoot(Humanoid *humanoid, void *bullets);
+void moveHumanoid(Humanoid *humanoid);
+void hide(Humanoid *humanoid);
+void show(Humanoid *humanoid);
+bool collidesWithBullet(Humanoid *humanoid, Bullet *bullet);

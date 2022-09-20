@@ -3,16 +3,16 @@
 #include "map.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *man, Point position, int currentSprite,
+void humanoidConstructor(Humanoid *humanoid, Point position, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
                          SDL_Texture *texture) {
 
-  pointCopyConstructor(&man->position, &position);
-  man->currentSprite = currentSprite;
-  man->alive = alive;
-  man->visible = visible;
-  man->facingLeft = facingLeft;
-  man->texture = texture;
+  pointCopyConstructor(&humanoid->position, &position);
+  humanoid->currentSprite = currentSprite;
+  humanoid->alive = alive;
+  humanoid->visible = visible;
+  humanoid->facingLeft = facingLeft;
+  humanoid->texture = texture;
 }
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
@@ -21,78 +21,85 @@ void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
                       source->texture);
 }
 
-void humanoidDestructor(Humanoid *man) { SDL_DestroyTexture(man->texture); }
-
-void jump(Humanoid *man) { man->dy = -4 * DELTA_Y; }
-
-void incrementSprite(Humanoid *man) {
-
-  man->currentSprite++;
-  man->currentSprite %= 4;
+void humanoidDestructor(Humanoid *humanoid) {
+  SDL_DestroyTexture(humanoid->texture);
 }
 
-void stop(Humanoid *man) {
-  man->walking = false;
-  man->currentSprite = 4;
-}
-void moveLeft(Humanoid *man) {
+void jump(Humanoid *humanoid) { humanoid->dy = -4 * DELTA_Y; }
 
-  man->position.x -= DELTA_X;
-  man->walking = true;
-  man->facingLeft = true;
+void incrementSprite(Humanoid *humanoid) {
+
+  humanoid->currentSprite++;
+  humanoid->currentSprite %= 4;
 }
 
-void moveRight(Humanoid *man) {
-  man->position.x += DELTA_X;
-  man->walking = true;
-  man->facingLeft = false;
+void stop(Humanoid *humanoid) {
+  humanoid->walking = false;
+  humanoid->currentSprite = 4;
+}
+void moveLeft(Humanoid *humanoid) {
+
+  humanoid->position.x -= DELTA_X;
+  humanoid->walking = true;
+  humanoid->facingLeft = true;
 }
 
-void die(Humanoid *man) {
-  man->alive = false;
-  man->currentSprite = 6;
+void moveRight(Humanoid *humanoid) {
+  humanoid->position.x += DELTA_X;
+  humanoid->walking = true;
+  humanoid->facingLeft = false;
 }
 
-void shoot(Humanoid *man, void *bullets) {
-  if (man->currentSprite == 4)
-    man->currentSprite = 5;
+void die(Humanoid *humanoid) {
+  humanoid->alive = false;
+  humanoid->currentSprite = 6;
+}
+
+void shoot(Humanoid *humanoid, void *bullets) {
+  if (humanoid->currentSprite == 4)
+    humanoid->currentSprite = 5;
   else
-    man->currentSprite = 4;
+    humanoid->currentSprite = 4;
 
   Bullet bullet;
   Point position;
-  if (man->facingLeft) {
-    pointConstructor(&position, man->position.x,
-                     man->position.y + BULLET_Y_OFFSET);
+  if (humanoid->facingLeft) {
+    pointConstructor(&position, humanoid->position.x,
+                     humanoid->position.y + BULLET_Y_OFFSET);
     bulletConstructor(&bullet, position, -3);
   } else {
-    pointConstructor(&position, man->position.x + 30,
-                     man->position.y + BULLET_Y_OFFSET);
+    pointConstructor(&position, humanoid->position.x + 30,
+                     humanoid->position.y + BULLET_Y_OFFSET);
     bulletConstructor(&bullet, position, 3);
   }
   append(bullets, &bullet);
 }
 
-void moveHumanoid(Humanoid *man) {
-  man->position.y += man->dy;
-  man->dy += DELTA_Y;
+void moveHumanoid(Humanoid *humanoid) {
+  humanoid->position.y += humanoid->dy;
+  humanoid->dy += DELTA_Y;
 
-  int groundLevel = coordinatesToGroundLevel(man->position.x, man->position.y);
+  int groundLevel =
+      coordinatesToGroundLevel(humanoid->position.x, humanoid->position.y);
 
-  if (man->position.y > groundLevel) {
-    man->position.y = groundLevel;
-    man->dy = 0;
+  if (humanoid->position.y > groundLevel) {
+    humanoid->position.y = groundLevel;
+    humanoid->dy = 0;
   }
 }
 
-bool collidesWithBullet(Humanoid *man, Bullet *bullet) {
+bool collidesWithBullet(Humanoid *humanoid, Bullet *bullet) {
 
-  if (!man->alive) {
+  if (!humanoid->alive) {
     return false;
   }
 
-  return bullet->position.x > man->position.x &&
-         bullet->position.x < man->position.x + 40 &&
-         bullet->position.y > man->position.y &&
-         bullet->position.y < man->position.y + 50;
+  return bullet->position.x > humanoid->position.x &&
+         bullet->position.x < humanoid->position.x + HUMANOID_WIDTH &&
+         bullet->position.y > humanoid->position.y &&
+         bullet->position.y < humanoid->position.y + HUMANOID_HEIGHT;
 }
+
+void hide(Humanoid *humanoid) { humanoid->visible = false; }
+
+void show(Humanoid *humanoid) { humanoid->visible = true; }
