@@ -1,5 +1,6 @@
 #include "humanoid.h"
 #include "consts.h"
+#include "map.h"
 #include "vector.h"
 
 void humanoidConstructor(Humanoid *man, Point position, int currentSprite,
@@ -70,4 +71,16 @@ void shoot(Humanoid *man, void *bullets) {
     bulletConstructor(&bullet, position, 3);
   }
   append(bullets, &bullet);
+}
+
+void move(Humanoid *man) {
+  man->position.y += man->dy;
+  man->dy += DELTA_Y;
+
+  int groundLevel = coordinatesToGroundLevel(man->position.x, man->position.y);
+
+  if (man->position.y > groundLevel) {
+    man->position.y = groundLevel;
+    man->dy = 0;
+  }
 }
