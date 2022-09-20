@@ -5,19 +5,14 @@
 
 void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
-                         const char *sheet_path, SDL_Renderer *renderer) {
+                         SDL_Texture *texture) {
   man->x = x;
   man->y = y;
   man->currentSprite = currentSprite;
-  man->alive = true;
-  man->visible = true;
-  man->facingLeft = true;
-
-  SDL_Surface *sheet;
-  loadTexture(sheet_path, &sheet);
-
-  man->texture = SDL_CreateTextureFromSurface(renderer, sheet);
-  SDL_FreeSurface(sheet);
+  man->alive = alive;
+  man->visible = visible;
+  man->facingLeft = facingLeft;
+  man->texture = texture;
 }
 
 void humanoidDestructor(Humanoid *man) { SDL_DestroyTexture(man->texture); }

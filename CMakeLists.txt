@@ -16,6 +16,9 @@ file(GLOB MAIN_SRC
   "src/*.c"
 )
 
+add_compile_options(-Wall -Wextra -Werror -Wpedantic -std=c99 -fsanitize=address)
+add_link_options(-fsanitize=address)
+
 add_executable(main ${MAIN_SRC})  
 
 

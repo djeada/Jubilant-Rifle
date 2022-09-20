@@ -13,7 +13,7 @@ typedef struct {
 
 void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
-                         const char *sheet_path, SDL_Renderer *renderer);
+                         SDL_Texture *texture);
 void humanoidDestructor(Humanoid *man);
 void jump(Humanoid *man);
 void incrementSprite(Humanoid *man);

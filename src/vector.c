@@ -22,42 +22,58 @@ void vectorConstructor(Vector *vector, int maxSize, Type type) {
 }
 
 void append(Vector *vector, void *newElement) {
-  int found = -1;
-  for (int i = 0; i < 1000; i++) {
-    if (vector->data[i] == NULL) {
-      found = i;
-      break;
-    }
+
+  if (vector->size >= vector->maxSize) {
+    return;
   }
 
-  if (found >= 0) {
-    int i = found;
+  int i = vector->size;
 
-    switch (vector->type) {
-    case BULLET:
-      vector->data[i] = malloc(sizeof(Bullet));
-      Bullet *bulletData = (Bullet *)newElement;
-      ((Bullet *)vector->data[i])->x = bulletData->x;
-      ((Bullet *)vector->data[i])->y = bulletData->y;
-      ((Bullet *)vector->data[i])->dx = bulletData->dx;
-      break;
-    case HUMANOID:
-      vector->data[i] = malloc(sizeof(Humanoid));
-      break;
-    }
+  switch (vector->type) {
+  case BULLET:
+    vector->data[i] = malloc(sizeof(Bullet));
+    Bullet *bulletData = (Bullet *)newElement;
+    bulletConstructor(vector->data[i], bulletData->x, bulletData->y,
+                      bulletData->dx);
+    break;
+  case HUMANOID:
+    vector->data[i] = malloc(sizeof(Humanoid));
+    Humanoid *humanoidData = (Humanoid *)newElement;
+    humanoidConstructor(vector->data[i], humanoidData->x, humanoidData->y,
+                        humanoidData->currentSprite, humanoidData->alive,
+                        humanoidData->visible, humanoidData->facingLeft,
+                        humanoidData->texture);
+    break;
   }
+  vector->size++;
 }
 
 void removeFromVector(Vector *vector, int i) {
 
-  if (!vector->data[i])
+  if (!vector->data[i] || i >= vector->size) {
     return;
+  }
+
+  switch (vector->type) {
+  case BULLET:
+    break;
+  case HUMANOID:
+    humanoidDestructor(vector->data[i]);
+    break;
+  }
 
   free(vector->data[i]);
   vector->data[i] = NULL;
+  for (int j = i; j < vector->size; j++) {
+    vector->data[j] = vector->data[j + 1];
+  }
+  vector->data[vector->size-1] = NULL;
+  vector->size--;
 }
 
 void clear(Vector *vector) {
-  for (int i = 0; i < vector->size; i++)
+  for (int i = vector->size-1; i >= 0; i--)
     removeFromVector(vector, i);
+
+  free(vector);
 }

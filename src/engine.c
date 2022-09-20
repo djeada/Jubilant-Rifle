@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdio.h>
 
 #include "consts.h"
 #include "engine.h"
@@ -70,7 +71,7 @@ bool processEvents(SDL_Window *window, Humanoid *man, Vector *bullets) {
   return true;
 }
 
-void doRender(SDL_Renderer *renderer, Humanoid *man, Humanoid *enemy,
+void doRender(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
               Vector *bullets, SDL_Texture *backgroundTexture,
               SDL_Texture *bulletTexture) {
 
@@ -91,13 +92,18 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Humanoid *enemy,
   }
 
   // enemy
-  if (enemy->visible) {
-    SDL_Rect eSrcRect = {40 * enemy->currentSprite, 0, 40, 50};
-    SDL_Rect eRect = {enemy->x, enemy->y, 40, 50};
-    SDL_RenderCopyEx(renderer, enemy->texture, &eSrcRect, &eRect, 0, NULL,
-                     enemy->facingLeft);
-  }
 
+  for (int i = 0; i < enemies->size; i++) {
+    if (((Humanoid *)enemies->data[i])->visible) {
+      SDL_Rect eSrcRect = {40 * ((Humanoid *)enemies->data[i])->currentSprite,
+                           0, 40, 50};
+      SDL_Rect eRect = {((Humanoid *)enemies->data[i])->x,
+                        ((Humanoid *)enemies->data[i])->y, 40, 50};
+      SDL_RenderCopyEx(renderer, ((Humanoid *)enemies->data[i])->texture,
+                       &eSrcRect, &eRect, 0, NULL,
+                       ((Humanoid *)enemies->data[i])->facingLeft);
+    }
+  }
   for (int i = 0; i < MAX_BULLETS; i++)
     if (bullets->data[i]) {
       SDL_Rect rect = {((Bullet *)bullets->data[i])->x,
@@ -108,7 +114,7 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Humanoid *enemy,
   SDL_RenderPresent(renderer);
 }
 
-void updateLogic(Humanoid *man, Humanoid *enemy, Vector *bullets) {
+void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
   man->y += man->dy;
   man->dy += DELTA_Y;
 
@@ -119,28 +125,41 @@ void updateLogic(Humanoid *man, Humanoid *enemy, Vector *bullets) {
     man->dy = 0;
   }
 
-  for (int i = 0; i < MAX_BULLETS; i++)
-    if (bullets->data[i]) {
-      ((Bullet *)bullets->data[i])->x += ((Bullet *)bullets->data[i])->dx;
+  for (int i = 0; i < bullets->size; i++) {
 
-      // simple coll. detection
-      if (((Bullet *)bullets->data[i])->x > enemy->x &&
-          ((Bullet *)bullets->data[i])->x < enemy->x + 40 &&
-          ((Bullet *)bullets->data[i])->y > enemy->y &&
-          ((Bullet *)bullets->data[i])->y < enemy->y + 50) {
-        die(enemy);
-      }
+    ((Bullet *)bullets->data[i])->x += ((Bullet *)bullets->data[i])->dx;
 
-      if (((Bullet *)bullets->data[i])->x < -1000 ||
-          ((Bullet *)bullets->data[i])->x > 1000)
-        removeFromVector(bullets, i);
+    if (((Bullet *)bullets->data[i])->x < -1000 ||
+        ((Bullet *)bullets->data[i])->x > 1000) {
+      printf("%d \n", bullets->size);
+      removeFromVector(bullets, i);
+      printf("%d \n", bullets->size);
+
+      continue;
     }
 
-  if (globalTime % 15 == 0) {
+    for (int j = 0; j < enemies->size; j++) {
 
-    if (!enemy->alive && enemy->visible) {
+      if (((Bullet *)bullets->data[i])->x > ((Humanoid *)enemies->data[j])->x &&
+          ((Bullet *)bullets->data[i])->x <
+              ((Humanoid *)enemies->data[j])->x + 40 &&
+          ((Bullet *)bullets->data[i])->y > ((Humanoid *)enemies->data[j])->y &&
+          ((Bullet *)bullets->data[i])->y <
+              ((Humanoid *)enemies->data[j])->y + 50) {
+        die(((Humanoid *)enemies->data[j]));
+      }
 
-      enemy->visible = false;
+      if (globalTime % 15 == 0) {
+
+        if (!((Humanoid *)enemies->data[j])->alive &&
+            ((Humanoid *)enemies->data[j])->visible) {
+
+          ((Humanoid *)enemies->data[j])->visible = false;
+          // printf("%d ", enemies->size);
+          // removeFromVector(enemies, j);
+          // printf("%d ", enemies->size);
+        }
+      }
     }
   }
 
