@@ -5,7 +5,6 @@
 #include "vector.h"
 
 void vectorConstructor(Vector *vector, int maxSize, Type type) {
-  vector->size = 0;
   vector->maxSize = maxSize;
   vector->type = type;
   switch (vector->type) {
@@ -32,17 +31,11 @@ void append(Vector *vector, void *newElement) {
   switch (vector->type) {
   case BULLET:
     vector->data[i] = malloc(sizeof(Bullet));
-    Bullet *bulletData = (Bullet *)newElement;
-    bulletConstructor(vector->data[i], bulletData->x, bulletData->y,
-                      bulletData->dx);
+    bulletCopyConstructor(vector->data[i], (Bullet *)newElement);
     break;
   case HUMANOID:
     vector->data[i] = malloc(sizeof(Humanoid));
-    Humanoid *humanoidData = (Humanoid *)newElement;
-    humanoidConstructor(vector->data[i], humanoidData->x, humanoidData->y,
-                        humanoidData->currentSprite, humanoidData->alive,
-                        humanoidData->visible, humanoidData->facingLeft,
-                        humanoidData->texture);
+    humanoidCopyConstructor(vector->data[i], (Humanoid *)newElement);
     break;
   }
   vector->size++;
@@ -50,7 +43,7 @@ void append(Vector *vector, void *newElement) {
 
 void removeFromVector(Vector *vector, int i) {
 
-  if (!vector->data[i] || i >= vector->size) {
+  if (!vector->data[i]) {
     return;
   }
 
@@ -64,16 +57,18 @@ void removeFromVector(Vector *vector, int i) {
 
   free(vector->data[i]);
   vector->data[i] = NULL;
-  for (int j = i; j < vector->size; j++) {
-    vector->data[j] = vector->data[j + 1];
+  for (int j = i + 1; j < vector->size; j++) {
+    vector->data[j - 1] = vector->data[j];
   }
-  vector->data[vector->size-1] = NULL;
   vector->size--;
 }
 
 void clear(Vector *vector) {
-  for (int i = vector->size-1; i >= 0; i--)
+  for (int i = vector->size - 1; i >= 0; i--)
     removeFromVector(vector, i);
 
-  free(vector);
+  free(vector->data);
+  vector->data = NULL;
+  vector->size = 0;
+  vector->maxSize = 0;
 }

@@ -6,3 +6,7 @@ void bulletConstructor(Bullet *bullet, float x, float y, float dx) {
   bullet->y = y;
   bullet->dx = dx;
 }
+
+void bulletCopyConstructor(Bullet *destination, Bullet *source) {
+  bulletConstructor(destination, source->x, source->y, source->dx);
+}

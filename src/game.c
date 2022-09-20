@@ -82,6 +82,8 @@ void run_game() {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(backgroundTexture);
   SDL_DestroyTexture(bulletTexture);
+  SDL_DestroyTexture(texture_a);
+  SDL_DestroyTexture(texture_b);
 
   humanoidDestructor(&man);
   clear(&enemies);

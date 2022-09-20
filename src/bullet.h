@@ -3,3 +3,4 @@ typedef struct {
 } Bullet;
 
 void bulletConstructor(Bullet *bullet, float x, float y, float dx);
+void bulletCopyConstructor(Bullet *destination, Bullet *source);

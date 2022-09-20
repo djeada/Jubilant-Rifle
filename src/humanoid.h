@@ -14,6 +14,7 @@ typedef struct {
 void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
                          SDL_Texture *texture);
+void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);
 void humanoidDestructor(Humanoid *man);
 void jump(Humanoid *man);
 void incrementSprite(Humanoid *man);

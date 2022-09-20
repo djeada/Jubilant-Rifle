@@ -15,6 +15,12 @@ void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
   man->texture = texture;
 }
 
+void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
+  humanoidConstructor(destination, source->x, source->y, source->currentSprite,
+                      source->alive, source->visible, source->facingLeft,
+                      source->texture);
+}
+
 void humanoidDestructor(Humanoid *man) { SDL_DestroyTexture(man->texture); }
 
 void jump(Humanoid *man) { man->dy = -4 * DELTA_Y; }
@@ -26,20 +32,20 @@ void incrementSprite(Humanoid *man) {
 }
 
 void stop(Humanoid *man) {
-  man->walking = 0;
+  man->walking = false;
   man->currentSprite = 4;
 }
 void moveLeft(Humanoid *man) {
 
   man->x -= DELTA_X;
-  man->walking = 1;
-  man->facingLeft = 1;
+  man->walking = true;
+  man->facingLeft = true;
 }
 
 void moveRight(Humanoid *man) {
   man->x += DELTA_X;
-  man->walking = 1;
-  man->facingLeft = 0;
+  man->walking = true;
+  man->facingLeft = false;
 }
 
 void die(Humanoid *man) {
