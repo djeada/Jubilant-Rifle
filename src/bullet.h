@@ -1,6 +1,9 @@
+#include "utils.h"
+
 typedef struct {
-  float x, y, dx;
+  Point position;
+  float dx;
 } Bullet;
 
-void bulletConstructor(Bullet *bullet, float x, float y, float dx);
+void bulletConstructor(Bullet *bullet, Point position, float dx);
 void bulletCopyConstructor(Bullet *destination, Bullet *source);

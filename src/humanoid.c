@@ -1,13 +1,12 @@
 #include "humanoid.h"
 #include "consts.h"
-#include "utils.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
+void humanoidConstructor(Humanoid *man, Point position, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
                          SDL_Texture *texture) {
-  man->x = x;
-  man->y = y;
+
+  pointCopyConstructor(&man->position, &position);
   man->currentSprite = currentSprite;
   man->alive = alive;
   man->visible = visible;
@@ -16,7 +15,7 @@ void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
 }
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
-  humanoidConstructor(destination, source->x, source->y, source->currentSprite,
+  humanoidConstructor(destination, source->position, source->currentSprite,
                       source->alive, source->visible, source->facingLeft,
                       source->texture);
 }
@@ -37,13 +36,13 @@ void stop(Humanoid *man) {
 }
 void moveLeft(Humanoid *man) {
 
-  man->x -= DELTA_X;
+  man->position.x -= DELTA_X;
   man->walking = true;
   man->facingLeft = true;
 }
 
 void moveRight(Humanoid *man) {
-  man->x += DELTA_X;
+  man->position.x += DELTA_X;
   man->walking = true;
   man->facingLeft = false;
 }
@@ -59,13 +58,16 @@ void shoot(Humanoid *man, void *bullets) {
   else
     man->currentSprite = 4;
 
+  Bullet bullet;
+  Point position;
   if (man->facingLeft) {
-    Bullet bullet;
-    bulletConstructor(&bullet, man->x, man->y + BULLET_Y_OFFSET, -3);
-    append(bullets, &bullet);
+    pointConstructor(&position, man->position.x,
+                     man->position.y + BULLET_Y_OFFSET);
+    bulletConstructor(&bullet, position, -3);
   } else {
-    Bullet bullet;
-    bulletConstructor(&bullet, man->x + 30, man->y + BULLET_Y_OFFSET, 3);
-    append(bullets, &bullet);
+    pointConstructor(&position, man->position.x + 30,
+                     man->position.y + BULLET_Y_OFFSET);
+    bulletConstructor(&bullet, position, 3);
   }
+  append(bullets, &bullet);
 }

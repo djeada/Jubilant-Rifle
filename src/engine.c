@@ -86,7 +86,7 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
   // warrior
   if (man->visible) {
     SDL_Rect srcRect = {40 * man->currentSprite, 0, 40, 50};
-    SDL_Rect rect = {man->x, man->y, 40, 50};
+    SDL_Rect rect = {man->position.x, man->position.y, 40, 50};
     SDL_RenderCopyEx(renderer, man->texture, &srcRect, &rect, 0, NULL,
                      man->facingLeft);
   }
@@ -97,8 +97,8 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
     if (((Humanoid *)enemies->data[i])->visible) {
       SDL_Rect eSrcRect = {40 * ((Humanoid *)enemies->data[i])->currentSprite,
                            0, 40, 50};
-      SDL_Rect eRect = {((Humanoid *)enemies->data[i])->x,
-                        ((Humanoid *)enemies->data[i])->y, 40, 50};
+      SDL_Rect eRect = {((Humanoid *)enemies->data[i])->position.x,
+                        ((Humanoid *)enemies->data[i])->position.y, 40, 50};
       SDL_RenderCopyEx(renderer, ((Humanoid *)enemies->data[i])->texture,
                        &eSrcRect, &eRect, 0, NULL,
                        ((Humanoid *)enemies->data[i])->facingLeft);
@@ -106,8 +106,8 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
   }
   for (int i = 0; i < MAX_BULLETS; i++)
     if (bullets->data[i]) {
-      SDL_Rect rect = {((Bullet *)bullets->data[i])->x,
-                       ((Bullet *)bullets->data[i])->y, 8, 8};
+      SDL_Rect rect = {((Bullet *)bullets->data[i])->position.x,
+                       ((Bullet *)bullets->data[i])->position.y, 8, 8};
       SDL_RenderCopy(renderer, bulletTexture, NULL, &rect);
     }
 
@@ -115,22 +115,23 @@ void doRender(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
 }
 
 void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
-  man->y += man->dy;
+  man->position.y += man->dy;
   man->dy += DELTA_Y;
 
-  int groundLevel = coordinatesToGroundLevel(man->x, man->y);
+  int groundLevel = coordinatesToGroundLevel(man->position.x, man->position.y);
 
-  if (man->y > groundLevel) {
-    man->y = groundLevel;
+  if (man->position.y > groundLevel) {
+    man->position.y = groundLevel;
     man->dy = 0;
   }
 
   for (int i = 0; i < bullets->size; i++) {
 
-    ((Bullet *)bullets->data[i])->x += ((Bullet *)bullets->data[i])->dx;
+    ((Bullet *)bullets->data[i])->position.x +=
+        ((Bullet *)bullets->data[i])->dx;
 
-    if (((Bullet *)bullets->data[i])->x < -1000 ||
-        ((Bullet *)bullets->data[i])->x > 1000) {
+    if (((Bullet *)bullets->data[i])->position.x < -1000 ||
+        ((Bullet *)bullets->data[i])->position.x > 1000) {
       printf("%d \n", bullets->size);
       removeFromVector(bullets, i);
       printf("%d \n", bullets->size);
@@ -140,12 +141,14 @@ void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
 
     for (int j = 0; j < enemies->size; j++) {
 
-      if (((Bullet *)bullets->data[i])->x > ((Humanoid *)enemies->data[j])->x &&
-          ((Bullet *)bullets->data[i])->x <
-              ((Humanoid *)enemies->data[j])->x + 40 &&
-          ((Bullet *)bullets->data[i])->y > ((Humanoid *)enemies->data[j])->y &&
-          ((Bullet *)bullets->data[i])->y <
-              ((Humanoid *)enemies->data[j])->y + 50) {
+      if (((Bullet *)bullets->data[i])->position.x >
+              ((Humanoid *)enemies->data[j])->position.x &&
+          ((Bullet *)bullets->data[i])->position.x <
+              ((Humanoid *)enemies->data[j])->position.x + 40 &&
+          ((Bullet *)bullets->data[i])->position.y >
+              ((Humanoid *)enemies->data[j])->position.y &&
+          ((Bullet *)bullets->data[i])->position.y <
+              ((Humanoid *)enemies->data[j])->position.y + 50) {
         die(((Humanoid *)enemies->data[j]));
       }
 

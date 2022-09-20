@@ -3,15 +3,16 @@
 #include <stdbool.h>
 
 typedef struct {
-  float x, y, dy;
+  Point position;
+  float dy;
   short life;
-  int currentSprite, walking, facingLeft, shooting, visible;
-  bool alive;
+  int currentSprite;
+  bool alive, walking, facingLeft, shooting, visible;
 
   SDL_Texture *texture;
 } Humanoid;
 
-void humanoidConstructor(Humanoid *man, int x, int y, int currentSprite,
+void humanoidConstructor(Humanoid *man, Point position, int currentSprite,
                          bool alive, bool visible, bool facingLeft,
                          SDL_Texture *texture);
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);

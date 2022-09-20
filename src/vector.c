@@ -60,6 +60,7 @@ void removeFromVector(Vector *vector, int i) {
   for (int j = i + 1; j < vector->size; j++) {
     vector->data[j - 1] = vector->data[j];
   }
+  vector->data[vector->size - 1] = NULL;
   vector->size--;
 }
 

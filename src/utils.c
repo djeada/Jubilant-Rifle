@@ -18,3 +18,12 @@ void loadTexture(const char *file, SDL_Renderer *renderer,
   *texture = SDL_CreateTextureFromSurface(renderer, sheet);
   SDL_FreeSurface(sheet);
 }
+
+void pointConstructor(Point *point, float x, float y) {
+  point->x = x;
+  point->y = y;
+}
+
+void pointCopyConstructor(Point *destination, Point *source) {
+  pointConstructor(destination, source->x, source->y);
+}

@@ -6,7 +6,6 @@
 #include "consts.h"
 #include "engine.h"
 #include "game.h"
-#include "utils.h"
 
 void run_game() {
 
@@ -35,7 +34,9 @@ void run_game() {
   Humanoid man;
   SDL_Texture *texture_a;
   loadTexture(SHEET_PATH, renderer, &texture_a);
-  humanoidConstructor(&man, 0, 310, 4, true, true, false, texture_a);
+  Point position;
+  pointConstructor(&position, 0, 310);
+  humanoidConstructor(&man, position, 4, true, true, false, texture_a);
 
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
@@ -44,7 +45,8 @@ void run_game() {
 
   for (int i = 0; i < 10; i++) {
     Humanoid enemy;
-    humanoidConstructor(&enemy, i * 30, 110, 4, true, true, true, texture_b);
+    pointConstructor(&position, i * 30, 110);
+    humanoidConstructor(&enemy, position, 4, true, true, true, texture_b);
     append(&enemies, &enemy);
   }
 
