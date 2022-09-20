@@ -2,26 +2,15 @@
 
 A platform shooter game inspired by classic arcade run and gun games.
 
-# In the terminal:
-```bash
-sudo apt install libsdl2-dev
-sudo apt install libsdl2-image-dev  
-sudo apt install libsdl2-mixer-dev  
-sudo apt install libsdl2-ttf-dev  
-```
+## Dependencies
 
-# Headers
-```cpp
-#include <SDL2/SDL.h>  
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>  
-```
+SDL2
 
-# Compiler linker comands:
+For Debian based systems:
+
 ```bash
--lSDL2main -lSDL2 </br>
--lSDL2_image </br>
--lSDL2_ttf  </br>
--lSDL2_mixer </br>
+apt install libsdl2-dev
+apt install libsdl2-image-dev  
+apt install libsdl2-mixer-dev  
+apt install libsdl2-ttf-dev  
 ```
