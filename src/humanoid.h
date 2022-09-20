@@ -24,4 +24,5 @@ void moveLeft(Humanoid *man);
 void moveRight(Humanoid *man);
 void die(Humanoid *man);
 void shoot(Humanoid *man, void *bullets);
-void move(Humanoid *man);
+void moveHumanoid(Humanoid *man);
+bool collidesWithBullet(Humanoid *man, Bullet *bullet);

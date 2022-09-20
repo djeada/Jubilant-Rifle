@@ -77,9 +77,6 @@ void render(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
   SDL_SetRenderDrawColor(renderer, 0, 0, 0,
                          0); // set the drawing color to black
   SDL_RenderClear(renderer);
-
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255,
-                         255); // set the drawing color to white
   SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
   // warrior
@@ -115,33 +112,24 @@ void render(SDL_Renderer *renderer, Humanoid *man, Vector *enemies,
 
 void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
 
-  move(man);
+  moveHumanoid(man);
 
   for (int i = 0; i < bullets->size; i++) {
 
-    ((Bullet *)bullets->data[i])->position.x +=
-        ((Bullet *)bullets->data[i])->dx;
+    moveBullet(((Bullet *)bullets->data[i]));
 
-    if (((Bullet *)bullets->data[i])->position.x < -1000 ||
-        ((Bullet *)bullets->data[i])->position.x > 1000) {
-      printf("%d \n", bullets->size);
+    if (bulletOutOfScreen(((Bullet *)bullets->data[i]))) {
       removeFromVector(bullets, i);
-      printf("%d \n", bullets->size);
-
       continue;
     }
 
     for (int j = 0; j < enemies->size; j++) {
 
-      if (((Bullet *)bullets->data[i])->position.x >
-              ((Humanoid *)enemies->data[j])->position.x &&
-          ((Bullet *)bullets->data[i])->position.x <
-              ((Humanoid *)enemies->data[j])->position.x + 40 &&
-          ((Bullet *)bullets->data[i])->position.y >
-              ((Humanoid *)enemies->data[j])->position.y &&
-          ((Bullet *)bullets->data[i])->position.y <
-              ((Humanoid *)enemies->data[j])->position.y + 50) {
+      if (collidesWithBullet(((Humanoid *)enemies->data[j]),
+                             ((Bullet *)bullets->data[i]))) {
         die(((Humanoid *)enemies->data[j]));
+        removeFromVector(bullets, i);
+        break;
       }
 
       if (globalTime % 15 == 0) {
@@ -150,6 +138,9 @@ void updateLogic(Humanoid *man, Vector *enemies, Vector *bullets) {
             ((Humanoid *)enemies->data[j])->visible) {
 
           ((Humanoid *)enemies->data[j])->visible = false;
+          // removeFromVector(enemies, j);
+          // j--;
+          break;
         }
       }
     }
@@ -179,7 +170,7 @@ void run_game() {
   // setup the renderer
   SDL_Renderer *renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_RenderSetLogicalSize(renderer, 600, 400);
+  SDL_RenderSetLogicalSize(renderer, BOARD_WIDTH, BOARD_HEIGHT);
 
   // create the the entities
   Humanoid man;

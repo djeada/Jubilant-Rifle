@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdbool.h>
 
 typedef struct {
   Point position;
@@ -7,3 +8,5 @@ typedef struct {
 
 void bulletConstructor(Bullet *bullet, Point position, float dx);
 void bulletCopyConstructor(Bullet *destination, Bullet *source);
+void moveBullet(Bullet *bullet);
+bool bulletOutOfScreen(Bullet *bullet);

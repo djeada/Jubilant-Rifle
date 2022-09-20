@@ -2,6 +2,8 @@
 #define DELTA_X 1
 #define DELTA_Y 0.5
 #define BULLET_Y_OFFSET 18
+#define BOARD_WIDTH 600
+#define BOARD_HEIGHT 400
 
 #define SHEET_PATH "resources/player_b.png"
 #define ENEMY_A_PATH "resources/enemy_b.png"

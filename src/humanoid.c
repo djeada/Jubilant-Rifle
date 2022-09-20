@@ -73,7 +73,7 @@ void shoot(Humanoid *man, void *bullets) {
   append(bullets, &bullet);
 }
 
-void move(Humanoid *man) {
+void moveHumanoid(Humanoid *man) {
   man->position.y += man->dy;
   man->dy += DELTA_Y;
 
@@ -83,4 +83,16 @@ void move(Humanoid *man) {
     man->position.y = groundLevel;
     man->dy = 0;
   }
+}
+
+bool collidesWithBullet(Humanoid *man, Bullet *bullet) {
+
+  if (!man->alive) {
+    return false;
+  }
+
+  return bullet->position.x > man->position.x &&
+         bullet->position.x < man->position.x + 40 &&
+         bullet->position.y > man->position.y &&
+         bullet->position.y < man->position.y + 50;
 }
