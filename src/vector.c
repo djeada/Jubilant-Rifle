@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "humanoid.h"
 #include "vector.h"
@@ -42,17 +43,11 @@ void append(Vector *vector, void *newElement) {
 }
 
 void removeFromVector(Vector *vector, int i) {
+  printf("removing from vecto i: %d \n" , i);
+  printf("vector size: %d \n" , vector->size);
 
-  if (!vector->data[i]) {
+  if (i < 0 || i >= vector->size) {
     return;
-  }
-
-  switch (vector->type) {
-  case BULLET:
-    break;
-  case HUMANOID:
-    humanoidDestructor(vector->data[i]);
-    break;
   }
 
   free(vector->data[i]);
@@ -60,13 +55,17 @@ void removeFromVector(Vector *vector, int i) {
   for (int j = i + 1; j < vector->size; j++) {
     vector->data[j - 1] = vector->data[j];
   }
-  vector->data[vector->size - 1] = NULL;
+
+  if (vector->size > 1) {
+      vector->data[vector->size - 1] = NULL;
+  }
   vector->size--;
 }
 
 void clear(Vector *vector) {
-  for (int i = vector->size - 1; i >= 0; i--)
+  for (int i = vector->size - 1; i >= 0; i--) {
     removeFromVector(vector, i);
+  }
 
   free(vector->data);
   vector->data = NULL;
