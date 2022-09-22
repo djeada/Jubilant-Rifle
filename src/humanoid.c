@@ -67,13 +67,13 @@ void shoot(Humanoid *humanoid, void *bullets) {
   if (humanoid->facingLeft) {
 
     bulletConstructor(&bullet,
-                      createPoint(humanoid->position.x,
+                      createPoint(humanoid->position.x + 0.8*BULLET_X_OFFSET,
                                   humanoid->position.y + BULLET_Y_OFFSET),
                       -3);
   } else {
 
     bulletConstructor(&bullet,
-                      createPoint(humanoid->position.x + 30,
+                      createPoint(humanoid->position.x + BULLET_X_OFFSET,
                                   humanoid->position.y + BULLET_Y_OFFSET),
                       3);
   }

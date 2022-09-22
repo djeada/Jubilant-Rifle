@@ -28,7 +28,7 @@ void append(Vector *vector, void *newElement) {
 
   switch (vector->type) {
   case BULLET:
-    bulletCopyConstructor((Bullet *)(vector + i * sizeof(Bullet)),
+    bulletCopyConstructor(&((Bullet*) vector->data)[i],
                           (Bullet *)newElement);
     break;
   case HUMANOID:
