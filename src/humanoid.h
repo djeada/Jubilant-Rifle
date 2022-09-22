@@ -14,7 +14,8 @@ typedef struct {
   SDL_Texture *texture;
 } Humanoid;
 
-void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, Point position,  bool facingLeft, int currentSprite,
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
+                         Point position, bool facingLeft, int currentSprite,
                          bool alive, bool visible);
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);
 void humanoidDestructor(Humanoid *humanoid);

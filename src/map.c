@@ -18,7 +18,7 @@ int coordinatesToGroundLevel(int x, int y) {
     }
   }
 
-  if (y > 290 && y < 330 ) {
+  if (y > 290 && y < 330) {
     if (x < 180) {
       return 305;
     }

@@ -3,24 +3,25 @@
 #include "map.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, Point position, bool facingLeft, int currentSprite,
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
+                         Point position, bool facingLeft, int currentSprite,
                          bool alive, bool visible) {
 
-  pointCopyConstructor(&humanoid->position, &position);
-  //pointCopyConstructor(&humanoid->start, &start);
-  //pointCopyConstructor(&humanoid->end, &end);
+  pointCopyConstructor(&(humanoid->position), &position);
+  // pointCopyConstructor(&humanoid->start, &start);
+  // pointCopyConstructor(&humanoid->end, &end);
 
   humanoid->currentSprite = currentSprite;
   humanoid->alive = alive;
   humanoid->visible = visible;
   humanoid->facingLeft = facingLeft;
   humanoid->texture = texture;
-
 }
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
-  humanoidConstructor(destination, source->texture, source->position, source->facingLeft, source->currentSprite,
-                      source->alive, source->visible);
+  humanoidConstructor(destination, source->texture, source->position,
+                      source->facingLeft, source->currentSprite, source->alive,
+                      source->visible);
 }
 
 void humanoidDestructor(Humanoid *humanoid) {
@@ -64,13 +65,17 @@ void shoot(Humanoid *humanoid, void *bullets) {
 
   Bullet bullet;
   if (humanoid->facingLeft) {
-   
-    bulletConstructor(&bullet,  createPoint(humanoid->position.x,
-                     humanoid->position.y + BULLET_Y_OFFSET), -3);
+
+    bulletConstructor(&bullet,
+                      createPoint(humanoid->position.x,
+                                  humanoid->position.y + BULLET_Y_OFFSET),
+                      -3);
   } else {
-    
-    bulletConstructor(&bullet, createPoint(humanoid->position.x + 30,
-                     humanoid->position.y + BULLET_Y_OFFSET), 3);
+
+    bulletConstructor(&bullet,
+                      createPoint(humanoid->position.x + 30,
+                                  humanoid->position.y + BULLET_Y_OFFSET),
+                      3);
   }
   append(bullets, &bullet);
 }

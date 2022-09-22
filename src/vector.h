@@ -5,7 +5,7 @@ typedef struct {
   int size;
   int maxSize;
   Type type;
-  void **data;
+  void *data;
 } Vector;
 
 void vectorConstructor(Vector *vector, int maxSize, Type type);
