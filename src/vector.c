@@ -32,7 +32,7 @@ void append(Vector *vector, void *newElement) {
                           (Bullet *)newElement);
     break;
   case HUMANOID:
-    humanoidCopyConstructor((Humanoid *)(vector + i * sizeof(Humanoid)),
+    humanoidCopyConstructor(&((Humanoid*) vector->data)[i],
                             (Humanoid *)newElement);
     break;
   }

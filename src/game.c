@@ -96,7 +96,7 @@ void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
 
   // render enemies
   for (int i = 0; i < enemies->size - 1; i++) {
-    Humanoid *enemy = (Humanoid *)(enemies + i * sizeof(Humanoid));
+    Humanoid *enemy = &((Humanoid*) enemies->data)[i];
     if (enemy->visible) {
       SDL_Rect srcRect = {HUMANOID_WIDTH * enemy->currentSprite, 0,
                           HUMANOID_WIDTH, HUMANOID_HEIGHT};
@@ -133,7 +133,7 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
     }
 
     for (int j = 0; j < enemies->size; j++) {
-      Humanoid *enemy = (Humanoid *)(enemies + j * sizeof(Humanoid));
+      Humanoid *enemy = &((Humanoid*) enemies->data)[i];
 
       if (collidesWithBullet(enemy, bullet)) {
         die(enemy);
