@@ -29,4 +29,5 @@ void shoot(Humanoid *humanoid, void *bullets);
 void moveHumanoid(Humanoid *humanoid);
 void hide(Humanoid *humanoid);
 void show(Humanoid *humanoid);
+void executeRoutine(Humanoid *humanoid);
 bool collidesWithBullet(Humanoid *humanoid, Bullet *bullet);

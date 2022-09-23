@@ -1,7 +1,7 @@
 #include "map.h"
+#include "consts.h"
 
-#define DEATH 500
-
+/*
 int coordinatesToGroundLevel(int x, int y) {
   if (y < 160) {
     if (x > 80 && x < 300) {
@@ -28,5 +28,24 @@ int coordinatesToGroundLevel(int x, int y) {
     }
   }
 
-  return DEATH;
+  return DEATH_LEVEL;
+}*/
+
+
+
+unsigned int coordinatesToGroundLevel(Map* map, Point* position) {
+  for (unsigned int i = 0; i < map->numberOfLevels; i++) {
+    Level* level = &(map->levels[i]);
+    if (position->y > level->startHeight && position->y < level->endHeight) {
+      for (unsigned int j = 0; j < level->numberOfPlatforms; j++) {
+        Platform* platform = &(level->platforms[j]);
+        if (position->x >= platform->startX && position->x <= platform->endX) {
+          return platform->y;
+        }
+      }
+    }
+  }
+
+  return DEATH_LEVEL;
 }
+

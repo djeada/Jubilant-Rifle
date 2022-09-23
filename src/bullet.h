@@ -1,4 +1,5 @@
-#include "utils.h"
+#include "map_config.h"
+
 #include <stdbool.h>
 
 typedef struct {

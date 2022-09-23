@@ -1,6 +1,5 @@
 #include "humanoid.h"
 #include "consts.h"
-#include "map.h"
 #include "vector.h"
 
 void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
@@ -10,6 +9,8 @@ void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
   pointCopyConstructor(&(humanoid->position), &position);
   // pointCopyConstructor(&humanoid->start, &start);
   // pointCopyConstructor(&humanoid->end, &end);
+  humanoid->start = createPoint(0, 0);
+  humanoid->end = createPoint(300, 0);
 
   humanoid->currentSprite = currentSprite;
   humanoid->alive = alive;
@@ -85,8 +86,41 @@ void moveHumanoid(Humanoid *humanoid) {
   humanoid->position.y += humanoid->dy;
   humanoid->dy += DELTA_Y;
 
+  Map map = {
+    .numberOfLevels = 3,
+    .levels = (Level[]){
+        {
+            .startHeight = 0,
+            .endHeight = 160,
+            .numberOfPlatforms = 2,
+            .platforms = (Platform[]){
+                {.startX = 80, .endX = 300, .y = 140},
+                {.startX = 360, .endX = 510, .y = 105},
+            },
+        },
+        {
+            .startHeight = 160,
+            .endHeight = 300,
+            .numberOfPlatforms = 1,
+            .platforms = (Platform[]){
+                {.startX = 140, .endX = 355, .y = 250},
+            },
+        },
+        {
+            .startHeight = 300,
+            .endHeight = 330,
+            .numberOfPlatforms = 2,
+            .platforms = (Platform[]){
+                {.startX = 0, .endX = 180, .y = 305},
+                {.startX = 380, .endX = 600, .y = 295},
+            },
+        },
+    },
+};
+
+
   int groundLevel =
-      coordinatesToGroundLevel(humanoid->position.x, humanoid->position.y);
+      coordinatesToGroundLevel(&map, &(humanoid->position));
 
   if (humanoid->position.y > groundLevel) {
     humanoid->position.y = groundLevel;
@@ -109,3 +143,20 @@ bool collidesWithBullet(Humanoid *humanoid, Bullet *bullet) {
 void hide(Humanoid *humanoid) { humanoid->visible = false; }
 
 void show(Humanoid *humanoid) { humanoid->visible = true; }
+
+void executeRoutine(Humanoid *humanoid) {
+  // humanoid moves from humanoid->start to humanoid->end
+  // then it turns around and moves back
+  if (humanoid->facingLeft) {
+    moveLeft(humanoid);
+    if (humanoid->position.x < humanoid->start.x) {
+      moveRight(humanoid);
+    }
+  }
+  else {
+    moveRight(humanoid);
+    if (humanoid->position.x > humanoid->end.x) {
+      moveLeft(humanoid);
+    }
+  }
+}

@@ -1,7 +1,8 @@
 
-#include "humanoid.h"
-#include "vector.h"
 #include <stdbool.h>
+
+#include "vector.h"
+#include "humanoid.h"
 
 extern int globalTime;
 

@@ -120,6 +120,19 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
 
   moveHumanoid(player);
 
+  if (globalTime % 3 ==0) {
+  for (int i = 0; i < enemies->size; i++) {
+    Humanoid *enemy = &((Humanoid *)enemies->data)[i];
+    if (!enemy->visible) {
+      continue;
+    }
+
+    executeRoutine(enemy);
+          if (globalTime % 9 ==0) {    incrementSprite(enemy);
+
+      }
+  }}
+
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
 
@@ -135,7 +148,6 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
       Humanoid *enemy = &((Humanoid *)enemies->data)[j];
 
       if (collidesWithBullet(enemy, bullet)) {
-        printf("Enemy %d hit by bullet %d \n", j, i);
         die(enemy);
         removeFromVector(bullets, i);
         i--;
@@ -145,8 +157,6 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
       if (globalTime % 15 == 0) {
 
         if (!enemy->alive && enemy->visible) {
-          printf("Removing enemy %d \n", j);
-          // hide(enemy);
           removeFromVector(enemies, j);
           break;
         }
@@ -158,6 +168,9 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
 }
 
 void run_game() {
+
+  Map map;
+  parse_map_config("../resources/map_mountains.cfg", &map);
 
   SDL_Init(SDL_INIT_VIDEO);
 

@@ -9,6 +9,7 @@
 #define HUMANOID_HEIGHT 50
 #define BULLET_WIDTH 8
 #define BULLET_HEIGHT 8
+#define DEATH_LEVEL 500
 
 #define SHEET_PATH "resources/player_b.png"
 #define ENEMY_A_PATH "resources/enemy_b.png"
