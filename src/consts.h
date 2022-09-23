@@ -1,7 +1,7 @@
 #define MAX_BULLETS 1000
 #define DELTA_X 1
 #define DELTA_Y 0.5
-#define BULLET_X_OFFSET 20
+#define BULLET_X_OFFSET 35
 #define BULLET_Y_OFFSET 18
 #define BOARD_WIDTH 600
 #define BOARD_HEIGHT 400

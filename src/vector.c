@@ -8,6 +8,7 @@
 void vectorConstructor(Vector *vector, int maxSize, Type type) {
   vector->maxSize = maxSize;
   vector->type = type;
+  vector->size = 0;
   switch (vector->type) {
   case BULLET:
     vector->data = malloc(sizeof(Bullet) * maxSize);
@@ -28,11 +29,10 @@ void append(Vector *vector, void *newElement) {
 
   switch (vector->type) {
   case BULLET:
-    bulletCopyConstructor(&((Bullet*) vector->data)[i],
-                          (Bullet *)newElement);
+    bulletCopyConstructor(&((Bullet *)vector->data)[i], (Bullet *)newElement);
     break;
   case HUMANOID:
-    humanoidCopyConstructor(&((Humanoid*) vector->data)[i],
+    humanoidCopyConstructor(&((Humanoid *)vector->data)[i],
                             (Humanoid *)newElement);
     break;
   }

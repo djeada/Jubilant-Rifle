@@ -16,6 +16,7 @@ void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
   humanoid->visible = visible;
   humanoid->facingLeft = facingLeft;
   humanoid->texture = texture;
+  humanoid->dy = 0.5;
 }
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
@@ -67,7 +68,7 @@ void shoot(Humanoid *humanoid, void *bullets) {
   if (humanoid->facingLeft) {
 
     bulletConstructor(&bullet,
-                      createPoint(humanoid->position.x + 0.8*BULLET_X_OFFSET,
+                      createPoint(humanoid->position.x,
                                   humanoid->position.y + BULLET_Y_OFFSET),
                       -3);
   } else {
