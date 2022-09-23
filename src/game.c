@@ -127,6 +127,7 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
 
     if (bulletOutOfScreen(bullet)) {
       removeFromVector(bullets, i);
+      i--;
       continue;
     }
 
@@ -134,16 +135,18 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
       Humanoid *enemy = &((Humanoid *)enemies->data)[j];
 
       if (collidesWithBullet(enemy, bullet)) {
+        printf("Enemy %d hit by bullet %d \n", j, i);
         die(enemy);
         removeFromVector(bullets, i);
+        i--;
         break;
       }
 
       if (globalTime % 15 == 0) {
 
         if (!enemy->alive && enemy->visible) {
-
-          hide(enemy);
+          printf("Removing enemy %d \n", j);
+          // hide(enemy);
           removeFromVector(enemies, j);
           break;
         }
@@ -198,11 +201,11 @@ void run_game() {
   vectorConstructor(&bullets, MAX_BULLETS, BULLET);
 
   // load textures
-  SDL_Surface *bg;
-  loadSurface(BACKGROUND_PATH, &bg);
+  SDL_Surface *background;
+  loadSurface(BACKGROUND_PATH, &background);
 
-  backgroundTexture = SDL_CreateTextureFromSurface(renderer, bg);
-  SDL_FreeSurface(bg);
+  backgroundTexture = SDL_CreateTextureFromSurface(renderer, background);
+  SDL_FreeSurface(background);
 
   SDL_Surface *bullet;
   loadSurface(BULLET_PATH, &bullet);

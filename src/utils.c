@@ -1,8 +1,7 @@
 #include "utils.h"
 
 void loadSurface(const char *file, SDL_Surface **surface) {
-  // try loading an image, if failed, print error and return NULL
-
+  // try loading an image, if failed, print error and exit
   *surface = IMG_Load(file);
   if (!*surface) {
     printf("IMG_Load: %s ", IMG_GetError());

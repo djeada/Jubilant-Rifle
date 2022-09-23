@@ -40,11 +40,29 @@ void append(Vector *vector, void *newElement) {
 }
 
 void removeFromVector(Vector *vector, int i) {
-  printf("removing from vecto i: %d \n", i);
-  printf("vector size: %d \n", vector->size);
+  // printf("removing from vector i: %d \n", i);
+  // printf("vector size: %d \n", vector->size);
 
   if (i < 0 || i >= vector->size) {
     return;
+  }
+
+  switch (vector->type) {
+  case BULLET:
+    for (int j = i; j < vector->size - 1; j++) {
+
+      bulletCopyConstructor(&((Bullet *)vector->data)[j],
+                            &((Bullet *)vector->data)[j + 1]);
+    }
+
+    break;
+  case HUMANOID:
+    for (int j = i; j < vector->size - 1; j++) {
+
+      humanoidCopyConstructor(&((Humanoid *)vector->data)[j],
+                              &((Humanoid *)vector->data)[j + 1]);
+    }
+    break;
   }
 
   vector->size--;
