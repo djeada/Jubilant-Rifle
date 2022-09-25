@@ -9,6 +9,7 @@ typedef struct {
 void loadSurface(const char *file, SDL_Surface **surface);
 void loadTexture(const char *file, SDL_Renderer *renderer,
                  SDL_Texture **texture);
+unsigned int numberFromLine(const char *line);
 void pointConstructor(Point *point, float x, float y);
 void pointCopyConstructor(Point *destination, Point *source);
 Point createPoint(float x, float y);

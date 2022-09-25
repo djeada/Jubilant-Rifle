@@ -120,18 +120,19 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
 
   moveHumanoid(player);
 
-  if (globalTime % 3 ==0) {
-  for (int i = 0; i < enemies->size; i++) {
-    Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-    if (!enemy->visible) {
-      continue;
-    }
-
-    executeRoutine(enemy);
-          if (globalTime % 9 ==0) {    incrementSprite(enemy);
-
+  if (globalTime % 3 == 0) {
+    for (int i = 0; i < enemies->size; i++) {
+      Humanoid *enemy = &((Humanoid *)enemies->data)[i];
+      if (!enemy->visible) {
+        continue;
       }
-  }}
+
+      executeRoutine(enemy);
+      if (globalTime % 9 == 0) {
+        incrementSprite(enemy);
+      }
+    }
+  }
 
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];

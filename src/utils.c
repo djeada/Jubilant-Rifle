@@ -32,3 +32,16 @@ Point createPoint(float x, float y) {
   pointConstructor(&point, x, y);
   return point;
 }
+
+unsigned int numberFromLine(const char *line) {
+  /* returns all digits from a line, while ingoring all other characters */
+  unsigned int number = 0;
+  unsigned int i = 0;
+  while (line[i] != '\0') {
+    if (line[i] >= '0' && line[i] <= '9') {
+      number = number * 10 + (line[i] - '0');
+    }
+    i++;
+  }
+  return number;
+}

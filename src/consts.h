@@ -11,6 +11,19 @@
 #define BULLET_HEIGHT 8
 #define DEATH_LEVEL 500
 
+#define MAX_CONFIG_SIZE 1024
+#define startXString "startX"
+#define endXString "endX"
+#define platformYString "y"
+#define startHeightString "startHeight"
+#define endHeightString "endHeight"
+#define numberOfPlatformsString "numberOfPlatforms"
+#define numberOfLevelsString "numberOfLevels"
+#define PLATFORM_STRING "// Platform"
+#define LEVEL_STRING "// Level"
+#define openingBracket "{"
+#define closingBracket "}"
+
 #define SHEET_PATH "resources/player_b.png"
 #define ENEMY_A_PATH "resources/enemy_b.png"
 #define BACKGROUND_PATH "resources/background.png"
