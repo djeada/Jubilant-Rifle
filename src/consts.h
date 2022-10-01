@@ -28,3 +28,4 @@
 #define ENEMY_A_PATH "resources/enemy_b.png"
 #define BACKGROUND_PATH "resources/background.png"
 #define BULLET_PATH "resources/bullet.png"
+#define MAP_CONFIG_PATH "../resources/map_mountains.cfg"

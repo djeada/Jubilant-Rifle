@@ -26,7 +26,7 @@ void moveLeft(Humanoid *humanoid);
 void moveRight(Humanoid *humanoid);
 void die(Humanoid *humanoid);
 void shoot(Humanoid *humanoid, void *bullets);
-void moveHumanoid(Humanoid *humanoid);
+void moveHumanoid(Humanoid *humanoid, Map* map);
 void hide(Humanoid *humanoid);
 void show(Humanoid *humanoid);
 void executeRoutine(Humanoid *humanoid);

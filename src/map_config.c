@@ -125,8 +125,6 @@ unsigned int parse_map_config(const char *filename, Map *map) {
   unsigned lineCount = i;
 
   parseMap(lines, 0, lineCount, map);
-  printMap(map);
-  freeMap(map);
 
   return 0;
 }

@@ -12,61 +12,81 @@ SDL_Texture *texture_b;
 SDL_Texture *backgroundTexture;
 SDL_Texture *bulletTexture;
 
-bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
+bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets)
+{
   SDL_Event event;
 
-  while (SDL_PollEvent(&event)) {
-    switch (event.type) {
-    case SDL_WINDOWEVENT_CLOSE: {
-      if (window) {
+  while (SDL_PollEvent(&event))
+  {
+    switch (event.type)
+    {
+    case SDL_WINDOWEVENT_CLOSE:
+    {
+      if (window)
+      {
         SDL_DestroyWindow(window);
         window = NULL;
         return false;
       }
-
-    } break;
-    case SDL_KEYDOWN: {
-      switch (event.key.keysym.sym) {
+    }
+    break;
+    case SDL_KEYDOWN:
+    {
+      switch (event.key.keysym.sym)
+      {
       case SDLK_ESCAPE:
         return false;
       }
-    } break;
+    }
+    break;
     case SDL_QUIT:
       return false;
     }
   }
 
   const unsigned char *state = SDL_GetKeyboardState(NULL);
-  if (!player->shooting) {
-    if (state[SDL_SCANCODE_LEFT]) {
+  if (!player->shooting)
+  {
+    if (state[SDL_SCANCODE_LEFT])
+    {
       moveLeft(player);
 
-      if (globalTime % 6 == 0) {
+      if (globalTime % 6 == 0)
+      {
         incrementSprite(player);
       }
-    } else if (state[SDL_SCANCODE_RIGHT]) {
+    }
+    else if (state[SDL_SCANCODE_RIGHT])
+    {
       moveRight(player);
 
-      if (globalTime % 6 == 0) {
+      if (globalTime % 6 == 0)
+      {
         incrementSprite(player);
       }
-    } else {
+    }
+    else
+    {
       stop(player);
     }
 
-    if (state[SDL_SCANCODE_UP]) {
+    if (state[SDL_SCANCODE_UP])
+    {
       jump(player);
     }
   }
 
-  if (!player->walking) {
+  if (!player->walking)
+  {
     if (state[SDL_SCANCODE_SPACE]) // && !player->dy)
     {
-      if (globalTime % 6 == 0) {
+      if (globalTime % 6 == 0)
+      {
         shoot(player, bullets);
       }
-
-    } else {
+    }
+    else
+    {
       player->currentSprite = 4;
       player->shooting = 0;
     }
@@ -77,14 +97,16 @@ bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
 
 void render_entity(SDL_Renderer *renderer, SDL_Texture *texture,
                    unsigned int width, unsigned int height, unsigned int sprite,
-                   Point *position, bool facingLeft) {
+                   Point *position, bool facingLeft)
+{
   SDL_Rect srcRect = {width * sprite, 0, width, height};
   SDL_Rect rect = {position->x, position->y, width, height};
   SDL_RenderCopyEx(renderer, texture, &srcRect, &rect, 0, NULL, facingLeft);
 }
 
 void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
-            Vector *bullets) {
+            Vector *bullets)
+{
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0,
                          0); // set the drawing color to black
@@ -96,9 +118,11 @@ void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
                 player->currentSprite, &player->position, player->facingLeft);
 
   // render enemies
-  for (int i = 0; i < enemies->size; i++) {
+  for (int i = 0; i < enemies->size; i++)
+  {
     Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-    if (!enemy->visible) {
+    if (!enemy->visible)
+    {
       continue;
     }
 
@@ -107,7 +131,8 @@ void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
   }
 
   // render bullets
-  for (int i = 0; i < bullets->size; i++) {
+  for (int i = 0; i < bullets->size; i++)
+  {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
     render_entity(renderer, bulletTexture, BULLET_WIDTH, BULLET_HEIGHT, 0,
                   &bullet->position, true);
@@ -116,48 +141,59 @@ void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
   SDL_RenderPresent(renderer);
 }
 
-void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
+void updateLogic(Map* map, Humanoid *player, Vector *enemies, Vector *bullets)
+{
 
-  moveHumanoid(player);
+  moveHumanoid(player, map);
 
-  if (globalTime % 3 == 0) {
-    for (int i = 0; i < enemies->size; i++) {
+  if (globalTime % 3 == 0)
+  {
+    for (int i = 0; i < enemies->size; i++)
+    {
       Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-      if (!enemy->visible) {
+      if (!enemy->visible)
+      {
         continue;
       }
 
       executeRoutine(enemy);
-      if (globalTime % 9 == 0) {
+      if (globalTime % 9 == 0)
+      {
         incrementSprite(enemy);
       }
     }
   }
 
-  for (int i = 0; i < bullets->size; i++) {
+  for (int i = 0; i < bullets->size; i++)
+  {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
 
     moveBullet(bullet);
 
-    if (bulletOutOfScreen(bullet)) {
+    if (bulletOutOfScreen(bullet))
+    {
       removeFromVector(bullets, i);
       i--;
       continue;
     }
 
-    for (int j = 0; j < enemies->size; j++) {
+    for (int j = 0; j < enemies->size; j++)
+    {
       Humanoid *enemy = &((Humanoid *)enemies->data)[j];
 
-      if (collidesWithBullet(enemy, bullet)) {
+      if (collidesWithBullet(enemy, bullet))
+      {
         die(enemy);
         removeFromVector(bullets, i);
         i--;
         break;
       }
 
-      if (globalTime % 15 == 0) {
+      if (globalTime % 15 == 0)
+      {
 
-        if (!enemy->alive && enemy->visible) {
+        if (!enemy->alive && enemy->visible)
+        {
           removeFromVector(enemies, j);
           break;
         }
@@ -168,10 +204,11 @@ void updateLogic(Humanoid *player, Vector *enemies, Vector *bullets) {
   globalTime++;
 }
 
-void run_game() {
+void run_game()
+{
 
   Map map;
-  parse_map_config("../resources/map_mountains.cfg", &map);
+  parse_map_config(MAP_CONFIG_PATH, &map);
 
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -204,7 +241,8 @@ void run_game() {
   vectorConstructor(&enemies, 10, HUMANOID);
   loadTexture(ENEMY_A_PATH, renderer, &texture_b);
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++)
+  {
     Humanoid enemy;
     humanoidConstructor(&enemy, texture_b, createPoint(i * 30, 110), true, 4,
                         true, true);
@@ -229,9 +267,10 @@ void run_game() {
 
   bool gameFlag = true;
 
-  while (gameFlag) {
+  while (gameFlag)
+  {
     gameFlag = processEvents(window, &player, &bullets);
-    updateLogic(&player, &enemies, &bullets);
+    updateLogic(&map, &player, &enemies, &bullets);
     render(renderer, &player, &enemies, &bullets);
     SDL_Delay(10); // don't burn up the CPU
   }
@@ -244,6 +283,7 @@ void run_game() {
   SDL_DestroyTexture(texture_a);
   SDL_DestroyTexture(texture_b);
 
+  freeMap(&map);
   humanoidDestructor(&player);
   clear(&enemies);
   clear(&bullets);

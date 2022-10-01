@@ -2,7 +2,7 @@
 #include "consts.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, 
                          Point position, bool facingLeft, int currentSprite,
                          bool alive, bool visible) {
 
@@ -82,47 +82,11 @@ void shoot(Humanoid *humanoid, void *bullets) {
   append(bullets, &bullet);
 }
 
-void moveHumanoid(Humanoid *humanoid) {
+void moveHumanoid(Humanoid *humanoid, Map* map) {
   humanoid->position.y += humanoid->dy;
   humanoid->dy += DELTA_Y;
 
-  Map map = {
-      .numberOfLevels = 3,
-      .levels =
-          (Level[]){
-              {
-                  .startHeight = 0,
-                  .endHeight = 160,
-                  .numberOfPlatforms = 2,
-                  .platforms =
-                      (Platform[]){
-                          {.startX = 80, .endX = 300, .y = 140},
-                          {.startX = 360, .endX = 510, .y = 105},
-                      },
-              },
-              {
-                  .startHeight = 160,
-                  .endHeight = 300,
-                  .numberOfPlatforms = 1,
-                  .platforms =
-                      (Platform[]){
-                          {.startX = 140, .endX = 355, .y = 250},
-                      },
-              },
-              {
-                  .startHeight = 300,
-                  .endHeight = 330,
-                  .numberOfPlatforms = 2,
-                  .platforms =
-                      (Platform[]){
-                          {.startX = 0, .endX = 180, .y = 305},
-                          {.startX = 380, .endX = 600, .y = 295},
-                      },
-              },
-          },
-  };
-
-  int groundLevel = coordinatesToGroundLevel(&map, &(humanoid->position));
+  int groundLevel = coordinatesToGroundLevel(map, &(humanoid->position));
 
   if (humanoid->position.y > groundLevel) {
     humanoid->position.y = groundLevel;
