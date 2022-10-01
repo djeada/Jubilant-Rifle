@@ -9,5 +9,5 @@ extern int globalTime;
 bool processEvents(SDL_Window *window, Humanoid *man, Vector *bullets);
 void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
             Vector *bullets);
-void updateLogic(Map* map, Humanoid *man, Vector *enemies, Vector *bullets);
+void updateLogic(Map *map, Humanoid *man, Vector *enemies, Vector *bullets);
 void run_game();

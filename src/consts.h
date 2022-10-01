@@ -10,6 +10,10 @@
 #define BULLET_WIDTH 8
 #define BULLET_HEIGHT 8
 #define DEATH_LEVEL 500
+#define TIME_INTERVAL_A 3
+#define TIME_INTERVAL_B 6
+#define TIME_INTERVAL_C 9
+#define TIME_INTERVAL_D 15
 
 #define MAX_CONFIG_SIZE 1024
 #define startXString "startX"

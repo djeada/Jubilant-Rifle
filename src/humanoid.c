@@ -2,15 +2,14 @@
 #include "consts.h"
 #include "vector.h"
 
-void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture, 
-                         Point position, bool facingLeft, int currentSprite,
-                         bool alive, bool visible) {
+void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
+                         Point position, Point start, Point end,
+                         bool facingLeft, int currentSprite, bool alive,
+                         bool visible) {
 
   pointCopyConstructor(&(humanoid->position), &position);
-  // pointCopyConstructor(&humanoid->start, &start);
-  // pointCopyConstructor(&humanoid->end, &end);
-  humanoid->start = createPoint(0, 0);
-  humanoid->end = createPoint(300, 0);
+  pointCopyConstructor(&humanoid->start, &start);
+  pointCopyConstructor(&humanoid->end, &end);
 
   humanoid->currentSprite = currentSprite;
   humanoid->alive = alive;
@@ -22,8 +21,8 @@ void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
 
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
   humanoidConstructor(destination, source->texture, source->position,
-                      source->facingLeft, source->currentSprite, source->alive,
-                      source->visible);
+                      source->start, source->end, source->facingLeft,
+                      source->currentSprite, source->alive, source->visible);
 }
 
 void humanoidDestructor(Humanoid *humanoid) {
@@ -82,7 +81,7 @@ void shoot(Humanoid *humanoid, void *bullets) {
   append(bullets, &bullet);
 }
 
-void moveHumanoid(Humanoid *humanoid, Map* map) {
+void moveHumanoid(Humanoid *humanoid, Map *map) {
   humanoid->position.y += humanoid->dy;
   humanoid->dy += DELTA_Y;
 
