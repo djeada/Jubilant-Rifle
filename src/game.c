@@ -86,7 +86,15 @@ void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
         continue;
       }
 
+      if (arePointsInProximity(&player->position, &enemy->position, 50)) {
+        shoot(enemy, bullets);
+      }
+      else {
       executeRoutine(enemy);
+
+      }
+
+
       if (globalTime % TIME_INTERVAL_C == 0) {
         incrementSprite(enemy);
       }
@@ -142,11 +150,11 @@ void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
   }
 }
 
-void run_game() {
+void runGame() {
 
 
   Map map;
-  parse_map_config(MAP_CONFIG_PATH, &map);
+  parseMapConfig(MAP_CONFIG_PATH, &map);
 
   SDL_Texture *texture_a;
   SDL_Texture *texture_b;

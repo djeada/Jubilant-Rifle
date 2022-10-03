@@ -1,3 +1,4 @@
+#include <math.h>
 #include "utils.h"
 
 void loadSurface(const char *file, SDL_Surface **surface) {
@@ -33,7 +34,7 @@ Point createPoint(float x, float y) {
   return point;
 }
 
-unsigned int numberFromLine(const char *line) {
+unsigned int numberFromString(const char *line) {
   /* returns all digits from a line, while ingoring all other characters */
   unsigned int number = 0;
   unsigned int i = 0;
@@ -44,4 +45,10 @@ unsigned int numberFromLine(const char *line) {
     i++;
   }
   return number;
+}
+
+bool arePointsInProximity(Point *point1, Point *point2, float proximity) {
+  float distance = sqrt(pow(point1->x - point2->x, 2) +
+                        pow(point1->y - point2->y, 2));
+  return distance < proximity;
 }

@@ -8,7 +8,7 @@ void fillValueFromConfig(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
   for (unsigned int i = startIndex; i < endIndex; i++) {
     const char *line = file_content[i];
     if (strstr(line, keyWord) != NULL) {
-      *value = numberFromLine(line);
+      *value = numberFromString(line);
       break;
     }
   }
@@ -107,7 +107,7 @@ Point findSection(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
   return sectionBoundries;
 }
 
-unsigned int parse_map_config(const char *filename, Map *map) {
+unsigned int parseMapConfig(const char *filename, Map *map) {
   // Read the file to an array of strings where each string is a line
   char lines[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE];
   unsigned int i = 0;

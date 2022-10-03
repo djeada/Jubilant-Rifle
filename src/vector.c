@@ -40,8 +40,6 @@ void append(Vector *vector, void *newElement) {
 }
 
 void removeFromVector(Vector *vector, int i) {
-  // printf("removing from vector i: %d \n", i);
-  // printf("vector size: %d \n", vector->size);
 
   if (i < 0 || i >= vector->size) {
     return;

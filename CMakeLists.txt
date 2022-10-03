@@ -23,7 +23,7 @@ add_executable(main ${MAIN_SRC})
 
 
 target_link_libraries(main ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES}
-                      ${SDL2_TTF_LIBRARIES})
+                      ${SDL2_TTF_LIBRARIES} m)
 
 
 function(move_resources source_dir target_dir)
