@@ -12,7 +12,7 @@ SDL_Texture *backgroundTexture;
 SDL_Texture *bulletTexture;
 TTF_Font *font;
 
-bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
+bool processEvents(SDL_Window *window, Humanoid *player) {
   SDL_Event event;
 
   while (SDL_PollEvent(&event)) {
@@ -62,7 +62,7 @@ bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
     if (state[SDL_SCANCODE_SPACE]) // && !player->dy)
     {
       if (globalTime % TIME_INTERVAL_B == 0) {
-        shoot(player, bullets);
+        shoot(player);
       }
     } else {
       player->currentSprite = 4;
@@ -73,38 +73,11 @@ bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
   return true;
 }
 
-void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
-
-  // update player
+void updatePlayer(Map *map, Humanoid *player, Vector *enemies) {
   moveHumanoid(player, map);
-
-  // update enemies
-  if (globalTime % TIME_INTERVAL_A == 0) {
-    for (int i = 0; i < enemies->size; i++) {
-      Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-      if (!enemy->visible) {
-        continue;
-      }
-
-      if (arePointsInProximity(&player->position, &enemy->position, 50)) {
-        shoot(enemy, bullets);
-      }
-      else {
-      executeRoutine(enemy);
-
-      }
-
-
-      if (globalTime % TIME_INTERVAL_C == 0) {
-        incrementSprite(enemy);
-      }
-    }
-  }
-
-  // update bullets
+  Vector *bullets = (Vector *)player->bullets;
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
-
     moveBullet(bullet);
 
     if (bulletOutOfScreen(bullet)) {
@@ -132,7 +105,57 @@ void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
       }
     }
   }
+}
 
+void updateEnemies(Humanoid *player, Vector *enemies) {
+  if (globalTime % TIME_INTERVAL_A == 0) {
+    for (int i = 0; i < enemies->size; i++) {
+      Humanoid *enemy = &((Humanoid *)enemies->data)[i];
+      if (!enemy->visible) {
+        continue;
+      }
+
+      executeRoutine(enemy);
+      Vector *bullets = (Vector *)enemy->bullets;
+      for (int j = 0; j < bullets->size; j++) {
+        Bullet *bullet = &((Bullet *)bullets->data)[j];
+
+        moveBullet(bullet);
+        if (bulletOutOfScreen(bullet)) {
+          removeFromVector(bullets, j);
+          i--;
+          continue;
+        }
+        if (collidesWithBullet(player, bullet)) {
+          removeFromVector(bullets, j);
+          i--;
+          decreaseLife(player, 1);
+          continue;
+        }
+      }
+
+      if (globalTime % TIME_INTERVAL_C == 0) {
+        incrementSprite(enemy);
+
+        if (arePointsInProximity(&player->position, &enemy->position, 50)) {
+          if (arePointsInOrder(&player->position, &enemy->position)) {
+            enemy->facingLeft = true;
+          } else {
+            enemy->facingLeft = false;
+          }
+          shoot(enemy);
+        } else {
+          enemy->shooting = false;
+        }
+      }
+    }
+  }
+}
+
+void updateLogic(Map *map, Humanoid *player, Vector *enemies) {
+
+  updatePlayer(map, player, enemies);
+  updateEnemies(player, enemies);
   globalTime++;
 }
 
@@ -150,11 +173,35 @@ void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
   }
 }
 
-void runGame() {
-
-
+void loadMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture_a,
+             SDL_Texture *texture_b, const char *path) {
   Map map;
-  parseMapConfig(MAP_CONFIG_PATH, &map);
+  parseMapConfig(path, &map);
+
+  // create the the entities
+  Humanoid player;
+  humanoidConstructor(&player, texture_a, createPoint(0, 0), createPoint(0, 0),
+                      createPoint(300, 0), false, 4, true, true);
+
+  Vector enemies;
+  vectorConstructor(&enemies, 10, HUMANOID);
+  initializeEnemies(&map, &enemies, texture_b);
+
+  bool gameFlag = true;
+
+  while (gameFlag) {
+    gameFlag = processEvents(window, &player);
+    updateLogic(&map, &player, &enemies);
+    renderAll(renderer, &player, &enemies);
+    SDL_Delay(10); // don't burn up the CPU
+  }
+
+  freeMap(&map);
+  humanoidDestructor(&player);
+  clear(&enemies);
+}
+
+void runGame() {
 
   SDL_Texture *texture_a;
   SDL_Texture *texture_b;
@@ -184,21 +231,10 @@ void runGame() {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, BOARD_WIDTH, BOARD_HEIGHT);
 
-  // create the the entities
-  Humanoid player;
-  loadTexture(SHEET_PATH, renderer, &texture_a);
-  humanoidConstructor(&player, texture_a, createPoint(0, 0), createPoint(0, 0),
-                      createPoint(300, 0), false, 4, true, true);
-
-  Vector enemies;
-  vectorConstructor(&enemies, 10, HUMANOID);
-  loadTexture(ENEMY_A_PATH, renderer, &texture_b);
-  initializeEnemies(&map, &enemies, texture_b);
-
-  Vector bullets;
-  vectorConstructor(&bullets, MAX_BULLETS, BULLET);
-
   // load textures
+  loadTexture(SHEET_PATH, renderer, &texture_a);
+  loadTexture(ENEMY_A_PATH, renderer, &texture_b);
+
   SDL_Surface *background;
   loadSurface(BACKGROUND_PATH, &background);
 
@@ -211,14 +247,7 @@ void runGame() {
   bulletTexture = SDL_CreateTextureFromSurface(renderer, bullet);
   SDL_FreeSurface(bullet);
 
-  bool gameFlag = true;
-
-  while (gameFlag) {
-    gameFlag = processEvents(window, &player, &bullets);
-    updateLogic(&map, &player, &enemies, &bullets);
-    renderAll(renderer, &player, &enemies, &bullets);
-    SDL_Delay(10); // don't burn up the CPU
-  }
+  loadMap(window, renderer, texture_a, texture_b, MAP_CONFIG_PATH);
 
   // cleanup
   SDL_DestroyWindow(window);
@@ -229,9 +258,5 @@ void runGame() {
   SDL_DestroyTexture(texture_b);
   TTF_CloseFont(font);
 
-  freeMap(&map);
-  humanoidDestructor(&player);
-  clear(&enemies);
-  clear(&bullets);
   SDL_Quit();
 }

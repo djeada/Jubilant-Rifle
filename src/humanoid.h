@@ -12,8 +12,10 @@ typedef struct {
   bool alive, walking, facingLeft, shooting, visible;
 
   SDL_Texture *texture;
+  void *bullets;
 } Humanoid;
 
+void humanoidDefaultConstructor(Humanoid *humanoid);
 void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
                          Point position, Point start, Point end,
                          bool facingLeft, int currentSprite, bool alive,
@@ -26,7 +28,8 @@ void stop(Humanoid *humanoid);
 void moveLeft(Humanoid *humanoid);
 void moveRight(Humanoid *humanoid);
 void die(Humanoid *humanoid);
-void shoot(Humanoid *humanoid, void *bullets);
+void decreaseLife(Humanoid *humanoid, unsigned int damage);
+void shoot(Humanoid *humanoid);
 void moveHumanoid(Humanoid *humanoid, Map *map);
 void hide(Humanoid *humanoid);
 void show(Humanoid *humanoid);

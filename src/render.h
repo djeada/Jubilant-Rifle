@@ -4,7 +4,6 @@
 #include "humanoid.h"
 #include "vector.h"
 
-void renderAll(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
-               Vector *bullets);
+void renderAll(SDL_Renderer *renderer, Humanoid *player, Vector *enemies);
 
 #endif

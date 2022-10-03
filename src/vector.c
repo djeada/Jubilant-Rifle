@@ -15,6 +15,10 @@ void vectorConstructor(Vector *vector, int maxSize, Type type) {
     break;
   case HUMANOID:
     vector->data = malloc(sizeof(Humanoid) * maxSize);
+    for (int i = 0; i < maxSize; i++) {
+      Humanoid *humanoid = &((Humanoid *)vector->data)[i];
+      humanoidDefaultConstructor(humanoid);
+    }
     break;
   }
 }
@@ -60,6 +64,7 @@ void removeFromVector(Vector *vector, int i) {
       humanoidCopyConstructor(&((Humanoid *)vector->data)[j],
                               &((Humanoid *)vector->data)[j + 1]);
     }
+    humanoidDestructor(&((Humanoid *)vector->data)[vector->size - 1]);
     break;
   }
 
@@ -67,7 +72,20 @@ void removeFromVector(Vector *vector, int i) {
 }
 
 void clear(Vector *vector) {
+  printf("flag1 \n");
+  switch (vector->type) {
+  case BULLET:
+    printf("BULLET \n");
+    break;
+  case HUMANOID:
+    printf("HUMANOID \n");
+    for (int i = 0; i < vector->size; i++)
+      humanoidDestructor(&((Humanoid *)vector->data)[i]);
+    break;
+  }
+
   free(vector->data);
+  printf("flag3 \n");
   vector->data = NULL;
   vector->size = 0;
   vector->maxSize = 0;

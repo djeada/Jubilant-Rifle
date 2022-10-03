@@ -1,5 +1,5 @@
-#include <math.h>
 #include "utils.h"
+#include <math.h>
 
 void loadSurface(const char *file, SDL_Surface **surface) {
   // try loading an image, if failed, print error and exit
@@ -48,7 +48,11 @@ unsigned int numberFromString(const char *line) {
 }
 
 bool arePointsInProximity(Point *point1, Point *point2, float proximity) {
-  float distance = sqrt(pow(point1->x - point2->x, 2) +
-                        pow(point1->y - point2->y, 2));
+  float distance =
+      sqrt(pow(point1->x - point2->x, 2) + pow(point1->y - point2->y, 2));
   return distance < proximity;
+}
+
+bool arePointsInOrder(Point *point1, Point *point2) {
+  return point1->x < point2->x;
 }

@@ -15,3 +15,4 @@ void pointConstructor(Point *point, float x, float y);
 void pointCopyConstructor(Point *destination, Point *source);
 Point createPoint(float x, float y);
 bool arePointsInProximity(Point *point1, Point *point2, float proximity);
+bool arePointsInOrder(Point *point1, Point *point2);

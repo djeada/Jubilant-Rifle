@@ -1,4 +1,4 @@
-#define MAX_BULLETS 1000
+#define MAX_BULLETS 100
 #define DELTA_X 1
 #define DELTA_Y 0.5
 #define BULLET_X_OFFSET 35
