@@ -144,6 +144,7 @@ void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
 
 void run_game() {
 
+
   Map map;
   parse_map_config(MAP_CONFIG_PATH, &map);
 
@@ -154,7 +155,7 @@ void run_game() {
 
   // init font
   TTF_Init();
-  font = TTF_OpenFont("resources/FreeSans.ttf", 12);
+  font = TTF_OpenFont(FONT_PATH, 12);
 
   // get the screen width and height
   SDL_Rect screenRect;

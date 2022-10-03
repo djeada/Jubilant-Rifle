@@ -26,9 +26,15 @@ target_link_libraries(main ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES}
                       ${SDL2_TTF_LIBRARIES})
 
 
-foreach(path ${CMAKE_CURRENT_SOURCE_DIR}/resources)
-    file(GLOB_RECURSE files ${path}/*)
-    foreach(file ${files})
-        file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/resources)
+function(move_resources source_dir target_dir)
+    foreach(path ${source_dir})
+        file(GLOB_RECURSE files ${path}/*)
+        foreach(file ${files})
+            file(COPY ${file} DESTINATION ${target_dir})
+        endforeach()
     endforeach()
-endforeach()
+endfunction()
+
+move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/textures ${CMAKE_BINARY_DIR}/resources/textures)
+move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/maps ${CMAKE_BINARY_DIR}/resources/maps)
+move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts ${CMAKE_BINARY_DIR}/resources/fonts)
