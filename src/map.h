@@ -1,23 +1,23 @@
 #include "utils.h"
 
 typedef struct {
-  unsigned int startX;
-  unsigned int endX;
-  unsigned int y;
+  int startX;
+  int endX;
+  int y;
 } Platform;
 
 typedef struct {
-  unsigned int startHeight;
-  unsigned int endHeight;
-  unsigned int numberOfPlatforms;
+  int startHeight;
+  int endHeight;
+  int numberOfPlatforms;
   Platform *platforms;
 } Level;
 
 typedef struct {
-  unsigned int numberOfLevels;
+  int numberOfLevels;
   Level *levels;
 } Map;
 
-unsigned int coordinatesToGroundLevel(Map *map, Point *position);
+int coordinatesToGroundLevel(Map *map, Point *position);
 void printMap(Map *map);
 void freeMap(Map *map);

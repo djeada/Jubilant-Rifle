@@ -5,10 +5,8 @@
 void humanoidDefaultConstructor(Humanoid *humanoid) {
   humanoid->position.x = 0;
   humanoid->position.y = 0;
-  humanoid->start.x = 0;
-  humanoid->start.y = 0;
-  humanoid->end.x = 0;
-  humanoid->end.y = 0;
+  humanoid->startX = 0;
+  humanoid->endX = 0;
   humanoid->dy = 0.5;
   humanoid->life = 100;
   humanoid->currentSprite = 0;
@@ -22,15 +20,15 @@ void humanoidDefaultConstructor(Humanoid *humanoid) {
 }
 
 void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
-                         Point position, Point start, Point end,
+                         Point position, int startX, int endX,
                          bool facingLeft, int currentSprite, bool alive,
                          bool visible) {
 
   humanoidDefaultConstructor(humanoid);
 
   pointCopyConstructor(&(humanoid->position), &position);
-  pointCopyConstructor(&humanoid->start, &start);
-  pointCopyConstructor(&humanoid->end, &end);
+  humanoid->startX = startX;
+  humanoid->endX = endX;
 
   humanoid->currentSprite = currentSprite;
   humanoid->alive = alive;
@@ -46,7 +44,7 @@ void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source) {
   humanoidDestructor(destination);
   humanoidConstructor(destination, source->texture, source->position,
-                      source->start, source->end, source->facingLeft,
+                      source->startX, source->endX, source->facingLeft,
                       source->currentSprite, source->alive, source->visible);
 }
 
@@ -162,12 +160,12 @@ void executeRoutine(Humanoid *humanoid) {
 
   if (humanoid->facingLeft) {
     moveLeft(humanoid);
-    if (humanoid->position.x < humanoid->start.x) {
+    if (humanoid->position.x < humanoid->startX) {
       moveRight(humanoid);
     }
   } else {
     moveRight(humanoid);
-    if (humanoid->position.x > humanoid->end.x) {
+    if (humanoid->position.x > humanoid->endX) {
       moveLeft(humanoid);
     }
   }

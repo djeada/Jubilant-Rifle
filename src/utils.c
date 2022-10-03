@@ -41,6 +41,9 @@ unsigned int numberFromString(const char *line) {
   while (line[i] != '\0') {
     if (line[i] >= '0' && line[i] <= '9') {
       number = number * 10 + (line[i] - '0');
+      if (i > 0 && line[i - 1] == '-') {
+        number *= -1;
+      }
     }
     i++;
   }

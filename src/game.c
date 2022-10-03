@@ -123,12 +123,12 @@ void updateEnemies(Humanoid *player, Vector *enemies) {
         moveBullet(bullet);
         if (bulletOutOfScreen(bullet)) {
           removeFromVector(bullets, j);
-          i--;
+          j--;
           continue;
         }
         if (collidesWithBullet(player, bullet)) {
           removeFromVector(bullets, j);
-          i--;
+          j--;
           decreaseLife(player, 1);
           continue;
         }
@@ -153,39 +153,37 @@ void updateEnemies(Humanoid *player, Vector *enemies) {
 }
 
 void updateLogic(Map *map, Humanoid *player, Vector *enemies) {
-
   updatePlayer(map, player, enemies);
   updateEnemies(player, enemies);
   globalTime++;
 }
 
 void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
-  for (unsigned int i = 0; i < map->numberOfLevels; i++) {
-    for (unsigned int j = 0; j < map->levels[i].numberOfPlatforms; j++) {
+  for (int i = 0; i < map->numberOfLevels; i++) {
+    for (int j = 0; j < map->levels[i].numberOfPlatforms; j++) {
       Platform *platform = &map->levels[i].platforms[j];
       Humanoid enemy;
       humanoidConstructor(&enemy, texture,
-                          createPoint(platform->startX, platform->y),
-                          createPoint(platform->startX, 0),
-                          createPoint(platform->endX, 0), true, 4, true, true);
+                          createPoint((platform->startX + platform->endX)/2, platform->y),
+                          platform->startX > 0 ? platform->startX + HUMANOID_WIDTH : 0, 
+                          platform->endX - HUMANOID_WIDTH, true, 4, true, true);
       append(enemies, &enemy);
     }
   }
 }
 
-void loadMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture_a,
-             SDL_Texture *texture_b, const char *path) {
+void startMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *playerTexture,
+             SDL_Texture *enemyTexture, const char *path) {
   Map map;
   parseMapConfig(path, &map);
 
   // create the the entities
   Humanoid player;
-  humanoidConstructor(&player, texture_a, createPoint(0, 0), createPoint(0, 0),
-                      createPoint(300, 0), false, 4, true, true);
+  humanoidConstructor(&player, playerTexture, createPoint(0, 0), 0, 0, false, 4, true, true);
 
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
-  initializeEnemies(&map, &enemies, texture_b);
+  initializeEnemies(&map, &enemies, enemyTexture);
 
   bool gameFlag = true;
 
@@ -202,9 +200,6 @@ void loadMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture_a,
 }
 
 void runGame() {
-
-  SDL_Texture *texture_a;
-  SDL_Texture *texture_b;
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -232,8 +227,11 @@ void runGame() {
   SDL_RenderSetLogicalSize(renderer, BOARD_WIDTH, BOARD_HEIGHT);
 
   // load textures
-  loadTexture(SHEET_PATH, renderer, &texture_a);
-  loadTexture(ENEMY_A_PATH, renderer, &texture_b);
+  SDL_Texture *playerTexture;
+  loadTexture(SHEET_PATH, renderer, &playerTexture);
+
+  SDL_Texture *enemyTexture;
+  loadTexture(ENEMY_A_PATH, renderer, &enemyTexture);
 
   SDL_Surface *background;
   loadSurface(BACKGROUND_PATH, &background);
@@ -247,15 +245,15 @@ void runGame() {
   bulletTexture = SDL_CreateTextureFromSurface(renderer, bullet);
   SDL_FreeSurface(bullet);
 
-  loadMap(window, renderer, texture_a, texture_b, MAP_CONFIG_PATH);
+  startMap(window, renderer, playerTexture, enemyTexture, MAP_CONFIG_PATH);
 
   // cleanup
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyTexture(backgroundTexture);
   SDL_DestroyTexture(bulletTexture);
-  SDL_DestroyTexture(texture_a);
-  SDL_DestroyTexture(texture_b);
+  SDL_DestroyTexture(playerTexture);
+  SDL_DestroyTexture(enemyTexture);
   TTF_CloseFont(font);
 
   SDL_Quit();

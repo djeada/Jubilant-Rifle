@@ -3,9 +3,9 @@
 #include <string.h>
 
 void fillValueFromConfig(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                         unsigned int startIndex, unsigned int endIndex,
-                         const char *keyWord, unsigned int *value) {
-  for (unsigned int i = startIndex; i < endIndex; i++) {
+                         int startIndex, int endIndex,
+                         const char *keyWord, int *value) {
+  for (int i = startIndex; i < endIndex; i++) {
     const char *line = file_content[i];
     if (strstr(line, keyWord) != NULL) {
       *value = numberFromString(line);
@@ -15,8 +15,8 @@ void fillValueFromConfig(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 void parsePlatforms(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                    unsigned int startIndex, unsigned int endIndex,
-                    unsigned int levelIndex, unsigned int platformLevel,
+                    int startIndex, int endIndex,
+                    int levelIndex, int platformLevel,
                     Map *map) {
   fillValueFromConfig(file_content, startIndex, endIndex, startXString,
                       &map->levels[levelIndex].platforms[platformLevel].startX);
@@ -27,8 +27,8 @@ void parsePlatforms(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 void parseLevel(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                unsigned int startIndex, unsigned int endIndex,
-                unsigned int levelIndex, Map *map) {
+                int startIndex, int endIndex,
+                int levelIndex, Map *map) {
   fillValueFromConfig(file_content, startIndex, endIndex, startHeightString,
                       &map->levels[levelIndex].startHeight);
   fillValueFromConfig(file_content, startIndex, endIndex, endHeightString,
@@ -38,8 +38,8 @@ void parseLevel(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
                       &map->levels[levelIndex].numberOfPlatforms);
   map->levels[levelIndex].platforms =
       malloc(sizeof(Platform) * map->levels[levelIndex].numberOfPlatforms);
-  unsigned int lastPlatformIndex = startIndex;
-  for (unsigned int i = 0; i < map->levels[levelIndex].numberOfPlatforms; i++) {
+  int lastPlatformIndex = startIndex;
+  for (int i = 0; i < map->levels[levelIndex].numberOfPlatforms; i++) {
     Point platformSection =
         findSection(file_content, lastPlatformIndex, PLATFORM_STRING);
     lastPlatformIndex = platformSection.y;
@@ -49,12 +49,12 @@ void parseLevel(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 void parseMap(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-              unsigned int startIndex, unsigned int endIndex, Map *map) {
+              int startIndex, int endIndex, Map *map) {
   fillValueFromConfig(file_content, startIndex, endIndex, numberOfLevelsString,
                       &map->numberOfLevels);
   map->levels = malloc(sizeof(Level) * map->numberOfLevels);
-  unsigned int lastLevelIndex = startIndex;
-  for (unsigned int i = 0; i < map->numberOfLevels; i++) {
+  int lastLevelIndex = startIndex;
+  for (int i = 0; i < map->numberOfLevels; i++) {
     Point levelSection =
         findSection(file_content, lastLevelIndex, LEVEL_STRING);
     lastLevelIndex = levelSection.y;
@@ -63,7 +63,7 @@ void parseMap(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 Point findSection(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                  unsigned int startIndex, const char *sectionName) {
+                  int startIndex, const char *sectionName) {
   // section starts with the first '{' after the section name
   // section ends with the '}' that closes the section
   // there could be multiple opening brackets for smaller sections inside the
@@ -75,7 +75,7 @@ Point findSection(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
   int sectionEnd = -1;
   int sectionDepth = -1;
 
-  unsigned int i = 0;
+  int i = 0;
   for (i = startIndex; i < MAX_CONFIG_SIZE; i++) {
     const char *line = file_content[i];
     if (strstr(line, sectionName) != NULL) {
@@ -87,7 +87,7 @@ Point findSection(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
     }
   }
 
-  for (unsigned int j = i + 1; j < MAX_CONFIG_SIZE; j++) {
+  for (int j = i + 1; j < MAX_CONFIG_SIZE; j++) {
     const char *line = file_content[j];
     if (strstr(line, openingBracket) != NULL) {
       sectionDepth++;
@@ -107,10 +107,10 @@ Point findSection(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
   return sectionBoundries;
 }
 
-unsigned int parseMapConfig(const char *filename, Map *map) {
+int parseMapConfig(const char *filename, Map *map) {
   // Read the file to an array of strings where each string is a line
   char lines[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE];
-  unsigned int i = 0;
+  int i = 0;
 
   FILE *file = fopen(filename, "r");
   while (fgets(lines[i], MAX_CONFIG_SIZE, file)) {

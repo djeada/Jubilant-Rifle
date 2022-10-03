@@ -9,7 +9,13 @@ extern SDL_Texture *backgroundTexture;
 extern SDL_Texture *bulletTexture;
 extern TTF_Font *font;
 
-void render_entity(SDL_Renderer *renderer, SDL_Texture *texture,
+void renderBackground(SDL_Renderer *renderer) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+}
+
+void renderEntity(SDL_Renderer *renderer, SDL_Texture *texture,
                    unsigned int width, unsigned int height, unsigned int sprite,
                    Point *position, bool facingLeft) {
   SDL_Rect srcRect = {width * sprite, 0, width, height};
@@ -21,8 +27,30 @@ void render_entity(SDL_Renderer *renderer, SDL_Texture *texture,
 void renderBullet(SDL_Renderer *renderer, Vector *bullets) {
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
-    render_entity(renderer, bulletTexture, BULLET_WIDTH, BULLET_HEIGHT, 0,
+    renderEntity(renderer, bulletTexture, BULLET_WIDTH, BULLET_HEIGHT, 0,
                   &bullet->position, true);
+  }
+}
+
+void renderPlayer(SDL_Renderer *renderer, Humanoid *player) {
+  renderEntity(renderer, player->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
+                player->currentSprite, &player->position, player->facingLeft);
+  Vector *bullets = (Vector *)player->bullets;
+  renderBullet(renderer, bullets);
+}
+
+void renderEnemies(SDL_Renderer *renderer, Vector *enemies) {
+    for (int i = 0; i < enemies->size; i++) {
+    Humanoid *enemy = &((Humanoid *)enemies->data)[i];
+    if (!enemy->visible) {
+      continue;
+    }
+
+    renderEntity(renderer, enemy->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
+                  enemy->currentSprite, &enemy->position, enemy->facingLeft);
+
+    Vector *bullets = (Vector *)enemy->bullets;
+    renderBullet(renderer, bullets);
   }
 }
 
@@ -33,11 +61,9 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
   SDL_Rect healthBar = {11, 1, length, 10};
   SDL_SetRenderDrawColor(renderer, 5, 195, 221, 100);
   SDL_RenderFillRect(renderer, &healthBar);
-  // draw text
+
   SDL_Color color = {255, 255, 255, 255};
-
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
   SDL_Surface *surface = TTF_RenderText_Solid(font, "Level 1 ", color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_Rect textRect = {12, 1, 30, 10};
@@ -48,32 +74,9 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
 
 void renderAll(SDL_Renderer *renderer, Humanoid *player, Vector *enemies) {
 
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0,
-                         0); // set the drawing color to black
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-
-  // render player
-  render_entity(renderer, player->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                player->currentSprite, &player->position, player->facingLeft);
-  Vector *bullets = (Vector *)player->bullets;
-  renderBullet(renderer, bullets);
-
-  // render enemies
-  for (int i = 0; i < enemies->size; i++) {
-    Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-    if (!enemy->visible) {
-      continue;
-    }
-
-    render_entity(renderer, enemy->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                  enemy->currentSprite, &enemy->position, enemy->facingLeft);
-
-    Vector *bullets = (Vector *)enemy->bullets;
-    renderBullet(renderer, bullets);
-  }
-
-  // render health bar
+  renderBackground(renderer);
+  renderPlayer(renderer, player);
+  renderEnemies(renderer, enemies);
   renderHealthBar(renderer, player->life);
 
   SDL_RenderPresent(renderer);
