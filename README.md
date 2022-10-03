@@ -2,6 +2,8 @@
 
 A platform shooter game inspired by classic arcade run and gun games.
 
+![game](https://user-images.githubusercontent.com/37275728/193692533-f2302e53-ff44-45ea-9d15-3800c0e1ea5c.png)
+
 ## Dependencies
 
 SDL2
