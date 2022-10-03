@@ -1,3 +1,6 @@
+#ifndef CONSTS_H
+#define CONSTS_H
+
 #define MAX_BULLETS 100
 #define DELTA_X 1
 #define DELTA_Y 0.5
@@ -34,3 +37,5 @@
 #define BULLET_PATH "resources/textures/bullet.png"
 #define MAP_CONFIG_PATH "resources/maps/mountains.cfg"
 #define FONT_PATH "resources/fonts/FreeSans.ttf"
+
+#endif

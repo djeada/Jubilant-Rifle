@@ -35,6 +35,9 @@ bool processEvents(SDL_Window *window, Humanoid *player) {
     }
   }
 
+  if (!player->alive)
+    return true;
+
   const unsigned char *state = SDL_GetKeyboardState(NULL);
   if (!player->shooting) {
     if (state[SDL_SCANCODE_LEFT]) {
@@ -137,6 +140,10 @@ void updateEnemies(Humanoid *player, Vector *enemies) {
       if (globalTime % TIME_INTERVAL_C == 0) {
         incrementSprite(enemy);
 
+        if (!player->alive) {
+          enemy->shooting = false;
+          continue;
+        }
         if (arePointsInProximity(&player->position, &enemy->position, 50)) {
           if (arePointsInOrder(&player->position, &enemy->position)) {
             enemy->facingLeft = true;
@@ -163,23 +170,29 @@ void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
     for (int j = 0; j < map->levels[i].numberOfPlatforms; j++) {
       Platform *platform = &map->levels[i].platforms[j];
       Humanoid enemy;
-      humanoidConstructor(&enemy, texture,
-                          createPoint((platform->startX + platform->endX)/2, platform->y),
-                          platform->startX > 0 ? platform->startX + HUMANOID_WIDTH : 0, 
-                          platform->endX - HUMANOID_WIDTH, true, 4, true, true);
+      humanoidConstructor(
+          &enemy, texture,
+          createPoint((platform->startX + platform->endX) / 2, platform->y),
+          platform->startX > 0 ? platform->startX + HUMANOID_WIDTH : 0,
+          platform->endX - HUMANOID_WIDTH, true, 4, true, true);
       append(enemies, &enemy);
     }
   }
 }
 
-void startMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *playerTexture,
-             SDL_Texture *enemyTexture, const char *path) {
+void startMap(SDL_Window *window, SDL_Renderer *renderer,
+              SDL_Texture *playerTexture, SDL_Texture *enemyTexture,
+              const char *path) {
   Map map;
   parseMapConfig(path, &map);
 
   // create the the entities
   Humanoid player;
-  humanoidConstructor(&player, playerTexture, createPoint(0, 0), 0, 0, false, 4, true, true);
+  Point playerPosition =
+      createPoint(map.levels[0].platforms[0].startX + HUMANOID_WIDTH,
+                  map.levels[0].platforms[0].y);
+  humanoidConstructor(&player, playerTexture, playerPosition, 0, 0, false, 4,
+                      true, true);
 
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
@@ -201,9 +214,10 @@ void startMap(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *playerTex
 
 void runGame() {
 
+  // initialize SDL
   SDL_Init(SDL_INIT_EVERYTHING);
 
-  // init font
+  // initialize Font
   TTF_Init();
   font = TTF_OpenFont(FONT_PATH, 12);
 
@@ -226,7 +240,7 @@ void runGame() {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, BOARD_WIDTH, BOARD_HEIGHT);
 
-  // load textures
+  // load the textures
   SDL_Texture *playerTexture;
   loadTexture(SHEET_PATH, renderer, &playerTexture);
 
@@ -245,6 +259,7 @@ void runGame() {
   bulletTexture = SDL_CreateTextureFromSurface(renderer, bullet);
   SDL_FreeSurface(bullet);
 
+  // start the game
   startMap(window, renderer, playerTexture, enemyTexture, MAP_CONFIG_PATH);
 
   // cleanup

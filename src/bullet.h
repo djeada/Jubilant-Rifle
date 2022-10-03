@@ -1,3 +1,6 @@
+#ifndef BULLET_H
+#define BULLET_H
+
 #include "map_config.h"
 
 #include <stdbool.h>
@@ -11,3 +14,5 @@ void bulletConstructor(Bullet *bullet, Point position, float dx);
 void bulletCopyConstructor(Bullet *destination, Bullet *source);
 void moveBullet(Bullet *bullet);
 bool bulletOutOfScreen(Bullet *bullet);
+
+#endif

@@ -20,9 +20,8 @@ void humanoidDefaultConstructor(Humanoid *humanoid) {
 }
 
 void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
-                         Point position, int startX, int endX,
-                         bool facingLeft, int currentSprite, bool alive,
-                         bool visible) {
+                         Point position, int startX, int endX, bool facingLeft,
+                         int currentSprite, bool alive, bool visible) {
 
   humanoidDefaultConstructor(humanoid);
 
@@ -124,6 +123,11 @@ void shoot(Humanoid *humanoid) {
 void moveHumanoid(Humanoid *humanoid, Map *map) {
   humanoid->position.y += humanoid->dy;
   humanoid->dy += DELTA_Y;
+
+  if (humanoid->position.y >= DEATH_LEVEL - 10) {
+    die(humanoid);
+    return;
+  }
 
   int groundLevel = coordinatesToGroundLevel(map, &(humanoid->position));
 

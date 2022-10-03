@@ -1,3 +1,5 @@
+#ifndef VECTOR_H
+#define VECTOR_H
 
 typedef enum { BULLET, HUMANOID } Type;
 
@@ -12,3 +14,5 @@ void vectorConstructor(Vector *vector, int maxSize, Type type);
 void append(Vector *vector, void *newElement);
 void removeFromVector(Vector *vector, int i);
 void clear(Vector *vector);
+
+#endif

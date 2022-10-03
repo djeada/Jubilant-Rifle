@@ -1,3 +1,6 @@
+#ifndef MAP_H
+#define MAP_H
+
 #include "utils.h"
 
 typedef struct {
@@ -21,3 +24,5 @@ typedef struct {
 int coordinatesToGroundLevel(Map *map, Point *position);
 void printMap(Map *map);
 void freeMap(Map *map);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
@@ -16,3 +19,5 @@ void pointCopyConstructor(Point *destination, Point *source);
 Point createPoint(float x, float y);
 bool arePointsInProximity(Point *point1, Point *point2, float proximity);
 bool arePointsInOrder(Point *point1, Point *point2);
+
+#endif

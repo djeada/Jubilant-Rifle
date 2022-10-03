@@ -1,3 +1,6 @@
+#ifndef HUMANOID_H
+#define HUMANOID_H
+
 #include "bullet.h"
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
@@ -17,9 +20,8 @@ typedef struct {
 
 void humanoidDefaultConstructor(Humanoid *humanoid);
 void humanoidConstructor(Humanoid *humanoid, SDL_Texture *texture,
-                         Point position, int startX, int endX,
-                         bool facingLeft, int currentSprite, bool alive,
-                         bool visible);
+                         Point position, int startX, int endX, bool facingLeft,
+                         int currentSprite, bool alive, bool visible);
 void humanoidCopyConstructor(Humanoid *destination, Humanoid *source);
 void humanoidDestructor(Humanoid *humanoid);
 void jump(Humanoid *humanoid);
@@ -35,3 +37,5 @@ void hide(Humanoid *humanoid);
 void show(Humanoid *humanoid);
 void executeRoutine(Humanoid *humanoid);
 bool collidesWithBullet(Humanoid *humanoid, Bullet *bullet);
+
+#endif

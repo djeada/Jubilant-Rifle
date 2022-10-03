@@ -72,20 +72,16 @@ void removeFromVector(Vector *vector, int i) {
 }
 
 void clear(Vector *vector) {
-  printf("flag1 \n");
   switch (vector->type) {
   case BULLET:
-    printf("BULLET \n");
     break;
   case HUMANOID:
-    printf("HUMANOID \n");
     for (int i = 0; i < vector->size; i++)
       humanoidDestructor(&((Humanoid *)vector->data)[i]);
     break;
   }
 
   free(vector->data);
-  printf("flag3 \n");
   vector->data = NULL;
   vector->size = 0;
   vector->maxSize = 0;

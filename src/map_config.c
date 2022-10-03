@@ -3,8 +3,8 @@
 #include <string.h>
 
 void fillValueFromConfig(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                         int startIndex, int endIndex,
-                         const char *keyWord, int *value) {
+                         int startIndex, int endIndex, const char *keyWord,
+                         int *value) {
   for (int i = startIndex; i < endIndex; i++) {
     const char *line = file_content[i];
     if (strstr(line, keyWord) != NULL) {
@@ -15,9 +15,8 @@ void fillValueFromConfig(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 void parsePlatforms(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                    int startIndex, int endIndex,
-                    int levelIndex, int platformLevel,
-                    Map *map) {
+                    int startIndex, int endIndex, int levelIndex,
+                    int platformLevel, Map *map) {
   fillValueFromConfig(file_content, startIndex, endIndex, startXString,
                       &map->levels[levelIndex].platforms[platformLevel].startX);
   fillValueFromConfig(file_content, startIndex, endIndex, endXString,
@@ -27,8 +26,7 @@ void parsePlatforms(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
 }
 
 void parseLevel(char file_content[MAX_CONFIG_SIZE][MAX_CONFIG_SIZE],
-                int startIndex, int endIndex,
-                int levelIndex, Map *map) {
+                int startIndex, int endIndex, int levelIndex, Map *map) {
   fillValueFromConfig(file_content, startIndex, endIndex, startHeightString,
                       &map->levels[levelIndex].startHeight);
   fillValueFromConfig(file_content, startIndex, endIndex, endHeightString,

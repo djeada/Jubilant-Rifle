@@ -16,8 +16,8 @@ void renderBackground(SDL_Renderer *renderer) {
 }
 
 void renderEntity(SDL_Renderer *renderer, SDL_Texture *texture,
-                   unsigned int width, unsigned int height, unsigned int sprite,
-                   Point *position, bool facingLeft) {
+                  unsigned int width, unsigned int height, unsigned int sprite,
+                  Point *position, bool facingLeft) {
   SDL_Rect srcRect = {width * sprite, 0, width, height};
   SDL_Rect rect = {position->x, position->y, width, height};
   SDL_RenderCopyEx(renderer, texture, &srcRect, &rect, 0, NULL,
@@ -28,26 +28,26 @@ void renderBullet(SDL_Renderer *renderer, Vector *bullets) {
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
     renderEntity(renderer, bulletTexture, BULLET_WIDTH, BULLET_HEIGHT, 0,
-                  &bullet->position, true);
+                 &bullet->position, true);
   }
 }
 
 void renderPlayer(SDL_Renderer *renderer, Humanoid *player) {
   renderEntity(renderer, player->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                player->currentSprite, &player->position, player->facingLeft);
+               player->currentSprite, &player->position, player->facingLeft);
   Vector *bullets = (Vector *)player->bullets;
   renderBullet(renderer, bullets);
 }
 
 void renderEnemies(SDL_Renderer *renderer, Vector *enemies) {
-    for (int i = 0; i < enemies->size; i++) {
+  for (int i = 0; i < enemies->size; i++) {
     Humanoid *enemy = &((Humanoid *)enemies->data)[i];
     if (!enemy->visible) {
       continue;
     }
 
     renderEntity(renderer, enemy->texture, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                  enemy->currentSprite, &enemy->position, enemy->facingLeft);
+                 enemy->currentSprite, &enemy->position, enemy->facingLeft);
 
     Vector *bullets = (Vector *)enemy->bullets;
     renderBullet(renderer, bullets);
