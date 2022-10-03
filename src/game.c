@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -7,10 +8,9 @@
 #include "game.h"
 
 int globalTime = 0;
-SDL_Texture *texture_a;
-SDL_Texture *texture_b;
 SDL_Texture *backgroundTexture;
 SDL_Texture *bulletTexture;
+TTF_Font *font;
 
 bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
   SDL_Event event;
@@ -73,51 +73,12 @@ bool processEvents(SDL_Window *window, Humanoid *player, Vector *bullets) {
   return true;
 }
 
-void render_entity(SDL_Renderer *renderer, SDL_Texture *texture,
-                   unsigned int width, unsigned int height, unsigned int sprite,
-                   Point *position, bool facingLeft) {
-  SDL_Rect srcRect = {width * sprite, 0, width, height};
-  SDL_Rect rect = {position->x, position->y, width, height};
-  SDL_RenderCopyEx(renderer, texture, &srcRect, &rect, 0, NULL, facingLeft);
-}
-
-void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
-            Vector *bullets) {
-
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0,
-                         0); // set the drawing color to black
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-
-  // render player
-  render_entity(renderer, texture_a, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                player->currentSprite, &player->position, player->facingLeft);
-
-  // render enemies
-  for (int i = 0; i < enemies->size; i++) {
-    Humanoid *enemy = &((Humanoid *)enemies->data)[i];
-    if (!enemy->visible) {
-      continue;
-    }
-
-    render_entity(renderer, texture_b, HUMANOID_WIDTH, HUMANOID_HEIGHT,
-                  enemy->currentSprite, &enemy->position, enemy->facingLeft);
-  }
-
-  // render bullets
-  for (int i = 0; i < bullets->size; i++) {
-    Bullet *bullet = &((Bullet *)bullets->data)[i];
-    render_entity(renderer, bulletTexture, BULLET_WIDTH, BULLET_HEIGHT, 0,
-                  &bullet->position, true);
-  }
-
-  SDL_RenderPresent(renderer);
-}
-
 void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
 
+  // update player
   moveHumanoid(player, map);
 
+  // update enemies
   if (globalTime % TIME_INTERVAL_A == 0) {
     for (int i = 0; i < enemies->size; i++) {
       Humanoid *enemy = &((Humanoid *)enemies->data)[i];
@@ -132,6 +93,7 @@ void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
     }
   }
 
+  // update bullets
   for (int i = 0; i < bullets->size; i++) {
     Bullet *bullet = &((Bullet *)bullets->data)[i];
 
@@ -166,12 +128,12 @@ void updateLogic(Map *map, Humanoid *player, Vector *enemies, Vector *bullets) {
   globalTime++;
 }
 
-void initializeEnemies(Map *map, Vector *enemies) {
+void initializeEnemies(Map *map, Vector *enemies, SDL_Texture *texture) {
   for (unsigned int i = 0; i < map->numberOfLevels; i++) {
     for (unsigned int j = 0; j < map->levels[i].numberOfPlatforms; j++) {
       Platform *platform = &map->levels[i].platforms[j];
       Humanoid enemy;
-      humanoidConstructor(&enemy, texture_b,
+      humanoidConstructor(&enemy, texture,
                           createPoint(platform->startX, platform->y),
                           createPoint(platform->startX, 0),
                           createPoint(platform->endX, 0), true, 4, true, true);
@@ -185,7 +147,14 @@ void run_game() {
   Map map;
   parse_map_config(MAP_CONFIG_PATH, &map);
 
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Texture *texture_a;
+  SDL_Texture *texture_b;
+
+  SDL_Init(SDL_INIT_EVERYTHING);
+
+  // init font
+  TTF_Init();
+  font = TTF_OpenFont("resources/FreeSans.ttf", 12);
 
   // get the screen width and height
   SDL_Rect screenRect;
@@ -215,7 +184,7 @@ void run_game() {
   Vector enemies;
   vectorConstructor(&enemies, 10, HUMANOID);
   loadTexture(ENEMY_A_PATH, renderer, &texture_b);
-  initializeEnemies(&map, &enemies);
+  initializeEnemies(&map, &enemies, texture_b);
 
   Vector bullets;
   vectorConstructor(&bullets, MAX_BULLETS, BULLET);
@@ -238,7 +207,7 @@ void run_game() {
   while (gameFlag) {
     gameFlag = processEvents(window, &player, &bullets);
     updateLogic(&map, &player, &enemies, &bullets);
-    render(renderer, &player, &enemies, &bullets);
+    renderAll(renderer, &player, &enemies, &bullets);
     SDL_Delay(10); // don't burn up the CPU
   }
 
@@ -249,6 +218,7 @@ void run_game() {
   SDL_DestroyTexture(bulletTexture);
   SDL_DestroyTexture(texture_a);
   SDL_DestroyTexture(texture_b);
+  TTF_CloseFont(font);
 
   freeMap(&map);
   humanoidDestructor(&player);

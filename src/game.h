@@ -1,13 +1,10 @@
+#ifndef GAME_H
+#define GAME_H
 
-#include <stdbool.h>
-
-#include "humanoid.h"
-#include "vector.h"
-
-extern int globalTime;
+#include "render.h"
 
 bool processEvents(SDL_Window *window, Humanoid *man, Vector *bullets);
-void render(SDL_Renderer *renderer, Humanoid *player, Vector *enemies,
-            Vector *bullets);
 void updateLogic(Map *map, Humanoid *man, Vector *enemies, Vector *bullets);
 void run_game();
+
+#endif
