@@ -16,13 +16,24 @@ A platform shooter game inspired by classic arcade run and gun games.
 
 ## Dependencies
 
-SDL2
+In order to play the game, you need to install the following dependencies:
 
-For Debian based systems:
+* C++14
+* SDL2
+* CMake 3.9 or higher
+
+To install SDL2 on Debian based systems, use:
 
 ```bash
-apt install libsdl2-dev
-apt install libsdl2-image-dev  
-apt install libsdl2-mixer-dev  
-apt install libsdl2-ttf-dev  
+apt install libsdl2-dev libsdl2-image-dev  libsdl2-mixer-dev  libsdl2-ttf-dev  
 ```
+
+## Installation
+ 
+To compile the game using CMake, run the following commands:
+
+    git clone https://github.com/djeada/Jubilant-Rifle.git
+    cd Jubilant-Rifle
+    mkdir build && cd build
+    cmake ..
+    make
