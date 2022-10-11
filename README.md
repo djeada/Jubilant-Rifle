@@ -37,3 +37,16 @@ To compile the game using CMake, run the following commands:
     mkdir build && cd build
     cmake ..
     make
+
+## TODO
+
+- [x] Display the background image.
+- [x] Create a player and place it in front of the background image.
+- [x] Use an infinite loop to detect if the user pressed any keys. If this is the case, move the player.
+- [x] Limit possible movements.
+- [x] Add n enemies. 
+- [x] Allow the player to shoot at the opponents.
+- [x] Enable the enemies to shoot the player.
+- [x] Make a map configuration parser. A map configuration file should specify the platforms and enemies on a given map.
+- [ ] Show the intro and outro screens.
+- [ ] Support for multiple maps/levels should be provided. 
