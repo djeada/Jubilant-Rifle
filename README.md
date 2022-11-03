@@ -50,3 +50,11 @@ To compile the game using CMake, run the following commands:
 - [x] Make a map configuration parser. A map configuration file should specify the platforms and enemies on a given map.
 - [ ] Show the intro and outro screens.
 - [ ] Support for multiple maps/levels should be provided. 
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
