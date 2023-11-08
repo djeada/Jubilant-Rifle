@@ -1,5 +1,5 @@
-#include "bullet.h"
-#include "consts.h"
+#include "entities/bullet.h"
+#include "utils/consts.h"
 
 void bulletConstructor(Bullet *bullet, Point position, float dx) {
   pointCopyConstructor(&bullet->position, &position);

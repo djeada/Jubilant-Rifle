@@ -1,7 +1,7 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include "map_config.h"
+#include "utils/utils.h"
 
 #include <stdbool.h>
 

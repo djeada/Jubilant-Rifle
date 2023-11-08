@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "utils/utils.h"
 #include <math.h>
 
 void loadSurface(const char *file, SDL_Surface **surface) {
@@ -10,13 +10,32 @@ void loadSurface(const char *file, SDL_Surface **surface) {
   }
 }
 
-void loadTexture(const char *file, SDL_Renderer *renderer,
+bool loadTexture(SDL_Renderer *renderer, const char *path,
                  SDL_Texture **texture) {
-  SDL_Surface *sheet;
-  loadSurface(file, &sheet);
+  if (!renderer || !path || !texture) {
+    fprintf(stderr, "Invalid parameters passed to loadTexture.\n");
+    return false; // Invalid parameters.
+  }
 
+  // Load the image at the specified path into an SDL_Surface.
+  SDL_Surface *sheet = IMG_Load(path);
+  if (!sheet) {
+    fprintf(stderr, "Loading image failed: %s\n", IMG_GetError());
+    return false; // Loading the image failed.
+  }
+
+  // Create a texture from the surface.
   *texture = SDL_CreateTextureFromSurface(renderer, sheet);
+  // Check if texture creation was successful.
+  if (!*texture) {
+    fprintf(stderr, "Create texture from surface failed: %s\n", SDL_GetError());
+    SDL_FreeSurface(sheet); // Don't forget to free the surface.
+    return false;           // Texture creation failed.
+  }
+
+  // The texture was created successfully, the surface can be freed.
   SDL_FreeSurface(sheet);
+  return true; // Texture loading was successful.
 }
 
 void pointConstructor(Point *point, float x, float y) {
@@ -58,4 +77,20 @@ bool arePointsInProximity(Point *point1, Point *point2, float proximity) {
 
 bool arePointsInOrder(Point *point1, Point *point2) {
   return point1->x < point2->x;
+}
+
+char *my_strdup(const char *str) {
+  size_t len = strlen(str) + 1; // +1 for the null terminator
+  char *new_str = (char *)malloc(len);
+  if (new_str == NULL) {
+    perror("malloc");
+    return NULL;
+  }
+  memcpy(new_str, str, len);
+  return new_str;
+}
+
+// Utility function to log SDL errors and handle them accordingly.
+void LogSDLError(const char *msg) {
+  fprintf(stderr, "%s! SDL Error: %s\n", msg, SDL_GetError());
 }

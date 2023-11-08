@@ -9,22 +9,20 @@ find_package(SDL2_ttf REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR}
                     ${SDL2_TTF_INCLUDE_DIR})
+# Include the directory where the header files are
+include_directories(include)
 
+file(GLOB_RECURSE SOURCES "src/*.c")
+file(GLOB_RECURSE HEADERS "include/*.h")
 
-file(GLOB MAIN_SRC
-  "src/*.h"   
-  "src/*.c"
-)
+add_executable(main ${SOURCES} ${HEADERS})  
 
 add_compile_options(-Wall -Wextra -Werror -Wpedantic -std=c99 -fsanitize=address)
 add_link_options(-fsanitize=address)
 
-add_executable(main ${MAIN_SRC})  
-
-
+# Link against the math library along with the SDL libraries
 target_link_libraries(main ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES}
                       ${SDL2_TTF_LIBRARIES} m)
-
 
 function(move_resources source_dir target_dir)
     foreach(path ${source_dir})

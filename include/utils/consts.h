@@ -1,6 +1,9 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+#define BULLET_SPEED 1
+#define GRAVITY 1
+
 #define MAX_BULLETS 100
 #define DELTA_X 1
 #define DELTA_Y 0.5
