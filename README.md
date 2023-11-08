@@ -1,20 +1,29 @@
 # Jubilant Rifle
 
-Jubilant Rifle is a 2D platform shooter game in which the player moves through platforms and battles enemies with a gun. The game becomes increasingly difficult as time passes, and the goal is to stay alive as long as possible.
+**Jubilant Rifle** is an action-packed 2D platform shooter game that offers a retro arcade gaming experience. Players navigate through challenging platforms, engaging in fierce gun battles with various enemies. As the game progresses, the difficulty ramps up with smarter and tougher adversaries. The ultimate objective is to survive the onslaught and rack up the highest score possible.
 
 ## Screenshot
 
 ![game](https://user-images.githubusercontent.com/37275728/193692533-f2302e53-ff44-45ea-9d15-3800c0e1ea5c.png)
 
-## How to play
+## Gameplay Mechanics
 
-To move the player, use the arrow keys. Press the space bar to shoot at enemies. The enemies are also armed with guns and will shoot at the player. As the game progresses, the enemies will become more numerous and more difficult to defeat. The goal is to stay alive as long as possible.
+- **Movement**: Utilize the **arrow keys** to move the character across platforms.
+- **Shooting**: Hit the **space bar** to shoot and eliminate enemies.
+- **Enemy Encounters**: Beware! Enemies are equipped with firearms and will return fire.
+- **Difficulty Scaling**: Enemies increase in numbers and develop tougher strategies as you advance.
+- **Objective**: Keep your character alive and maximize your score.
 
-## System requirements
+## System Requirements
 
-Jubilant Rifle requires C and SDL2 to be installed, as well as CMake 3.9 or higher. 
+For an optimal gaming experience, Jubilant Rifle requires:
 
-On Debian based systems, you can install SDL2 with the following command:
+- A system running **C** programming environment and **SDL2** framework.
+- **CMake** version 3.9 or higher for building the game.
+- 
+### Dependencies Installation on Debian-Based Systems
+
+Execute the following command in the terminal to install SDL2:
 
 ```bash
 apt install libsdl2-dev libsdl2-image-dev  libsdl2-mixer-dev  libsdl2-ttf-dev  
@@ -32,18 +41,34 @@ To build and run the game, follow these steps:
 1. Build the game: `make`
 1. Run the game: `./jubilant-rifle`
     
-## TODO
+## Roadmap
 
-- [x] Display the background image.
-- [x] Create a player and place it in front of the background image.
-- [x] Use an infinite loop to detect if the user pressed any keys. If this is the case, move the player.
-- [x] Limit possible movements.
-- [x] Add n enemies. 
-- [x] Allow the player to shoot at the opponents.
-- [x] Enable the enemies to shoot the player.
-- [x] Make a map configuration parser. A map configuration file should specify the platforms and enemies on a given map.
-- [ ] Show the intro and outro screens.
-- [ ] Support for multiple maps/levels should be provided. 
+The development of **Jubilant Rifle** is an ongoing process. We aim to continuously improve the game and add new features that will enhance the overall gameplay experience. Below is the roadmap outlining our planned enhancements and new features to look forward to:
+
+- [x] **Initial Release**: Basic game mechanics, including player movement, shooting, and simple enemy AI.
+- [x] **Graphic Enhancements**: Upgraded background and character graphics for a more visually engaging experience.
+- [x] **Input Optimization**: Enhanced input detection for smoother player controls.
+- [x] **Boundary Mechanics**: Implemented movement boundaries to define the playable area within the game world.
+- [x] **Enemy Variety**: Introduction of diverse enemy types with varying behaviors.
+- [x] **Shooting Mechanics**: Refined the shooting experience for the player, making it more responsive and satisfying.
+- [x] **Enemy AI**: Improved enemy AI, making them more challenging and strategic in combat.
+- [x] **Level Configuration Parser**: Developed a system to read and apply custom map configurations, paving the way for user-created levels.
+- [ ] **Cutscene Integration**: Create introductory and concluding cutscenes to give context and depth to the game narrative.
+- [ ] **Multi-Level Support**: Implement multiple levels with increasing difficulty and varied environments.
+- [ ] **Boss Battles**: Introduce challenging boss fights that require strategy and skill to overcome.
+- [ ] **Power-Ups and Special Abilities**: Add power-ups that temporarily enhance the player's abilities or provide new ways to play.
+- [ ] **Local Multiplayer**: Implement a local co-op or versus mode to play with friends.
+- [ ] **Global Leaderboards**: Include a global leaderboard system to encourage competitive play.
+- [ ] **Soundtrack and Sound Effects**: Compose a full original soundtrack and detailed sound effects for an immersive audio experience.
+- [ ] **Customizable Controls**: Allow players to customize their control schemes.
+- [ ] **Accessibility Features**: Include options for colorblind mode, adjustable difficulty levels, and other accessibility improvements.
+- [ ] **Mobile Platform Support**: Expand the game to be playable on mobile devices with touch controls.
+- [ ] **Cloud Saving**: Enable players to save their game progress to the cloud for cross-platform play.
+- [ ] **Achievements and Trophies**: Implement a system for in-game achievements to provide players with additional challenges and rewards.
+
+*Please note that this roadmap is subject to change based on player feedback and our internal prioritization. We're dedicated to creating the best experience possible and welcome community input on the direction of the game's development.*
+
+If you have ideas or suggestions for features you'd like to see in **Jubilant Rifle**, don't hesitate to let us know by opening an issue or starting a discussion on our community forums.
 
 ## Contributing
 We welcome contributions to Jubilant Rifle! If you are interested in making a contribution, please open an issue or submit a pull request with your proposed changes. Contributions could include bug fixes, new features, or improvements to existing code.
