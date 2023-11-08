@@ -16,7 +16,7 @@ void updateHumanoid(Humanoid *humanoid, Map *map) {
   bool onPlatform = false;
 
   // Collision detection with the ground and platforms
-  for (int i = 0; i < map->platformCount; i++) {
+  for (size_t i = 0; i < map->platformCount; i++) {
     if (checkCollision(humanoid, &map->platforms[i])) {
       // Align the humanoid's position to the top of the platform
       humanoid->movement.position.y =

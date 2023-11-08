@@ -11,6 +11,7 @@
 #include "map/map.h"
 #include "rendering/render.h"
 #include "utils/time_manager.h"
+#include "utils/utils.h"
 
 #define MAP_FILE_PATH "resources/maps/mountains.cfg"
 #define PLAYER_TEXTURE_PATH "resources/textures/player_b.png"

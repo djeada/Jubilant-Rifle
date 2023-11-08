@@ -19,9 +19,8 @@ add_executable(main ${SOURCES})
 set_target_properties(main PROPERTIES C_STANDARD 99)
 target_compile_options(main PRIVATE -Wall -Wextra -Werror -Wpedantic -fsanitize=address)
 target_link_options(main PRIVATE -fsanitize=address)
-# Link against the math library along with the SDL libraries for main_lib
-# target_link_libraries(main_lib ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} m)
 
+# Link against the math library along with the SDL libraries for main_lib
 target_link_libraries(main main_lib ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} m)
 
 include(FetchContent)

@@ -1,6 +1,14 @@
 #include "animation/animation_state.h"
 #include <stdlib.h>
 
+void animationStateConstructor(AnimationState *state, int spriteIndex,
+                               bool facingLeft, bool walking, bool visible) {
+  state->currentSpriteIndex = spriteIndex;
+  state->isFacingLeft = facingLeft;
+  state->isWalking = walking;
+  state->isVisible = visible;
+}
+
 void animationStateHide(AnimationState *animationState) {
   if (animationState != NULL) {
     animationState->isVisible = false;

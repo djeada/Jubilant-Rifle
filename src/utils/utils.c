@@ -1,5 +1,4 @@
 #include "utils/utils.h"
-#include <math.h>
 
 void loadSurface(const char *file, SDL_Surface **surface) {
   // try loading an image, if failed, print error and exit
@@ -38,21 +37,6 @@ bool loadTexture(SDL_Renderer *renderer, const char *path,
   return true; // Texture loading was successful.
 }
 
-void pointConstructor(Point *point, float x, float y) {
-  point->x = x;
-  point->y = y;
-}
-
-void pointCopyConstructor(Point *destination, Point *source) {
-  pointConstructor(destination, source->x, source->y);
-}
-
-Point createPoint(float x, float y) {
-  Point point;
-  pointConstructor(&point, x, y);
-  return point;
-}
-
 unsigned int numberFromString(const char *line) {
   /* returns all digits from a line, while ingoring all other characters */
   unsigned int number = 0;
@@ -68,17 +52,6 @@ unsigned int numberFromString(const char *line) {
   }
   return number;
 }
-
-bool arePointsInProximity(Point *point1, Point *point2, float proximity) {
-  float distance =
-      sqrt(pow(point1->x - point2->x, 2) + pow(point1->y - point2->y, 2));
-  return distance < proximity;
-}
-
-bool arePointsInOrder(Point *point1, Point *point2) {
-  return point1->x < point2->x;
-}
-
 char *my_strdup(const char *str) {
   size_t len = strlen(str) + 1; // +1 for the null terminator
   char *new_str = (char *)malloc(len);
@@ -91,6 +64,6 @@ char *my_strdup(const char *str) {
 }
 
 // Utility function to log SDL errors and handle them accordingly.
-void LogSDLError(const char *msg) {
+void logError(const char *msg) {
   fprintf(stderr, "%s! SDL Error: %s\n", msg, SDL_GetError());
 }

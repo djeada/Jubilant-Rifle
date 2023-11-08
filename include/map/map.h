@@ -1,6 +1,6 @@
 #ifndef MAP_H
 #define MAP_H
-
+#include <stdlib.h>
 typedef struct {
   int x;
   int y;
@@ -10,7 +10,7 @@ typedef struct {
 
 typedef struct {
   Platform *platforms;
-  int platformCount;
+  size_t platformCount;
   char *backgroundImage;
 } Map;
 

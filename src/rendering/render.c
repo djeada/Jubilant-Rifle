@@ -1,9 +1,9 @@
+#include "rendering/render.h"
+#include "utils/utils.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
-
-#include "rendering/render.h"
 extern TTF_Font *font;
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
@@ -39,14 +39,14 @@ void renderMap(SDL_Renderer *renderer, Map *map) {
   SDL_Surface *bgSurface = IMG_Load(map->backgroundImage);
 
   if (bgSurface == NULL) {
-    LogSDLError("Unable to load image");
+    logError("Unable to load image");
     // More robust error handling
     goto cleanup;
   }
 
   bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
   if (bgTexture == NULL) {
-    LogSDLError("Unable to create texture from surface");
+    logError("Unable to create texture from surface");
     goto cleanup;
   }
 
@@ -90,7 +90,7 @@ void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
   // Render the current sprite frame with flipping
   if (SDL_RenderCopyEx(renderer, player->texture, &sourceRect, &destinationRect,
                        0.0, NULL, flip) != 0) {
-    LogSDLError("Unable to render player");
+    logError("Unable to render player");
   }
 }
 
@@ -163,13 +163,13 @@ void centerCameraOnPlayer(Camera *camera, Humanoid *player) {
 
 void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera) {
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White platforms
-  for (int i = 0; i < map->platformCount; ++i) {
+  for (size_t i = 0; i < map->platformCount; ++i) {
     SDL_Rect rect = {map->platforms[i].x - camera->x,
                      map->platforms[i].y - camera->y, map->platforms[i].width,
                      map->platforms[i].height};
 
     if (SDL_RenderFillRect(renderer, &rect) != 0) {
-      LogSDLError("SDL could not draw the rectangle");
+      logError("SDL could not draw the rectangle");
     }
   }
 }

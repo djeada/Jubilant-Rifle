@@ -1,7 +1,7 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include "utils/utils.h"
+#include "utils/point.h"
 
 #include <stdbool.h>
 

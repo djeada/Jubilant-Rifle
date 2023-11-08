@@ -9,6 +9,8 @@ typedef struct {
   bool isVisible;
 } AnimationState;
 
+void animationStateConstructor(AnimationState *state, int spriteIndex,
+                               bool facingLeft, bool walking, bool visible);
 void animationStateHide(AnimationState *animationState);
 void animationStateShow(AnimationState *animationState);
 void animationStateStop(AnimationState *animationState);

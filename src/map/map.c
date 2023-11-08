@@ -1,81 +1,94 @@
 #include "map/map.h"
 #include "utils/utils.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+
+int allocatePlatforms(Map *map, size_t count) {
+  free(map->platforms); // Free old platforms if they exist.
+  map->platforms = calloc(count, sizeof(Platform));
+  if (!map->platforms) {
+    return -1; // Memory allocation failure
+  }
+  map->platformCount = count;
+  return 0;
+}
+
+char *allocateBackgroundImagePath(const char *path) {
+  char *newPath = my_strdup(path); // No need for custom my_strdup, use strdup
+  if (!newPath) {
+    return NULL; // Memory allocation failure
+  }
+  return newPath;
+}
+
+int parsePlatform(const char *line, Platform *platform) {
+  int dummy; // Used to absorb the platform index, which is not used after
+             // parsing
+  // sscanf returns the number of successfully filled fields
+  return sscanf(line, "platform%d = {%d, %d, %d, %d}", &dummy, &platform->x,
+                &platform->y, &platform->width, &platform->height) == 5;
+}
+
 int parseMapFile(const char *filePath, Map *map) {
-  if (filePath == NULL || map == NULL) {
-    perror("Invalid file path or map");
+  if (!filePath || !map) {
+    fprintf(stderr, "Invalid file path or map\n");
     return -1;
   }
 
   FILE *file = fopen(filePath, "r");
-  if (file == NULL) {
+  if (!file) {
     perror("Error opening file");
     return -1;
   }
 
   char line[128];
-  int currentPlatformIndex = 0;
-  int dummy = 0; // Dummy variable for absorbing the platform index
+  size_t currentPlatformIndex = 0;
   while (fgets(line, sizeof(line), file)) {
-    char *newline = strchr(line, '\n'); // Find newline character if present.
+    char *newline = strchr(line, '\n');
     if (newline)
-      *newline = '\0'; // Replace it with null terminator.
+      *newline = '\0';
 
-    // Parse background image.
     if (strncmp(line, "background_image =", 18) == 0) {
       char *imagePath = line + 18;
-      imagePath += strspn(imagePath, " ="); // Trim spaces and '='.
-      free(map->backgroundImage);           // Free old image path if exists.
-      map->backgroundImage = my_strdup(imagePath);
+      imagePath += strspn(imagePath, " =");
+      free(map->backgroundImage);
+      map->backgroundImage = allocateBackgroundImagePath(imagePath);
       if (!map->backgroundImage) {
         perror("Memory allocation failed for background image");
         fclose(file);
         return -1;
       }
     } else if (strncmp(line, "platform_count =", 16) == 0) {
-      // Parse platform count.
-      free(map->platforms); // Free old platforms if they exist.
-      map->platformCount = atoi(line + 16);
-      if (map->platformCount <= 0) {
-        perror("Invalid platform count");
+      size_t count = atoi(line + 16);
+      if (count <= 0) {
+        fprintf(stderr, "Invalid platform count\n");
         fclose(file);
         return -1;
       }
-      map->platforms = (Platform *)calloc(map->platformCount, sizeof(Platform));
-      if (!map->platforms) {
+      if (allocatePlatforms(map, count) != 0) {
         perror("Memory allocation failed for platforms");
         fclose(file);
         return -1;
       }
-    } else if (currentPlatformIndex < map->platformCount) {
-      // Use sscanf to extract the numbers after the platform index
-      if (sscanf(line, "platform%d = {%d, %d, %d, %d}", // Adjusted the format
-                                                        // to skip the index
-                 &dummy, // Use a dummy int to skip the platform index number
-                 &map->platforms[currentPlatformIndex].x,
-                 &map->platforms[currentPlatformIndex].y,
-                 &map->platforms[currentPlatformIndex].width,
-                 &map->platforms[currentPlatformIndex].height) != 5) {
-        // Handle parsing error
-        perror("Platform parsing failed");
+    } else if (sscanf(line, "platform%*d = {%*d, %*d, %*d, %*d}") ==
+                   0 && // This line checks if the string follows the platform
+                        // pattern
+               currentPlatformIndex < map->platformCount) {
+      if (!parsePlatform(line, &map->platforms[currentPlatformIndex])) {
+        fprintf(stderr, "Platform parsing failed\n");
         fclose(file);
         return -1;
       }
       currentPlatformIndex++;
     } else {
-      // We have more platforms than specified by platformCount
-      perror("Platform count exceeded");
+      fprintf(stderr, "Unrecognized line or platform count exceeded\n");
       fclose(file);
       return -1;
     }
   }
 
   if (currentPlatformIndex != map->platformCount) {
-    // The actual number of platforms read doesn't match the count specified in
-    // the file
-    perror("Platform count mismatch");
+    fprintf(stderr, "Platform count mismatch\n");
     fclose(file);
     return -1;
   }
