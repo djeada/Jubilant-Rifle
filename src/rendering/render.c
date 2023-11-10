@@ -158,7 +158,7 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
   SDL_Surface *surface =
-      TTF_RenderText_Solid(GetResourcesInstance()->font, "Level 1 ", color);
+      TTF_RenderText_Solid(getResourcesInstance()->font, "Level 1 ", color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   // Text position and size also need to be adjusted
@@ -206,7 +206,7 @@ void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera) {
                      map->platforms[i].height};
 
     // Render the platform texture
-    if (SDL_RenderCopy(renderer, GetResourcesInstance()->platformTexture, NULL,
+    if (SDL_RenderCopy(renderer, getResourcesInstance()->platformTexture, NULL,
                        &rect) != 0) {
       logError("SDL could not render the platform texture");
     }

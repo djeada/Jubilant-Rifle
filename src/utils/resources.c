@@ -1,6 +1,6 @@
 #include "utils/resources.h"
 static Resources *instance = NULL;
-Resources *GetResourcesInstance(void) {
+Resources *getResourcesInstance(void) {
   if (instance == NULL) {
     instance = (Resources *)malloc(sizeof(Resources));
     if (instance != NULL) {
@@ -16,8 +16,8 @@ Resources *GetResourcesInstance(void) {
   return instance;
 }
 
-bool InitResourcesInstance(SDL_Renderer *renderer) {
-  Resources *instance = GetResourcesInstance();
+bool initializeResourcesInstance(SDL_Renderer *renderer) {
+  Resources *instance = getResourcesInstance();
   if (instance == NULL) {
     printf("Failed to get the Resources instance.\n");
     return false;
@@ -41,24 +41,24 @@ bool InitResourcesInstance(SDL_Renderer *renderer) {
     printf("Failed to load font: %s\n", TTF_GetError());
     // If the font fails to load, release all loaded textures before returning
     // false.
-    FreeResourcesInstance();
+    freeResourcesInstance();
     return false;
   }
 
   // Check if all textures are loaded successfully
-  /*
+
   if (!instance->backgroundTexture || !instance->bulletTexture ||
       !instance->playerTexture || !instance->enemyTexture ||
       !instance->platformTexture) {
     printf("Failed to load one or more textures.\n");
-    FreeResourcesInstance();
+    freeResourcesInstance();
     return false;
-  }*/
+  }
 
   return true;
 }
 
-void FreeResourcesInstance(void) {
+void freeResourcesInstance(void) {
   if (instance != NULL) {
     // Free individual resources here, e.g.:
     SDL_DestroyTexture(instance->backgroundTexture);

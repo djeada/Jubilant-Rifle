@@ -43,7 +43,7 @@ protected:
   }
 
   void TearDown() override {
-    freeMapResources(&testMap);
+    mapDestructor(&testMap);
     std::remove(dummyMapFilename);
   }
 };

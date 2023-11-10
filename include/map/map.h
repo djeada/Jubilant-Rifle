@@ -15,5 +15,5 @@ typedef struct {
 } Map;
 
 int parseMapFile(const char *filePath, Map *map);
-void freeMapResources(Map *map);
+void mapDestructor(Map *map);
 #endif

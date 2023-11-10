@@ -1,39 +1,28 @@
 #include "entities/humanoid.h"
 #include "utils/consts.h"
 #include "utils/resources.h"
-void humanoidConstructor(Humanoid *humanoid, int spriteIndex, bool facingLeft,
-                         bool walking, int posX, int posY, int startX, int endX,
-                         SDL_Texture *tex, short initialLife, bool alive,
-                         bool visible) {
-  if (!humanoid)
+
+void humanoidConstructor(void *obj, ...) {
+  if (!obj)
     return;
 
-  animationStateConstructor(&humanoid->animation, spriteIndex, facingLeft,
-                            walking, visible);
-  movementStateConstructor(&humanoid->movement, posX, posY, startX, endX);
+  va_list args;
+  va_start(args, obj); // Initialize va_list
 
-  humanoid->texture = tex;
+  Humanoid *humanoid = (Humanoid *)obj;
+  humanoid->animation = va_arg(args, AnimationState); // Retrieve AnimationState
+  humanoid->movement = va_arg(args, MovementState);   // Retrieve MovementState
+  humanoid->texture = va_arg(args, SDL_Texture *);    // Retrieve SDL_Texture*
 
+  // Initialize vector with variadic arguments
   vectorInit(&humanoid->bullets, 10, sizeof(Bullet), bulletConstructor,
-             humanoid->animation, humanoid->movement, NULL);
-
-  humanoid->life = initialLife;
-  humanoid->isAlive = alive;
-}
-
-void humanoidDefaultConstructor(Humanoid *humanoid) {
-  if (!humanoid)
-    return;
-
-  animationStateConstructor(&humanoid->animation, 0, false, false, true);
-  movementStateConstructor(&humanoid->movement, 0, 0, 0, 0);
-
-  humanoid->texture = NULL;
-  vectorInit(&humanoid->bullets, 10, sizeof(Bullet), bulletConstructor,
-             humanoid->animation, humanoid->movement, NULL);
+             humanoid->animation, humanoid->movement,
+             getResourcesInstance()->bulletTexture);
 
   humanoid->life = 100;
   humanoid->isAlive = true;
+
+  va_end(args); // Clean up va_list
 }
 
 void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source) {
@@ -86,22 +75,8 @@ void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage) {
   }
 }
 void humanoidShoot(Humanoid *humanoid) {
-  humanoid->isAlive = true;
-  printf("0 \n");
-
   Bullet *bullet = (Bullet *)vectorGet(&humanoid->bullets, 0);
-  printf("1 \n");
-
-  printf("%d \n", bullet->animation.isVisible);
-
   bullet->animation.isVisible = true;
-  printf("2 \n");
-
   bullet->movement.position.x = humanoid->movement.position.x;
   bullet->movement.position.y = humanoid->movement.position.y;
-  printf("3 \n");
-
-  bullet->texture = GetResourcesInstance()->bulletTexture;
-
-  printf("ELLOSZkA \n");
 }

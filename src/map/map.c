@@ -97,7 +97,7 @@ int parseMapFile(const char *filePath, Map *map) {
   return 0;
 }
 
-void freeMapResources(Map *map) {
+void mapDestructor(Map *map) {
   if (map) {
     free(map->backgroundImage);
     map->backgroundImage = NULL;

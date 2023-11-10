@@ -7,50 +7,25 @@ extern "C" {
 
 // Mock objects and functions, assuming they exist.
 const int INITIAL_CAPACITY = 10;
-void bulletDestructor(void *bullet) {
-  // Destroy the bullet.
-  // This function would actually deallocate a bullet.
-}
 
 class HumanoidTest : public ::testing::Test {
 protected:
   Humanoid humanoid;
   SDL_Texture *texture;
+  AnimationState animState;
+  MovementState moveState;
 
   void SetUp() override {
-    // Initialization code here.
-    texture =
-        nullptr; // Replace with actual texture initialization if available.
-    humanoidDefaultConstructor(&humanoid);
+    animState = {1, true, true, true};
+    moveState = {10, 10, 5, 5};
+    humanoidConstructor(&humanoid, animState, moveState, nullptr);
   }
 
-  void TearDown() override {
-    // Code to clean up after tests.
-    // Assume humanoidDestructor correctly frees the texture if needed.
-    humanoidDestructor(&humanoid);
-  }
+  void TearDown() override { humanoidDestructor(&humanoid); }
 };
-
-// Test the default constructor.
-TEST_F(HumanoidTest, DefaultConstructor) {
-  EXPECT_EQ(humanoid.animation.currentSpriteIndex, 0);
-  EXPECT_FALSE(humanoid.animation.isFacingLeft);
-  EXPECT_FALSE(humanoid.animation.isWalking);
-  EXPECT_TRUE(humanoid.animation.isVisible);
-  EXPECT_EQ(humanoid.movement.position.x, 0);
-  EXPECT_EQ(humanoid.movement.position.y, 0);
-  EXPECT_EQ(humanoid.movement.velocity.x, 0);
-  EXPECT_EQ(humanoid.movement.velocity.y, 0);
-  EXPECT_EQ(humanoid.life, 100);
-  EXPECT_TRUE(humanoid.isAlive);
-  EXPECT_EQ(humanoid.bullets.size, 10);
-  EXPECT_EQ(humanoid.bullets.capacity, INITIAL_CAPACITY);
-}
 
 // Test the parameterized constructor with valid arguments.
 TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
-  humanoidConstructor(&humanoid, 1, true, true, 10, 10, 5, 5, texture, 50, true,
-                      true);
 
   EXPECT_EQ(humanoid.animation.currentSpriteIndex, 1);
   EXPECT_TRUE(humanoid.animation.isFacingLeft);
@@ -60,7 +35,7 @@ TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
   EXPECT_EQ(humanoid.movement.position.y, 10);
   EXPECT_EQ(humanoid.movement.velocity.x, 5);
   EXPECT_EQ(humanoid.movement.velocity.y, 5);
-  EXPECT_EQ(humanoid.life, 50);
+  EXPECT_EQ(humanoid.life, 100);
   EXPECT_TRUE(humanoid.isAlive);
   // Assuming the parameterized constructor also initializes bullets.
   EXPECT_EQ(humanoid.bullets.size, 10);
@@ -79,25 +54,31 @@ TEST_F(HumanoidTest, ParameterizedConstructor_EdgeCases) {
 
 // Test the copy constructor.
 TEST_F(HumanoidTest, CopyConstructor) {
-  Humanoid source;
-  humanoidDefaultConstructor(&source);
-  source.life = 80; // Change some data to test copying.
+  // 1. Create a source Humanoid and initialize with distinct data
+  humanoidConstructor(&humanoid, animState, moveState, texture);
+  humanoid.life = 80; // Change some data to test copying
+  humanoid.isAlive = true;
+  humanoid.animation.currentSpriteIndex = 5;
+  humanoid.movement.position.x = 15;
+  humanoid.movement.position.y = 20;
 
-  Humanoid destination;
-  humanoidCopyConstructor(&destination, &source);
+  // 2. Invoke the copy constructor
+  Humanoid copiedHumanoid;
+  humanoidCopyConstructor(&copiedHumanoid, &humanoid);
 
-  EXPECT_EQ(destination.life, source.life);
-  // Perform deep equality checks on all fields to ensure proper copying.
-  // For example:
-  EXPECT_EQ(destination.animation.currentSpriteIndex,
-            source.animation.currentSpriteIndex);
-  // ... and so on for the rest of the fields.
+  // 3. Assert equalities for deep copy
+  EXPECT_EQ(copiedHumanoid.life, humanoid.life);
+  EXPECT_EQ(copiedHumanoid.isAlive, humanoid.isAlive);
+  EXPECT_EQ(copiedHumanoid.animation.currentSpriteIndex,
+            humanoid.animation.currentSpriteIndex);
+  EXPECT_EQ(copiedHumanoid.movement.position.x, humanoid.movement.position.x);
+  EXPECT_EQ(copiedHumanoid.movement.position.y, humanoid.movement.position.y);
 }
 
 // Test the destructor.
 TEST_F(HumanoidTest, Destructor) {
   Humanoid *humanoid = new Humanoid;
-  humanoidDefaultConstructor(humanoid);
+  humanoidConstructor(humanoid, animState, moveState, texture);
 
   // Simulate allocating bullets or other resources.
   humanoid->bullets.items =

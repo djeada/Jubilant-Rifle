@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "entities/humanoid.h"
+#include "entities/humanoid_factories.h"
 #include "game/event_handler.h"
 #include "game/game.h"
 #include "game/game_logic.h"
@@ -25,9 +26,9 @@
 
 void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map,
              Humanoid *player) {
-  freeMapResources(map);
+  mapDestructor(map);
   humanoidDestructor(player);
-  FreeResourcesInstance();
+  freeResourcesInstance();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 
@@ -84,32 +85,6 @@ int initializeMap(Map *map) {
   return 0;
 }
 
-void initializeHumanoid(Humanoid *player, SDL_Renderer *renderer,
-                        const char *texturePath) {
-  SDL_Texture *playerTexture = NULL;
-  loadTexture(renderer, texturePath, &playerTexture);
-  if (!playerTexture) {
-    fprintf(stderr, "Failed to load player texture.\n");
-    return;
-  }
-
-  // Initialize humanoid properties
-  int initialSpriteIndex = 0;
-  bool isFacingLeft = false;
-  bool isWalking = false;
-  int initialPosX = 100;
-  int initialPosY = 100;
-  int movementStartX = 0;
-  int movementEndX = 0;
-  short initialLife = 100;
-  bool isAlive = true;
-  bool isVisible = true;
-
-  humanoidConstructor(player, initialSpriteIndex, isFacingLeft, isWalking,
-                      initialPosX, initialPosY, movementStartX, movementEndX,
-                      playerTexture, initialLife, isAlive, isVisible);
-}
-
 bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
                     Humanoid *player) {
   if (initializeSDL(window, renderer) != 0) {
@@ -121,11 +96,11 @@ bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
     return false;
   }
 
-  if (!InitResourcesInstance(*renderer)) {
+  if (!initializeResourcesInstance(*renderer)) {
     return false;
   }
 
-  initializeHumanoid(player, *renderer, PLAYER_TEXTURE_PATH);
+  createPlayerHumanoid(player);
 
   return true;
 }
@@ -137,13 +112,13 @@ void runGame() {
   Humanoid player;
   Camera camera = {0, 0, 500, 500};
 
-  timeManagerInit();
-
   if (!initializeGame(&window, &renderer, &map, &player)) {
     return; // Initialization failed
   }
 
+  timeManagerInit();
   int gameRunning = 1;
+
   while (gameRunning) {
     gameRunning = processEvents(window, &player);
     updateHumanoid(&player, &map);

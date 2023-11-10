@@ -17,8 +17,8 @@ typedef struct Resources {
 } Resources;
 
 // Function prototypes
-Resources *GetResourcesInstance();
-bool InitResourcesInstance(SDL_Renderer *renderer);
-void FreeResourcesInstance();
+Resources *getResourcesInstance();
+bool initializeResourcesInstance(SDL_Renderer *renderer);
+void freeResourcesInstance();
 
 #endif // RESOURCES_H
