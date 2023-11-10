@@ -43,7 +43,7 @@ TEST_F(HumanoidTest, DefaultConstructor) {
   EXPECT_EQ(humanoid.movement.velocity.y, 0);
   EXPECT_EQ(humanoid.life, 100);
   EXPECT_TRUE(humanoid.isAlive);
-  EXPECT_EQ(humanoid.bullets.size, 0);
+  EXPECT_EQ(humanoid.bullets.size, 10);
   EXPECT_EQ(humanoid.bullets.capacity, INITIAL_CAPACITY);
 }
 
@@ -63,7 +63,7 @@ TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
   EXPECT_EQ(humanoid.life, 50);
   EXPECT_TRUE(humanoid.isAlive);
   // Assuming the parameterized constructor also initializes bullets.
-  EXPECT_EQ(humanoid.bullets.size, 0);
+  EXPECT_EQ(humanoid.bullets.size, 10);
   EXPECT_EQ(humanoid.bullets.capacity, INITIAL_CAPACITY);
   // Add more assertions as necessary for full coverage.
 }

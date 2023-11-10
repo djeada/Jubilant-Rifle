@@ -40,7 +40,7 @@ bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
   return true;
 }
 
-void HandlePlayerMovement(const Uint8 *state, Humanoid *player) {
+void HandlePlayerState(const Uint8 *state, Humanoid *player) {
   if (state[SDL_SCANCODE_UP]) {
     player->movement.velocity.y = -200;
   }
@@ -53,6 +53,9 @@ void HandlePlayerMovement(const Uint8 *state, Humanoid *player) {
     player->movement.velocity.x = MoveSpeed;
     player->animation.isFacingLeft =
         false; // Update the direction the player is facing
+  }
+  if (state[SDL_SCANCODE_SPACE] || state[SDLK_SPACE]) { // Handle the space key
+    humanoidShoot(player);
   }
 }
 bool processEvents(SDL_Window *window, Humanoid *player) {
@@ -68,7 +71,7 @@ bool processEvents(SDL_Window *window, Humanoid *player) {
 
   // Handle player movement if the player is not null
   if (player) {
-    HandlePlayerMovement(state, player);
+    HandlePlayerState(state, player);
   }
 
   return true;

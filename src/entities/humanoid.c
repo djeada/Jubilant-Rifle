@@ -1,6 +1,6 @@
 #include "entities/humanoid.h"
 #include "utils/consts.h"
-
+#include "utils/resources.h"
 void humanoidConstructor(Humanoid *humanoid, int spriteIndex, bool facingLeft,
                          bool walking, int posX, int posY, int startX, int endX,
                          SDL_Texture *tex, short initialLife, bool alive,
@@ -14,7 +14,8 @@ void humanoidConstructor(Humanoid *humanoid, int spriteIndex, bool facingLeft,
 
   humanoid->texture = tex;
 
-  vectorInit(&humanoid->bullets, 10, NULL);
+  vectorInit(&humanoid->bullets, 10, sizeof(Bullet), bulletConstructor,
+             humanoid->animation, humanoid->movement, NULL);
 
   humanoid->life = initialLife;
   humanoid->isAlive = alive;
@@ -28,7 +29,8 @@ void humanoidDefaultConstructor(Humanoid *humanoid) {
   movementStateConstructor(&humanoid->movement, 0, 0, 0, 0);
 
   humanoid->texture = NULL;
-  vectorInit(&humanoid->bullets, 10, NULL);
+  vectorInit(&humanoid->bullets, 10, sizeof(Bullet), bulletConstructor,
+             humanoid->animation, humanoid->movement, NULL);
 
   humanoid->life = 100;
   humanoid->isAlive = true;
@@ -56,7 +58,7 @@ void humanoidDestructor(void *data) {
   Humanoid *humanoid = (Humanoid *)data;
 
   // Use vectorFree to properly deallocate the Vector and its items.
-  vectorFree(&humanoid->bullets);
+  vectorFree(&humanoid->bullets, NULL);
 
   // Assuming that texture is managed elsewhere (shared resource), we don't
   // destroy it here.
@@ -82,4 +84,24 @@ void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage) {
     humanoid->life = 0;
     humanoidDie(humanoid);
   }
+}
+void humanoidShoot(Humanoid *humanoid) {
+  humanoid->isAlive = true;
+  printf("0 \n");
+
+  Bullet *bullet = (Bullet *)vectorGet(&humanoid->bullets, 0);
+  printf("1 \n");
+
+  printf("%d \n", bullet->animation.isVisible);
+
+  bullet->animation.isVisible = true;
+  printf("2 \n");
+
+  bullet->movement.position.x = humanoid->movement.position.x;
+  bullet->movement.position.y = humanoid->movement.position.y;
+  printf("3 \n");
+
+  bullet->texture = GetResourcesInstance()->bulletTexture;
+
+  printf("ELLOSZkA \n");
 }

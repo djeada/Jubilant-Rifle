@@ -1,18 +1,22 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include "utils/point.h"
-
+#include "animation/animation_state.h"
+#include "bullet.h"
+#include "entities/movement_state.h"
+#include "utils/vector.h"
+#include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
 typedef struct {
-  Point position;
-  float dx;
+  AnimationState animation;
+  MovementState movement;
+  SDL_Texture *texture;
 } Bullet;
 
-void bulletConstructor(Bullet *bullet, Point position, float dx);
-void bulletCopyConstructor(Bullet *destination, Bullet *source);
-void moveBullet(Bullet *bullet);
-bool bulletOutOfScreen(Bullet *bullet);
+// Function declarations
+void bulletConstructor(void *obj, va_list args);
+void bulletCopy(Bullet *destination, const Bullet *source);
+void bulletMove(Bullet *bullet);
 
 #endif

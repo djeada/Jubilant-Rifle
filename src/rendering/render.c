@@ -4,7 +4,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
-extern TTF_Font *font;
+
+#include "utils/resources.h"
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
                           int windowHeight) {
@@ -92,6 +93,39 @@ void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
                        0.0, NULL, flip) != 0) {
     logError("Unable to render player");
   }
+
+  // Render bullets
+  for (size_t i = 0; i < player->bullets.size; i++) {
+    Bullet *bullet = (Bullet *)player->bullets.items[i];
+    if (bullet && bullet->animation.isVisible) {
+      int bulletSpriteWidth =
+          20; // Set the appropriate dimensions for your bullet sprites
+      int bulletSpriteHeight =
+          20; // Set the appropriate dimensions for your bullet sprites
+
+      // Calculate the position on the sprite sheet for the bullet
+      int bulletSheetX =
+          (bullet->animation.currentSpriteIndex % spritesPerRow) *
+          bulletSpriteWidth;
+      int bulletSheetY =
+          (bullet->animation.currentSpriteIndex / spritesPerRow) *
+          bulletSpriteHeight;
+
+      SDL_Rect bulletSourceRect = {bulletSheetX, bulletSheetY,
+                                   bulletSpriteWidth, bulletSpriteHeight};
+
+      SDL_Rect bulletDestinationRect = {bullet->movement.position.x - camera->x,
+                                        bullet->movement.position.y - camera->y,
+                                        bulletSpriteWidth, bulletSpriteHeight};
+
+      // Render the bullet sprite
+      if (SDL_RenderCopyEx(renderer, bullet->texture, &bulletSourceRect,
+                           &bulletDestinationRect, 0.0, NULL,
+                           SDL_FLIP_NONE) != 0) {
+        logError("Unable to render bullet");
+      }
+    }
+  }
 }
 
 void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
@@ -123,7 +157,8 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
   SDL_Color color = {255, 255, 255, 255};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-  SDL_Surface *surface = TTF_RenderText_Solid(font, "Level 1 ", color);
+  SDL_Surface *surface =
+      TTF_RenderText_Solid(GetResourcesInstance()->font, "Level 1 ", color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   // Text position and size also need to be adjusted
@@ -162,14 +197,18 @@ void centerCameraOnPlayer(Camera *camera, Humanoid *player) {
 }
 
 void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera) {
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White platforms
+  // Assuming platformTexture is a valid SDL_Texture* that has been created
+  // elsewhere in the code
+
   for (size_t i = 0; i < map->platformCount; ++i) {
     SDL_Rect rect = {map->platforms[i].x - camera->x,
                      map->platforms[i].y - camera->y, map->platforms[i].width,
                      map->platforms[i].height};
 
-    if (SDL_RenderFillRect(renderer, &rect) != 0) {
-      logError("SDL could not draw the rectangle");
+    // Render the platform texture
+    if (SDL_RenderCopy(renderer, GetResourcesInstance()->platformTexture, NULL,
+                       &rect) != 0) {
+      logError("SDL could not render the platform texture");
     }
   }
 }

@@ -15,18 +15,21 @@
 
 #define MAP_FILE_PATH "resources/maps/mountains.cfg"
 #define PLAYER_TEXTURE_PATH "resources/textures/player_b.png"
+#define PLATFORM_TEXTURE_PATH "resources/textures/platform.png"
 #define FONT_PATH "resources/fonts/FreeSans.ttf"
 #define WINDOW_TITLE "SDL Platformer"
 #define SCREEN_WIDTH 1920  // Your design width
 #define SCREEN_HEIGHT 1080 // Your design height
-TTF_Font *font = NULL;
+
+#include "utils/resources.h"
+
 void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map,
              Humanoid *player) {
   freeMapResources(map);
   humanoidDestructor(player);
+  FreeResourcesInstance();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
-  TTF_CloseFont(font);
 
   IMG_Quit(); // After destroying all IMG textures but before SDL_Quit
   SDL_Quit();
@@ -67,11 +70,10 @@ int initializeSDL(SDL_Window **window, SDL_Renderer **renderer) {
 
   // Set logical size for renderer
   setRenderLogicalSize(*renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-  IMG_Init(IMG_INIT_PNG);             // Initialize image library
-  TTF_Init();                         // Initialize TTF library
-  font = TTF_OpenFont(FONT_PATH, 12); // Load font
+  IMG_Init(IMG_INIT_PNG); // Initialize image library
+  TTF_Init();             // Initialize TTF library
 
-  return font ? 0 : -1;
+  return 0;
 }
 
 int initializeMap(Map *map) {
@@ -108,20 +110,24 @@ void initializeHumanoid(Humanoid *player, SDL_Renderer *renderer,
                       playerTexture, initialLife, isAlive, isVisible);
 }
 
-int initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
-                   Humanoid *player) {
+bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
+                    Humanoid *player) {
   if (initializeSDL(window, renderer) != 0) {
-    return -1;
+    return false;
   }
 
   if (initializeMap(map) != 0) {
     cleanup(*renderer, *window, map, player);
-    return -1;
+    return false;
+  }
+
+  if (!InitResourcesInstance(*renderer)) {
+    return false;
   }
 
   initializeHumanoid(player, *renderer, PLAYER_TEXTURE_PATH);
 
-  return 0;
+  return true;
 }
 
 void runGame() {
@@ -133,7 +139,7 @@ void runGame() {
 
   timeManagerInit();
 
-  if (initializeGame(&window, &renderer, &map, &player) != 0) {
+  if (!initializeGame(&window, &renderer, &map, &player)) {
     return; // Initialization failed
   }
 

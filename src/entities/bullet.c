@@ -1,18 +1,38 @@
 #include "entities/bullet.h"
-#include "utils/consts.h"
+// Initializes a Bullet object
+void bulletConstructor(void *obj, va_list args) {
+  if (!obj)
+    return;
+  Bullet *bullet = (Bullet *)obj;
+  AnimationState animation = va_arg(
+      args, AnimationState); // Assuming AnimationState can be passed this way
+  MovementState movement = va_arg(
+      args, MovementState); // Assuming MovementState can be passed this way
+  SDL_Texture *texture = va_arg(args, SDL_Texture *);
 
-void bulletConstructor(Bullet *bullet, Point position, float dx) {
-  pointCopyConstructor(&bullet->position, &position);
-  bullet->dx = dx;
+  bullet->animation = animation;
+  bullet->movement = movement;
+  bullet->texture = texture;
 }
 
-void bulletCopyConstructor(Bullet *destination, Bullet *source) {
-  bulletConstructor(destination, source->position, source->dx);
+// Copies the content of a Bullet object from source to destination
+void bulletCopy(Bullet *destination, const Bullet *source) {
+  if (!destination || !source)
+    return;
+
+  destination->animation = source->animation;
+  destination->movement = source->movement;
+  // For the texture, you might want to increase a reference count if that's how
+  // you're managing textures, or you might want to actually copy the texture.
+  // For simplicity, we're just copying the reference.
+  destination->texture = source->texture;
 }
 
-void moveBullet(Bullet *bullet) { bullet->position.x += bullet->dx; }
+void bulletMove(Bullet *bullet) {
+  if (!bullet)
+    return;
 
-bool bulletOutOfScreen(Bullet *bullet) {
-  return bullet->position.x < -0.1 * BOARD_WIDTH ||
-         bullet->position.x > 1.1 * BOARD_WIDTH;
+  // Update the bullet's position based on its velocity
+  bullet->movement.position.x += bullet->movement.velocity.x;
+  bullet->movement.position.y += bullet->movement.velocity.y;
 }

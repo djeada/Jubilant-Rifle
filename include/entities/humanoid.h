@@ -26,5 +26,6 @@ void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source);
 void humanoidDestructor(void *data);
 void humanoidDie(Humanoid *humanoid);
 void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage);
+void humanoidShoot(Humanoid *humanoid);
 
 #endif
