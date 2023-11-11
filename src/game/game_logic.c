@@ -1,40 +1,84 @@
 // game_logic.c
 
 #include "game/game_logic.h"
+#include "entities/bullet.h"
 #include "utils/resources.h"
 #include "utils/time_manager.h"
 
-void updateHumanoid(Humanoid *humanoid, Map *map) {
-  if (movementStateIsMoving(&humanoid->movement) &&
+void updateAnimation(Humanoid *player) {
+  if (movementStateIsMoving(&player->movement) &&
       timeManagerGetTime() % 3 == 0) {
-    animationStateIncrementSprite(&humanoid->animation);
+    animationStateIncrementSprite(&player->animation);
   }
+}
 
-  // Update humanoid position
-  movementStateMoveHorizontal(&humanoid->movement);
+void updatePosition(Humanoid *player) {
+  movementStateMoveHorizontal(&player->movement);
+}
 
+void handleShooting(Humanoid *player) {
+  for (size_t i = 0; i < player->bulletManager.bullets.size; i++) {
+    Bullet *bullet = (Bullet *)player->bulletManager.bullets.items[i];
+    movementStateMoveHorizontal(&bullet->movement);
+  }
+}
+
+bool handleCollisions(Humanoid *player, Map *map) {
   bool onPlatform = false;
-
-  // Collision detection with the ground and platforms
   for (size_t i = 0; i < map->platformCount; i++) {
-    if (checkCollision(humanoid, &map->platforms[i])) {
-      // Align the humanoid's position to the top of the platform
-      humanoid->movement.position.y =
-          map->platforms[i].y -
-          95; // Subtract the frame height to place the humanoid on top
+    if (checkCollision(player, &map->platforms[i])) {
+      player->movement.position.y = map->platforms[i].y - 95;
       onPlatform = true;
-      break; // Break out of the loop since we've found a platform
+      break;
     }
   }
-
-  // Apply gravity if not on any platform
-
-  if (onPlatform) {
-    movementStateMoveJump(&humanoid->movement);
-  } else if (!movementStateIsJumping(&humanoid->movement)) {
-    movementStateFall(&humanoid->movement);
+  return onPlatform;
+}
+void applyGravity(Humanoid *player, bool onPlatform) {
+  if (!onPlatform) {
+    if (!movementStateIsJumping(&player->movement)) {
+      movementStateFall(&player->movement);
+    }
+  } else {
+    movementStateMoveJump(&player->movement);
   }
-  movementStateStop(&humanoid->movement);
+}
+
+void checkWorldBounds(Humanoid *player) {
+  const int worldWidth = 3000;
+  const int worldHeight = 1200;
+  // Check left boundary
+  if (player->movement.position.x < 0) {
+    player->movement.position.x = 0;
+  }
+
+  // Check right boundary
+  if (player->movement.position.x > worldWidth) {
+    player->movement.position.x = worldWidth;
+  }
+
+  // Check top boundary
+  if (player->movement.position.y < 0) {
+    player->movement.position.y = 0;
+  }
+
+  // Check bottom boundary (death condition)
+  if (player->movement.position.y > worldHeight) {
+    // Handle death or failure
+    humanoidDie(player);
+  }
+}
+
+void updateHumanoid(Humanoid *player, Map *map) {
+  updateAnimation(player);
+  updatePosition(player);
+  handleShooting(player);
+  checkWorldBounds(player);
+
+  bool onPlatform = handleCollisions(player, map);
+  applyGravity(player, onPlatform);
+
+  movementStateStop(&player->movement);
 }
 
 bool checkCollision(const Humanoid *humanoid, const Platform *platform) {

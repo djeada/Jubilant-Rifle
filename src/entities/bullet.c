@@ -1,6 +1,17 @@
 #include "entities/bullet.h"
 // Initializes a Bullet object
-void bulletConstructor(void *obj, va_list args) {
+
+void bulletConstructor(void *obj, ...) {
+  va_list args;
+  va_start(args, obj); // Initialize va_list with the last known fixed argument
+
+  bulletConstructorVariadic(obj,
+                            args); // Pass the va_list to the actual constructor
+
+  va_end(args); // Clean up va_list
+}
+
+void bulletConstructorVariadic(void *obj, va_list args) {
   if (!obj)
     return;
   Bullet *bullet = (Bullet *)obj;

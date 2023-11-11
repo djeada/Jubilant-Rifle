@@ -5,6 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
+#include "entities/bullet.h"
 #include "utils/resources.h"
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
@@ -95,8 +96,8 @@ void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
   }
 
   // Render bullets
-  for (size_t i = 0; i < player->bullets.size; i++) {
-    Bullet *bullet = (Bullet *)player->bullets.items[i];
+  for (size_t i = 0; i < player->bulletManager.bullets.size; i++) {
+    Bullet *bullet = (Bullet *)player->bulletManager.bullets.items[i];
     if (bullet && bullet->animation.isVisible) {
       int bulletSpriteWidth =
           20; // Set the appropriate dimensions for your bullet sprites

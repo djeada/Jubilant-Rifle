@@ -1,19 +1,19 @@
 #ifndef HUMANOID_H
 #define HUMANOID_H
 
-#include "bullet.h"
-#include "utils/vector.h"
+#include "entities/bullet_manager.h"
 
 typedef struct {
   AnimationState animation;
   MovementState movement;
   SDL_Texture *texture;
-  Vector bullets;
+  BulletManager bulletManager;
   short life;
   bool isAlive;
 } Humanoid;
 
 void humanoidConstructor(void *obj, ...);
+void humanoidConstructorVariadic(void *obj, va_list args);
 void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source);
 void humanoidDestructor(void *data);
 void humanoidDie(Humanoid *humanoid);

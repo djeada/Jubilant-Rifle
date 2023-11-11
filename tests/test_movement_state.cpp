@@ -28,14 +28,12 @@ TEST_F(MovementStateTest, ConstructorInitializesValues) {
 TEST_F(MovementStateTest, MovesHorizontalCorrectly) {
   movementStateMoveHorizontal(&state);
   EXPECT_EQ(state.position.x, 15);
-  EXPECT_EQ(state.velocity.x, 0);
 }
 
 // Test jump movement
 TEST_F(MovementStateTest, MovesJumpCorrectly) {
   movementStateMoveJump(&state);
   EXPECT_EQ(state.position.y, 15);
-  EXPECT_EQ(state.velocity.y, 0);
 }
 
 // Test stop function
@@ -54,14 +52,12 @@ TEST_F(MovementStateTest, FallsCorrectly) {
 
 // Test jumping state
 TEST_F(MovementStateTest, ReportsJumpingCorrectly) {
+  movementStateMoveJump(&state);
   EXPECT_TRUE(movementStateIsJumping(&state));
-  movementStateMoveJump(&state); // After jump, velocity.y should be 0
-  EXPECT_FALSE(movementStateIsJumping(&state));
 }
 
 // Test moving state
 TEST_F(MovementStateTest, ReportsMovingCorrectly) {
+  movementStateMoveHorizontal(&state);
   EXPECT_TRUE(movementStateIsMoving(&state));
-  movementStateMoveHorizontal(&state); // After move, velocity.x should be 0
-  EXPECT_FALSE(movementStateIsMoving(&state));
 }

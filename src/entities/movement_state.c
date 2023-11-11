@@ -11,12 +11,10 @@ void movementStateConstructor(MovementState *state, int posX, int posY,
 void movementStateMoveHorizontal(MovementState *movement) {
 
   movement->position.x += movement->velocity.x;
-  movement->velocity.x = 0;
 }
 void movementStateMoveJump(MovementState *movement) {
   // Perform the jump by changing the y position
   movement->position.y += movement->velocity.y;
-  movement->velocity.y = 0;
 }
 
 void movementStateStop(MovementState *movement) {

@@ -1,4 +1,5 @@
 extern "C" {
+#include "entities/bullet.h"
 #include "entities/humanoid.h"
 }
 
@@ -38,8 +39,8 @@ TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
   EXPECT_EQ(humanoid.life, 100);
   EXPECT_TRUE(humanoid.isAlive);
   // Assuming the parameterized constructor also initializes bullets.
-  EXPECT_EQ(humanoid.bullets.size, 10);
-  EXPECT_EQ(humanoid.bullets.capacity, INITIAL_CAPACITY);
+  EXPECT_EQ(humanoid.bulletManager.bullets.size, 10);
+  EXPECT_EQ(humanoid.bulletManager.bullets.capacity, INITIAL_CAPACITY);
   // Add more assertions as necessary for full coverage.
 }
 
@@ -81,21 +82,19 @@ TEST_F(HumanoidTest, Destructor) {
   humanoidConstructor(humanoid, animState, moveState, texture);
 
   // Simulate allocating bullets or other resources.
-  humanoid->bullets.items =
+  humanoid->bulletManager.bullets.items =
       static_cast<void **>(malloc(INITIAL_CAPACITY * sizeof(void *)));
   for (int i = 0; i < INITIAL_CAPACITY; ++i) {
-    humanoid->bullets.items[i] = malloc(sizeof(
-        Bullet)); // Replace Bullet with actual bullet structure if it exists.
-    // ... Initialize bullet if necessary.
+    humanoid->bulletManager.bullets.items[i] = malloc(sizeof(Bullet));
   }
-  humanoid->bullets.capacity = INITIAL_CAPACITY;
-  humanoid->bullets.size = INITIAL_CAPACITY;
+  humanoid->bulletManager.bullets.capacity = INITIAL_CAPACITY;
+  humanoid->bulletManager.bullets.size = INITIAL_CAPACITY;
 
   humanoidDestructor(humanoid);
 
-  EXPECT_EQ(humanoid->bullets.items, nullptr);
-  EXPECT_EQ(humanoid->bullets.size, 0);
-  EXPECT_EQ(humanoid->bullets.capacity, 0);
+  EXPECT_EQ(humanoid->bulletManager.bullets.items, nullptr);
+  EXPECT_EQ(humanoid->bulletManager.bullets.size, 0);
+  EXPECT_EQ(humanoid->bulletManager.bullets.capacity, 0);
 
   delete humanoid; // Clean up the humanoid.
 }

@@ -15,7 +15,8 @@ typedef struct {
 } Bullet;
 
 // Function declarations
-void bulletConstructor(void *obj, va_list args);
+void bulletConstructor(void *obj, ...);
+void bulletConstructorVariadic(void *obj, va_list args);
 void bulletCopy(Bullet *destination, const Bullet *source);
 void bulletMove(Bullet *bullet);
 
