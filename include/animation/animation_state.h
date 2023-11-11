@@ -5,15 +5,13 @@
 typedef struct {
   int currentSpriteIndex;
   bool isFacingLeft;
-  bool isWalking;
   bool isVisible;
 } AnimationState;
 
 void animationStateConstructor(AnimationState *state, int spriteIndex,
-                               bool facingLeft, bool walking, bool visible);
+                               bool facingLeft, bool visible);
 void animationStateHide(AnimationState *animationState);
 void animationStateShow(AnimationState *animationState);
-void animationStateStop(AnimationState *animationState);
 void animationStateIncrementSprite(AnimationState *animationState);
 
 #endif

@@ -4,9 +4,9 @@
 #include "entities/humanoid.h"
 
 void createHumanoid(Humanoid *newHumanoid, int initialSpriteIndex,
-                    bool isFacingLeft, bool isWalking, int initialPosX,
-                    int initialPosY, int initialVelX, int initialVelY,
-                    bool isVisible, SDL_Texture *texture);
+                    bool isFacingLeft, int initialPosX, int initialPosY,
+                    int initialVelX, int initialVelY, bool isVisible,
+                    SDL_Texture *texture);
 void createPlayerHumanoid(Humanoid *newHumanoid);
 
 #endif // HUMANOID_FACTORIES_H

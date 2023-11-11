@@ -1,7 +1,6 @@
-// game_logic.c
-
 #include "game/game_logic.h"
 #include "entities/bullet.h"
+#include "utils/consts.h"
 #include "utils/resources.h"
 #include "utils/time_manager.h"
 
@@ -20,6 +19,11 @@ void handleShooting(Humanoid *player) {
   for (size_t i = 0; i < player->bulletManager.bullets.size; i++) {
     Bullet *bullet = (Bullet *)player->bulletManager.bullets.items[i];
     movementStateMoveHorizontal(&bullet->movement);
+    if (pointDistance(&player->movement.position, &bullet->movement.position) >
+        500) {
+      movementStateStop(&bullet->movement);
+      animationStateHide(&bullet->animation);
+    }
   }
 }
 
@@ -27,7 +31,8 @@ bool handleCollisions(Humanoid *player, Map *map) {
   bool onPlatform = false;
   for (size_t i = 0; i < map->platformCount; i++) {
     if (checkCollision(player, &map->platforms[i])) {
-      player->movement.position.y = map->platforms[i].y - 95;
+      player->movement.position.y =
+          map->platforms[i].y - 0.95 * PLAYER_FRAME_HEIGHT;
       onPlatform = true;
       break;
     }
@@ -45,16 +50,15 @@ void applyGravity(Humanoid *player, bool onPlatform) {
 }
 
 void checkWorldBounds(Humanoid *player) {
-  const int worldWidth = 3000;
-  const int worldHeight = 1200;
+
   // Check left boundary
   if (player->movement.position.x < 0) {
     player->movement.position.x = 0;
   }
 
   // Check right boundary
-  if (player->movement.position.x > worldWidth) {
-    player->movement.position.x = worldWidth;
+  if (player->movement.position.x > WORLD_WIDTH) {
+    player->movement.position.x = WORLD_WIDTH;
   }
 
   // Check top boundary
@@ -63,7 +67,7 @@ void checkWorldBounds(Humanoid *player) {
   }
 
   // Check bottom boundary (death condition)
-  if (player->movement.position.y > worldHeight) {
+  if (player->movement.position.y > WORLD_HEIGHT) {
     // Handle death or failure
     humanoidDie(player);
   }
@@ -84,10 +88,9 @@ void updateHumanoid(Humanoid *player, Map *map) {
 bool checkCollision(const Humanoid *humanoid, const Platform *platform) {
   // Basic AABB collision detection
   int leftA = humanoid->movement.position.x;
-  int rightA = leftA + 20; // frameWidth/2
+  int rightA = leftA + PLAYER_FRAME_WIDTH / 2;
   int topA = humanoid->movement.position.y;
-  int bottomA = topA + 100; // humanoid height (adjusted if necessary)
-
+  int bottomA = topA + PLAYER_FRAME_HEIGHT;
   int leftB = platform->x;
   int rightB = leftB + platform->width;
   int topB = platform->y;

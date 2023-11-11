@@ -1,12 +1,13 @@
 #include "entities/bullet_manager.h"
 #include "entities/bullet.h"
 
-void bulletManagerConstructor(BulletManager *manager, AnimationState animation,
-                              MovementState movement, SDL_Texture *texture) {
+void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
+                              AnimationState animation, MovementState movement,
+                              SDL_Texture *texture) {
 
   // Initialize vector with variadic arguments
-  vectorInit(&manager->bullets, 10, sizeof(Bullet), bulletConstructorVariadic,
-             animation, movement, texture);
+  vectorInit(&manager->bullets, bulletNumber, sizeof(Bullet),
+             bulletConstructorVariadic, animation, movement, texture);
 
   manager->nextAvailable = 0;
 }

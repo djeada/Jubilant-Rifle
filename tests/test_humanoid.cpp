@@ -1,13 +1,14 @@
 extern "C" {
 #include "entities/bullet.h"
 #include "entities/humanoid.h"
+#include "utils/consts.h"
 }
 
 #include <climits>
 #include <gtest/gtest.h>
 
 // Mock objects and functions, assuming they exist.
-const int INITIAL_CAPACITY = 10;
+const int INITIAL_CAPACITY = NUM_BULLETS;
 
 class HumanoidTest : public ::testing::Test {
 protected:
@@ -17,7 +18,7 @@ protected:
   MovementState moveState;
 
   void SetUp() override {
-    animState = {1, true, true, true};
+    animState = {1, true, true};
     moveState = {10, 10, 5, 5};
     humanoidConstructor(&humanoid, animState, moveState, nullptr);
   }
@@ -30,7 +31,6 @@ TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
 
   EXPECT_EQ(humanoid.animation.currentSpriteIndex, 1);
   EXPECT_TRUE(humanoid.animation.isFacingLeft);
-  EXPECT_TRUE(humanoid.animation.isWalking);
   EXPECT_TRUE(humanoid.animation.isVisible);
   EXPECT_EQ(humanoid.movement.position.x, 10);
   EXPECT_EQ(humanoid.movement.position.y, 10);
@@ -39,7 +39,7 @@ TEST_F(HumanoidTest, ParameterizedConstructor_ValidArgs) {
   EXPECT_EQ(humanoid.life, 100);
   EXPECT_TRUE(humanoid.isAlive);
   // Assuming the parameterized constructor also initializes bullets.
-  EXPECT_EQ(humanoid.bulletManager.bullets.size, 10);
+  EXPECT_EQ(humanoid.bulletManager.bullets.size, NUM_BULLETS);
   EXPECT_EQ(humanoid.bulletManager.bullets.capacity, INITIAL_CAPACITY);
   // Add more assertions as necessary for full coverage.
 }

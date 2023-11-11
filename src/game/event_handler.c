@@ -1,8 +1,5 @@
 #include "game/event_handler.h"
-
-static const int DefaultWindowWidth = 1280;
-static const int DefaultWindowHeight = 1080;
-static const int MoveSpeed = 5;
+#include "utils/consts.h"
 
 bool ProcessWindowEvent(const SDL_Event *event, SDL_Window **window) {
   if (event->type == SDL_WINDOWEVENT &&
@@ -15,16 +12,18 @@ bool ProcessWindowEvent(const SDL_Event *event, SDL_Window **window) {
   }
   return true;
 }
+
 void ToggleFullscreen(SDL_Window *window) {
   Uint32 fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
   Uint32 isFullscreen = SDL_GetWindowFlags(window) & fullscreenFlag;
   SDL_SetWindowFullscreen(window, isFullscreen ? 0 : fullscreenFlag);
   if (!isFullscreen) {
-    SDL_SetWindowSize(window, DefaultWindowWidth, DefaultWindowHeight);
+    SDL_SetWindowSize(window, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED,
                           SDL_WINDOWPOS_CENTERED);
   }
 }
+
 bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
   if (event->type == SDL_KEYDOWN) {
     switch (event->key.keysym.sym) {
@@ -42,15 +41,15 @@ bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
 
 void HandlePlayerState(const Uint8 *state, Humanoid *player) {
   if (state[SDL_SCANCODE_UP]) {
-    player->movement.velocity.y = -200;
+    player->movement.velocity.y = -JUMP_SPEED;
   }
   if (state[SDL_SCANCODE_LEFT]) {
-    player->movement.velocity.x = -MoveSpeed;
+    player->movement.velocity.x = -MOVE_SPEED;
     player->animation.isFacingLeft =
         true; // Update the direction the player is facing
   }
   if (state[SDL_SCANCODE_RIGHT]) {
-    player->movement.velocity.x = MoveSpeed;
+    player->movement.velocity.x = MOVE_SPEED;
     player->animation.isFacingLeft =
         false; // Update the direction the player is facing
   }
@@ -58,6 +57,7 @@ void HandlePlayerState(const Uint8 *state, Humanoid *player) {
     humanoidShoot(player);
   }
 }
+
 bool processEvents(SDL_Window *window, Humanoid *player) {
   SDL_Event event;
   const Uint8 *state = SDL_GetKeyboardState(NULL);

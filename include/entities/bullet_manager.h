@@ -13,8 +13,9 @@ typedef struct {
   size_t nextAvailable; // Index of the next available bullet
 } BulletManager;
 
-void bulletManagerConstructor(BulletManager *manager, AnimationState animation,
-                              MovementState movement, SDL_Texture *texture);
+void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
+                              AnimationState animation, MovementState movement,
+                              SDL_Texture *texture);
 void bulletManagerDestructor(BulletManager *manager);
 void bulletManagerFireBullet(BulletManager *manager, Point position,
                              bool isFacingLeft);
