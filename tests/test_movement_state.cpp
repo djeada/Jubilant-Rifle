@@ -12,7 +12,7 @@ protected:
 
   void SetUp() override {
     // Initialize with some default values
-    movementStateConstructor(&state, 10, 10, 5, 5);
+    movementStateConstructor(&state, makePoint(10, 10), makePoint(5, 5));
   }
 };
 

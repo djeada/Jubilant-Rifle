@@ -15,6 +15,7 @@ void centerCameraOnPlayer(Camera *camera, Humanoid *player);
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
                           int windowHeight);
-void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera);
+void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
+            Vector *enemies);
 
 #endif

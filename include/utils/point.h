@@ -11,10 +11,7 @@ void pointConstructor(Point *point, float x, float y);
 
 // Copy constructor to copy one Point to another.
 void pointCopyConstructor(Point *destination, const Point *source);
-
-// Function to set the coordinates of a point.
-void pointSet(Point *point, float x, float y);
-
+Point makePoint(float x, float y);
 // Function to add two points.
 Point pointAdd(const Point *p1, const Point *p2);
 

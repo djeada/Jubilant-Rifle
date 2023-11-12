@@ -110,11 +110,14 @@ void runGame() {
   SDL_Renderer *renderer = NULL;
   Map map = {0};
   Humanoid player;
+  Vector enemies;
   Camera camera = {0, 0, 500, 500};
 
   if (!initializeGame(&window, &renderer, &map, &player)) {
     return; // Initialization failed
   }
+
+  vectorInit(&enemies, 5, sizeof(Humanoid), createPlayerHumanoidVariadic);
 
   timeManagerInit();
   int gameRunning = 1;
@@ -123,7 +126,7 @@ void runGame() {
     gameRunning = processEvents(window, &player);
     updateHumanoid(&player, &map);
     centerCameraOnPlayer(&camera, &player);
-    render(renderer, &map, &player, &camera);
+    render(renderer, &map, &player, &camera, &enemies);
     timeManagerUpdate();
     SDL_Delay(10); // Sleep to prevent CPU exhaustion
   }

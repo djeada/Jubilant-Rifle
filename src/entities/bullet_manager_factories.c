@@ -9,8 +9,9 @@ void createBulletManagerForHumanoid(BulletManager *bulletManager,
                             false);
 
   MovementState movement;
-  movementStateConstructor(&movement, humanoid->movement.position.x,
-                           humanoid->movement.position.y, 0, 0);
+
+  movementStateConstructor(&movement, humanoid->movement.position,
+                           makePoint(0, 0));
 
   bulletManagerConstructor(bulletManager, NUM_BULLETS, animation, movement,
                            getResourcesInstance()->bulletTexture);

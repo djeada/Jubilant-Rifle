@@ -1,11 +1,10 @@
 #include "entities/movement_state.h"
 #include <stdio.h> // for sprintf
-void movementStateConstructor(MovementState *state, int posX, int posY,
-                              int velX, int velY) {
-  state->position.x = posX;
-  state->position.y = posY;
-  state->velocity.x = velX;
-  state->velocity.y = velY;
+void movementStateConstructor(MovementState *state, Point position,
+                              Point velocity) {
+
+  pointCopyConstructor(&state->position, &position);
+  pointCopyConstructor(&state->velocity, &velocity);
 }
 
 void movementStateMoveHorizontal(MovementState *movement) {

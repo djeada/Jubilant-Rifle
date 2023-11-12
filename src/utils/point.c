@@ -13,12 +13,11 @@ void pointCopyConstructor(Point *destination, const Point *source) {
     *destination = *source;
   }
 }
-
-void pointSet(Point *point, float x, float y) {
-  if (point) {
-    point->x = x;
-    point->y = y;
-  }
+Point makePoint(float x, float y) {
+  Point p;
+  p.x = x;
+  p.y = y;
+  return p;
 }
 
 Point pointAdd(const Point *p1, const Point *p2) {

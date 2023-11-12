@@ -214,8 +214,8 @@ void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera) {
   }
 }
 
-void render(SDL_Renderer *renderer, Map *map, Humanoid *player,
-            Camera *camera) {
+void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
+            Vector *enemies) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0,
                          SDL_ALPHA_OPAQUE); // Clear with black background
   SDL_RenderClear(renderer);
@@ -223,6 +223,10 @@ void render(SDL_Renderer *renderer, Map *map, Humanoid *player,
   renderMap(renderer, map);
   renderPlatforms(renderer, map, camera);
   renderPlayer(renderer, player, camera);
+  for (size_t i = 0; i < enemies->size; i++) {
+    Humanoid *enemy = (Humanoid *)enemies->items[i];
+    renderPlayer(renderer, enemy, camera);
+  }
   renderHealthBar(renderer, 100);
   SDL_RenderPresent(renderer); // Update screen
 }

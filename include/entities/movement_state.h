@@ -8,8 +8,8 @@ typedef struct {
   Point velocity;
 } MovementState;
 
-void movementStateConstructor(MovementState *state, int posX, int posY,
-                              int velX, int velY);
+void movementStateConstructor(MovementState *state, Point position,
+                              Point velocity);
 void movementStateMoveHorizontal(MovementState *movement);
 void movementStateMoveJump(MovementState *movement);
 void movementStateStop(MovementState *movement);
