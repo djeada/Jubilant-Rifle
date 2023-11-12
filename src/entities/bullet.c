@@ -5,13 +5,13 @@ void bulletConstructor(void *obj, ...) {
   va_list args;
   va_start(args, obj); // Initialize va_list with the last known fixed argument
 
-  bulletConstructorVariadic(obj,
-                            args); // Pass the va_list to the actual constructor
+  bulletConstructorGeneric(obj,
+                           args); // Pass the va_list to the actual constructor
 
   va_end(args); // Clean up va_list
 }
 
-void bulletConstructorVariadic(void *obj, va_list args) {
+void bulletConstructorGeneric(void *obj, va_list args) {
   if (!obj)
     return;
   Bullet *bullet = (Bullet *)obj;
@@ -26,17 +26,18 @@ void bulletConstructorVariadic(void *obj, va_list args) {
   bullet->texture = texture;
 }
 
-// Copies the content of a Bullet object from source to destination
-void bulletCopy(Bullet *destination, const Bullet *source) {
+void bulletCopyConstructor(Bullet *destination, const Bullet *source) {
   if (!destination || !source)
     return;
 
   destination->animation = source->animation;
   destination->movement = source->movement;
-  // For the texture, you might want to increase a reference count if that's how
-  // you're managing textures, or you might want to actually copy the texture.
-  // For simplicity, we're just copying the reference.
   destination->texture = source->texture;
+}
+
+void bulletCopyConstructorGeneric(void *destination, void *source) {
+
+  bulletCopyConstructor((Bullet *)destination, (Bullet *)source);
 }
 
 void bulletMove(Bullet *bullet) {

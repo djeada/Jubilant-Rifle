@@ -13,6 +13,7 @@ void pointCopyConstructor(Point *destination, const Point *source) {
     *destination = *source;
   }
 }
+
 Point makePoint(float x, float y) {
   Point p;
   p.x = x;

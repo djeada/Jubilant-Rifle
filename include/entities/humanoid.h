@@ -13,7 +13,7 @@ typedef struct {
 } Humanoid;
 
 void humanoidConstructor(void *obj, ...);
-void humanoidConstructorVariadic(void *obj, va_list args);
+void humanoidConstructorGeneric(void *obj, va_list args);
 void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source);
 void humanoidDestructor(void *data);
 void humanoidDie(Humanoid *humanoid);

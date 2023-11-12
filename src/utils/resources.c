@@ -1,5 +1,8 @@
 #include "utils/resources.h"
+#include "utils/consts.h"
+
 static Resources *instance = NULL;
+
 Resources *getResourcesInstance(void) {
   if (instance == NULL) {
     instance = (Resources *)malloc(sizeof(Resources));
@@ -24,16 +27,11 @@ bool initializeResourcesInstance(SDL_Renderer *renderer) {
   }
 
   // Load textures using a hypothetical 'loadTexture' function.
-  loadTexture(renderer, "resources/textures/background.png",
-              &instance->backgroundTexture);
-  loadTexture(renderer, "resources/textures/bullet.png",
-              &instance->bulletTexture);
-  loadTexture(renderer, "resources/textures/player.png",
-              &instance->playerTexture);
-  loadTexture(renderer, "resources/textures/enemy.png",
-              &instance->enemyTexture);
-  loadTexture(renderer, "resources/textures/platform.png",
-              &instance->platformTexture);
+  loadTexture(renderer, BACKGROUND_TEXTURE_PATH, &instance->backgroundTexture);
+  loadTexture(renderer, BULLET_TEXTURE_PATH, &instance->bulletTexture);
+  loadTexture(renderer, PLAYER_TEXTURE_PATH, &instance->playerTexture);
+  loadTexture(renderer, ENEMY_TEXTURE_PATH, &instance->enemyTexture);
+  loadTexture(renderer, PLATFORM_TEXTURE_PATH, &instance->platformTexture);
 
   // Initialize font
   instance->font = TTF_OpenFont("resources/fonts/FreeSans.ttf", 12);

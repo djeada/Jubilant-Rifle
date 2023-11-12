@@ -16,6 +16,8 @@ typedef struct {
 void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
                               AnimationState animation, MovementState movement,
                               SDL_Texture *texture);
+void bulletManagerCopyConstructor(BulletManager *dest,
+                                  const BulletManager *src);
 void bulletManagerDestructor(BulletManager *manager);
 void bulletManagerFireBullet(BulletManager *manager, Point position,
                              bool isFacingLeft);

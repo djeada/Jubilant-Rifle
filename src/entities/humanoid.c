@@ -9,23 +9,23 @@ void humanoidConstructor(void *obj, ...) {
   va_list args;
   va_start(args, obj); // Initialize va_list with the last known fixed argument
 
-  humanoidConstructorVariadic(
+  humanoidConstructorGeneric(
       obj, args); // Pass the va_list to the actual constructor
 
   va_end(args); // Clean up va_list
 }
 
-void humanoidConstructorVariadic(void *obj, va_list args) {
+void humanoidConstructorGeneric(void *obj, va_list args) {
   if (!obj)
     return;
 
   Humanoid *humanoid = (Humanoid *)obj;
-  humanoid->animation = va_arg(
-      args, AnimationState); // Retrieve AnimationState from variadic args
+  humanoid->animation =
+      va_arg(args, AnimationState); // Retrieve AnimationState from Generic args
   humanoid->movement =
-      va_arg(args, MovementState); // Retrieve MovementState from variadic args
+      va_arg(args, MovementState); // Retrieve MovementState from Generic args
   humanoid->texture =
-      va_arg(args, SDL_Texture *); // Retrieve SDL_Texture* from variadic args
+      va_arg(args, SDL_Texture *); // Retrieve SDL_Texture* from Generic args
 
   humanoid->life = 100;
   humanoid->isAlive = true;
@@ -41,8 +41,8 @@ void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source) {
   destination->movement = source->movement;
   destination->texture = source->texture;
 
-  // TODO Deep copy of the bullets Vector.
-  // destination->bullets = *vectorCopy(&source->bullets);
+  bulletManagerCopyConstructor(&destination->bulletManager,
+                               &source->bulletManager);
 
   destination->life = source->life;
   destination->isAlive = source->isAlive;

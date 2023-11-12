@@ -63,40 +63,25 @@ int vectorAppend(Vector *vector, void *item, ConstructorFunc constructor, ...) {
   return 0;
 }
 
-Vector *vectorCopy(const Vector *source) {
-  if (!source) {
-    return NULL;
+void vectorCopyConstructor(Vector *dest, const Vector *src,
+                           CopyConstructorFunc copyConstructor) {
+  dest->size = src->size;
+  dest->capacity = src->capacity;
+  dest->itemSize = src->itemSize;
+  dest->items = malloc(sizeof(void *) * dest->capacity);
+
+  if (dest->items) {
+    for (size_t i = 0; i < dest->size; i++) {
+      dest->items[i] = malloc(dest->itemSize);
+      if (dest->items[i]) {
+        if (copyConstructor) {
+          copyConstructor(dest->items[i], src->items[i]);
+        } else {
+          memcpy(dest->items[i], src->items[i], dest->itemSize);
+        }
+      }
+    }
   }
-
-  // Allocate memory for the new vector
-  Vector *copy = malloc(sizeof(Vector));
-  if (!copy) {
-    return NULL; // Return NULL if the allocation failed
-  }
-
-  // Copy vector metadata
-  copy->size = source->size;
-  copy->capacity = source->capacity;
-
-  // Allocate memory for the new items
-  copy->items = malloc(sizeof(void *) * source->capacity);
-  if (!copy->items) {
-    free(copy);
-    return NULL; // Return NULL if the allocation failed
-  }
-
-  // Copy items from the source vector to the new vector
-  for (size_t i = 0; i < source->size; i++) {
-    // Shallow copy of items
-    copy->items[i] = source->items[i];
-  }
-
-  // Initialize the rest of the capacity with NULL
-  for (size_t i = source->size; i < source->capacity; i++) {
-    copy->items[i] = NULL;
-  }
-
-  return copy;
 }
 
 void *vectorGet(Vector *vector, size_t index) {

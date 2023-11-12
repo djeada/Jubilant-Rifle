@@ -18,7 +18,7 @@ void ToggleFullscreen(SDL_Window *window) {
   Uint32 isFullscreen = SDL_GetWindowFlags(window) & fullscreenFlag;
   SDL_SetWindowFullscreen(window, isFullscreen ? 0 : fullscreenFlag);
   if (!isFullscreen) {
-    SDL_SetWindowSize(window, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+    SDL_SetWindowSize(window, WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT);
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED,
                           SDL_WINDOWPOS_CENTERED);
   }

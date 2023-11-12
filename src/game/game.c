@@ -11,16 +11,13 @@
 #include "game/game_logic.h"
 #include "map/map.h"
 #include "rendering/render.h"
+#include "utils/consts.h"
 #include "utils/time_manager.h"
 #include "utils/utils.h"
 
 #define MAP_FILE_PATH "resources/maps/mountains.cfg"
-#define PLAYER_TEXTURE_PATH "resources/textures/player_b.png"
-#define PLATFORM_TEXTURE_PATH "resources/textures/platform.png"
 #define FONT_PATH "resources/fonts/FreeSans.ttf"
 #define WINDOW_TITLE "SDL Platformer"
-#define SCREEN_WIDTH 1920  // Your design width
-#define SCREEN_HEIGHT 1080 // Your design height
 
 #include "utils/resources.h"
 
@@ -70,7 +67,7 @@ int initializeSDL(SDL_Window **window, SDL_Renderer **renderer) {
   }
 
   // Set logical size for renderer
-  setRenderLogicalSize(*renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+  setRenderLogicalSize(*renderer, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
   IMG_Init(IMG_INIT_PNG); // Initialize image library
   TTF_Init();             // Initialize TTF library
 
@@ -86,7 +83,7 @@ int initializeMap(Map *map) {
 }
 
 bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
-                    Humanoid *player) {
+                    Humanoid *player, Vector *enemies) {
   if (initializeSDL(window, renderer) != 0) {
     return false;
   }
@@ -101,6 +98,7 @@ bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
   }
 
   createPlayerHumanoid(player);
+  createEnemies(enemies, map);
 
   return true;
 }
@@ -109,15 +107,13 @@ void runGame() {
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
   Map map = {0};
-  Humanoid player;
-  Vector enemies;
+  Humanoid player = {0};
+  Vector enemies = {0};
   Camera camera = {0, 0, 500, 500};
 
-  if (!initializeGame(&window, &renderer, &map, &player)) {
+  if (!initializeGame(&window, &renderer, &map, &player, &enemies)) {
     return; // Initialization failed
   }
-
-  vectorInit(&enemies, 5, sizeof(Humanoid), createPlayerHumanoidVariadic);
 
   timeManagerInit();
   int gameRunning = 1;

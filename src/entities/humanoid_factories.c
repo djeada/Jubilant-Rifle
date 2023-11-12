@@ -1,10 +1,10 @@
 #include "entities/humanoid_factories.h"
+#include "utils/consts.h"
 #include "utils/resources.h"
 
-void createHumanoid(Humanoid *newHumanoid, int initialSpriteIndex,
-                    bool isFacingLeft, Point initialPos, Point initialVel,
-                    bool isVisible, SDL_Texture *texture) {
-
+void setupHumanoid(Humanoid *humanoid, int initialSpriteIndex,
+                   bool isFacingLeft, Point initialPos, Point initialVel,
+                   bool isVisible, SDL_Texture *texture) {
   AnimationState animation;
   animationStateConstructor(&animation, initialSpriteIndex, isFacingLeft,
                             isVisible);
@@ -12,28 +12,45 @@ void createHumanoid(Humanoid *newHumanoid, int initialSpriteIndex,
   MovementState movement;
   movementStateConstructor(&movement, initialPos, initialVel);
 
-  humanoidConstructor(newHumanoid, animation, movement, texture);
+  humanoidConstructor(humanoid, animation, movement, texture);
 }
 
 void createPlayerHumanoid(Humanoid *newHumanoid) {
-  int initialSpriteIndex = 0;
-  bool isFacingLeft = false;
   Point initialPos = {100, 100};
   Point initialVel = {0, 0};
-  bool isVisible = true;
-
-  createHumanoid(newHumanoid, initialSpriteIndex, isFacingLeft, initialPos,
-                 initialVel, isVisible, getResourcesInstance()->playerTexture);
+  setupHumanoid(newHumanoid, 0, false, initialPos, initialVel, true,
+                getResourcesInstance()->playerTexture);
 }
-void createPlayerHumanoidVariadic(void *obj, va_list args) {
-  (void)args; // Cast args to void to indicate it's unused
-  // Assuming obj is a Humanoid object.
-  // If not, you'll need to adjust this part accordingly.
-  Humanoid *newHumanoid = (Humanoid *)obj;
 
-  // Process other arguments with va_arg if needed
-  // ...
+void createEnemyHumanoid(Humanoid *newHumanoid) {
+  Point initialPos = {100, 100};
+  Point initialVel = {0, 0};
+  setupHumanoid(newHumanoid, 0, false, initialPos, initialVel, true,
+                getResourcesInstance()->enemyTexture);
+}
 
-  // Call the createPlayerHumanoid function
-  createPlayerHumanoid(newHumanoid);
+void createHumanoids(Vector *newHumanoids, Map *map,
+                     void (*createHumanoidFunc)(void *, va_list)) {
+  vectorInit(newHumanoids, map->platformCount, sizeof(Humanoid),
+             createHumanoidFunc);
+  for (size_t i = 0; i < map->platformCount; ++i) {
+    Humanoid *humanoid = (Humanoid *)newHumanoids->items[i];
+    Point position = {map->platforms[i].x + map->platforms[i].width / 2,
+                      map->platforms[i].y - PLAYER_FRAME_HEIGHT};
+    pointCopyConstructor(&humanoid->movement.position, &position);
+  }
+}
+
+void createPlayerHumanoidGeneric(void *obj, va_list args) {
+  (void)args; // Unused
+  createPlayerHumanoid((Humanoid *)obj);
+}
+
+void createEnemyHumanoidGeneric(void *obj, va_list args) {
+  (void)args; // Unused
+  createEnemyHumanoid((Humanoid *)obj);
+}
+
+void createEnemies(Vector *newEnemies, Map *map) {
+  createHumanoids(newEnemies, map, createEnemyHumanoidGeneric);
 }

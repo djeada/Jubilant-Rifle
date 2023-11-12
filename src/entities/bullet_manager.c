@@ -5,11 +5,19 @@ void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
                               AnimationState animation, MovementState movement,
                               SDL_Texture *texture) {
 
-  // Initialize vector with variadic arguments
+  // Initialize vector with Generic arguments
   vectorInit(&manager->bullets, bulletNumber, sizeof(Bullet),
-             bulletConstructorVariadic, animation, movement, texture);
+             bulletConstructorGeneric, animation, movement, texture);
 
   manager->nextAvailable = 0;
+}
+
+void bulletManagerCopyConstructor(BulletManager *dest,
+                                  const BulletManager *src) {
+  // Perform a deep copy of the bullets vector
+  vectorCopyConstructor(&dest->bullets, &src->bullets,
+                        bulletCopyConstructorGeneric);
+  dest->nextAvailable = src->nextAvailable;
 }
 
 void bulletManagerDestructor(BulletManager *manager) {
