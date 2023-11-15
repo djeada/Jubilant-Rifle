@@ -10,6 +10,6 @@ bool loadTexture(SDL_Renderer *renderer, const char *path,
                  SDL_Texture **texture);
 unsigned int numberFromString(const char *line);
 void logError(const char *msg);
-char *my_strdup(const char *str);
+char *customStrdup(const char *str);
 
 #endif

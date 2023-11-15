@@ -22,22 +22,25 @@ void createPlayerHumanoid(Humanoid *newHumanoid) {
                 getResourcesInstance()->playerTexture);
 }
 
-void createEnemyHumanoid(Humanoid *newHumanoid) {
+void createEnemyHumanoid(Enemy *newHumanoid) {
   Point initialPos = {100, 100};
   Point initialVel = {0, 0};
-  setupHumanoid(newHumanoid, 0, false, initialPos, initialVel, true,
+  setupHumanoid(&newHumanoid->base, 0, false, initialPos, initialVel, true,
                 getResourcesInstance()->enemyTexture);
 }
 
 void createHumanoids(Vector *newHumanoids, Map *map,
                      void (*createHumanoidFunc)(void *, va_list)) {
-  vectorInit(newHumanoids, map->platformCount, sizeof(Humanoid),
+  vectorInit(newHumanoids, map->platformCount, sizeof(Enemy),
              createHumanoidFunc);
   for (size_t i = 0; i < map->platformCount; ++i) {
-    Humanoid *humanoid = (Humanoid *)newHumanoids->items[i];
+    Enemy *humanoid = (Enemy *)newHumanoids->items[i];
     Point position = {map->platforms[i].x + map->platforms[i].width / 2,
                       map->platforms[i].y - PLAYER_FRAME_HEIGHT};
-    pointCopyConstructor(&humanoid->movement.position, &position);
+    pointCopyConstructor(&humanoid->base.movement.position, &position);
+    humanoid->patrolStart = makePoint(map->platforms[i].x, map->platforms[i].y);
+    humanoid->patrolEnd = makePoint(
+        map->platforms[i].x + map->platforms[i].width, map->platforms[i].y);
   }
 }
 
@@ -48,7 +51,7 @@ void createPlayerHumanoidGeneric(void *obj, va_list args) {
 
 void createEnemyHumanoidGeneric(void *obj, va_list args) {
   (void)args; // Unused
-  createEnemyHumanoid((Humanoid *)obj);
+  createEnemyHumanoid((Enemy *)obj);
 }
 
 void createEnemies(Vector *newEnemies, Map *map) {

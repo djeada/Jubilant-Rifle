@@ -12,14 +12,9 @@
 #include "map/map.h"
 #include "rendering/render.h"
 #include "utils/consts.h"
+#include "utils/resources.h"
 #include "utils/time_manager.h"
 #include "utils/utils.h"
-
-#define MAP_FILE_PATH "resources/maps/mountains.cfg"
-#define FONT_PATH "resources/fonts/FreeSans.ttf"
-#define WINDOW_TITLE "SDL Platformer"
-
-#include "utils/resources.h"
 
 void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map,
              Humanoid *player) {
@@ -121,6 +116,7 @@ void runGame() {
   while (gameRunning) {
     gameRunning = processEvents(window, &player);
     updateHumanoid(&player, &map);
+    updateEnemies(&enemies, &map);
     centerCameraOnPlayer(&camera, &player);
     render(renderer, &map, &player, &camera, &enemies);
     timeManagerUpdate();

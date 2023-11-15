@@ -24,4 +24,8 @@
 
 #define NUM_BULLETS 100
 
+#define MAP_FILE_PATH "resources/maps/mountains.cfg"
+#define FONT_PATH "resources/fonts/FreeSans.ttf"
+#define WINDOW_TITLE "SDL Platformer"
+
 #endif

@@ -1,5 +1,6 @@
 #include "game/game_logic.h"
 #include "entities/bullet.h"
+#include "entities/enemy.h"
 #include "utils/consts.h"
 #include "utils/resources.h"
 #include "utils/time_manager.h"
@@ -117,4 +118,23 @@ bool checkCollision(const Humanoid *humanoid, const Platform *platform) {
   }
 
   return false; // The humanoid is not coming from above the platform
+}
+
+void updateEnemies(Vector *enemies, Map *map) {
+  for (size_t i = 0; i < map->platformCount; ++i) {
+    Enemy *enemy = (Enemy *)enemies->items[i];
+
+    // Update position
+    enemy->base.movement.position.x +=
+        enemy->base.animation.isFacingLeft ? -1 : 1;
+
+    // Check if the enemy has reached the patrol bounds and reverse direction if
+    // necessary
+    if ((enemy->base.animation.isFacingLeft &&
+         enemy->base.movement.position.x < enemy->patrolStart.x) ||
+        (!enemy->base.animation.isFacingLeft &&
+         enemy->base.movement.position.x > enemy->patrolEnd.x)) {
+      enemy->base.animation.isFacingLeft = !enemy->base.animation.isFacingLeft;
+    }
+  }
 }

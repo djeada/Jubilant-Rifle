@@ -63,6 +63,35 @@ TEST_F(VectorTest, CopiesIntVectorCorrectly) {
   free(newVector.items);
 }
 
+// Test for getting an item from the vector
+TEST_F(VectorTest, GetsItemCorrectly) {
+  int item = 10;
+  vectorAppend(v, &item, nullptr);
+  int *retrievedItem = (int *)vectorGet(v, 0);
+  EXPECT_EQ(*retrievedItem, item);
+}
+
+// Test for getting an item from an invalid index
+TEST_F(VectorTest, GetInvalidIndex) {
+  void *result = vectorGet(v, -1); // Trying to get an item at an invalid index
+  EXPECT_EQ(result, nullptr);
+}
+
+// Test for removing an item from the vector
+TEST_F(VectorTest, RemovesItemCorrectly) {
+  int item = 10;
+  vectorAppend(v, &item, nullptr);
+  vectorRemove(v, 0, NULL);
+  EXPECT_EQ(v->size, 0);
+}
+
+// Test for removing an item from an invalid index
+TEST_F(VectorTest, RemoveInvalidIndex) {
+  size_t size = v->size;
+  vectorRemove(v, -1, NULL); // has no effect
+  EXPECT_EQ(v->size, size);
+}
+
 typedef struct {
   int a;
   int b;
@@ -139,4 +168,33 @@ TEST_F(VectorCustomStructTest, CopiesCustomStructVectorCorrectly) {
     free(newVector.items[i]);
   }
   free(newVector.items);
+}
+// Test for getting a CustomStruct item from the vector
+TEST_F(VectorCustomStructTest, GetsCustomStructItemCorrectly) {
+  CustomStruct *item = (CustomStruct *)vectorGet(v, 0);
+  ASSERT_NE(item, nullptr); // Ensure the item is not null
+  EXPECT_EQ(item->a, 10);
+  EXPECT_EQ(item->b, 20);
+}
+
+// Test for getting an item from an invalid index
+TEST_F(VectorCustomStructTest, GetInvalidIndexReturnsNull) {
+  void *result = vectorGet(v, 10); // Trying to get an item at an invalid index
+  EXPECT_EQ(result, nullptr);
+}
+
+// Test for removing a CustomStruct item from the vector
+TEST_F(VectorCustomStructTest, RemovesCustomStructItemCorrectly) {
+  vectorRemove(v, 0, NULL);
+  ASSERT_EQ(v->size, 4); // Size should decrease by 1
+  CustomStruct *item = (CustomStruct *)vectorGet(v, 0);
+  EXPECT_EQ(item->a, 10); // Check next item
+  EXPECT_EQ(item->b, 20);
+}
+
+// Test for removing an item from an invalid index
+TEST_F(VectorCustomStructTest, RemoveInvalidIndex) {
+  size_t oldSize = v->size;
+  vectorRemove(v, 10, NULL);   // Attempt to remove an item at an invalid index
+  ASSERT_EQ(v->size, oldSize); // Size should remain the same
 }

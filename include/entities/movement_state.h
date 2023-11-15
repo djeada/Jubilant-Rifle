@@ -1,5 +1,6 @@
 #ifndef MOVEMENT_STATE_H
 #define MOVEMENT_STATE_H
+
 #include "utils/point.h"
 #include <stdbool.h>
 

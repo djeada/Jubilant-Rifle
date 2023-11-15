@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 #include <stdlib.h>
+
 typedef struct {
   int x;
   int y;
@@ -16,4 +17,5 @@ typedef struct {
 
 int parseMapFile(const char *filePath, Map *map);
 void mapDestructor(Map *map);
+
 #endif

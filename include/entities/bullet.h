@@ -14,7 +14,6 @@ typedef struct {
   SDL_Texture *texture;
 } Bullet;
 
-// Function declarations
 void bulletConstructor(void *obj, ...);
 void bulletConstructorGeneric(void *obj, va_list args);
 void bulletCopyConstructor(Bullet *destination, const Bullet *source);

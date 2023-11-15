@@ -14,7 +14,8 @@ int allocatePlatforms(Map *map, size_t count) {
 }
 
 char *allocateBackgroundImagePath(const char *path) {
-  char *newPath = my_strdup(path); // No need for custom my_strdup, use strdup
+  char *newPath =
+      customStrdup(path); // No need for custom customStrdup, use strdup
   if (!newPath) {
     return NULL; // Memory allocation failure
   }

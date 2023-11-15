@@ -6,4 +6,4 @@
 void createBulletManagerForHumanoid(BulletManager *bulletManager,
                                     Humanoid *humanoid);
 
-#endif // HUMANOID_FACTORIES_H
+#endif // BULLET_MANAGER_FACTORIES_H

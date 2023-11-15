@@ -52,7 +52,8 @@ unsigned int numberFromString(const char *line) {
   }
   return number;
 }
-char *my_strdup(const char *str) {
+
+char *customStrdup(const char *str) {
   size_t len = strlen(str) + 1; // +1 for the null terminator
   char *new_str = (char *)malloc(len);
   if (new_str == NULL) {
