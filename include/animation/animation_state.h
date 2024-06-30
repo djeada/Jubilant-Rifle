@@ -13,5 +13,6 @@ void animationStateConstructor(AnimationState *state, int spriteIndex,
 void animationStateHide(AnimationState *animationState);
 void animationStateShow(AnimationState *animationState);
 void animationStateIncrementSprite(AnimationState *animationState);
+void animationStateStop(AnimationState *animationState);
 
 #endif

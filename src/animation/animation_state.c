@@ -26,3 +26,9 @@ void animationStateIncrementSprite(AnimationState *animationState) {
     animationState->currentSpriteIndex %= 4;
   }
 }
+
+void animationStateStop(AnimationState *animationState) {
+  if (animationState != NULL) {
+    animationState->currentSpriteIndex = 0;
+  }
+}

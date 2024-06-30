@@ -1,5 +1,7 @@
 #include "entities/movement_state.h"
+#include "utils/consts.h"
 #include <stdio.h> // for sprintf
+
 void movementStateConstructor(MovementState *state, Point position,
                               Point velocity) {
 
@@ -21,7 +23,9 @@ void movementStateStop(MovementState *movement) {
   movement->velocity.y = 0;
 }
 
-void movementStateFall(MovementState *movement) { movement->position.y += 5; }
+void movementStateFall(MovementState *movement) { 
+  movement->position.y += FALL_INCREMENT; 
+  }
 
 bool movementStateIsJumping(MovementState *movement) {
   return movement->velocity.y != 0;

@@ -24,6 +24,7 @@
 
 #define MOVE_SPEED 5
 #define JUMP_SPEED 200
+#define FALL_INCREMENT 20
 
 #define NUM_BULLETS 100
 

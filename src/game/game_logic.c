@@ -5,28 +5,33 @@
 #include "utils/resources.h"
 #include "utils/time_manager.h"
 
-// Update the animation state of the humanoid player
-void updateAnimation(Humanoid *player) {
-    if (movementStateIsMoving(&player->movement) && timeManagerGetTime() % 3 == 0) {
-        animationStateIncrementSprite(&player->animation);
+// Update the animation state of the humanoid
+void updateAnimation(Humanoid *humanoid) {
+  if(movementStateIsMoving(&humanoid->movement)) {
+    if ( timeManagerGetTime() % 3 == 0) {
+        animationStateIncrementSprite(&humanoid->animation);
+    }
+  }
+    else  {
+animationStateStop(&humanoid->animation);
     }
 }
 
 // Update the horizontal position of the humanoid player
-void updatePosition(Humanoid *player) {
-    movementStateMoveHorizontal(&player->movement);
+void updatePosition(Humanoid *humanoid) {
+    movementStateMoveHorizontal(&humanoid->movement);
 }
 
 // Collision detection between a bullet and an enemy
-bool checkCollisionWithBullet(const Enemy *enemy, const Bullet *bullet) {
+bool checkCollisionWithBullet(Humanoid *humanoid, const Bullet *bullet) {
     // Assume bullet and enemy have bounding boxes defined as rectangles
     int leftB = bullet->movement.position.x;
     int rightB = leftB + BULLET_WIDTH;
     int topB = bullet->movement.position.y;
     int bottomB = topB + BULLET_HEIGHT;
-    int leftE = enemy->base.movement.position.x;
+    int leftE = humanoid->movement.position.x;
     int rightE = leftE + HUMANOID_FRAME_WIDTH;
-    int topE = enemy->base.movement.position.y;
+    int topE = humanoid->movement.position.y;
     int bottomE = topE + HUMANOID_FRAME_HEIGHT;
 
     // Basic AABB collision detection
@@ -46,7 +51,7 @@ void handleShooting(Humanoid *player, Vector *enemies) {
             // Check if collision with any of the enemies, if so decrease health
             for (size_t j = 0; j < enemies->size; ++j) {
                 Enemy *enemy = (Enemy *)enemies->items[j];
-                if (checkCollisionWithBullet(enemy, bullet)) {
+                if (checkCollisionWithBullet(&enemy->base, bullet)) {
                     humanoidDecreaseLife(&enemy->base, 1000);
                     if (!enemy->base.isAlive) {
                         // Handle enemy death if necessary
@@ -106,7 +111,7 @@ void checkWorldBounds(Humanoid *player) {
 }
 
 // Update the state of the humanoid player
-void updateHumanoid(Humanoid *player, Vector *enemies, Map *map) {
+void updatePlayerState(Humanoid *player, Vector *enemies, Map *map) {
     updateAnimation(player);
     updatePosition(player);
     handleShooting(player, enemies);
@@ -137,11 +142,17 @@ void updateEnemies(Vector *enemies) {
     for (size_t i = 0; i < enemies->size; ++i) {
         Enemy *enemy = (Enemy *)enemies->items[i];
 
-        enemy->base.movement.position.x += enemy->base.animation.isFacingLeft ? -1 : 1;
+        //enemy->base.movement.position.x += enemy->base.animation.isFacingLeft ? -1 : 1;
+        updatePosition(&enemy->base);
+        updateAnimation(&enemy->base);
 
         if ((enemy->base.animation.isFacingLeft && enemy->base.movement.position.x < enemy->patrolStart.x) ||
-            (!enemy->base.animation.isFacingLeft && enemy->base.movement.position.x > enemy->patrolEnd.x)) {
+            (!enemy->base.animation.isFacingLeft && enemy->base.movement.position.x > enemy->patrolEnd.x)
+            || enemy->base.movement.velocity.x == 0
+            ) {
             enemy->base.animation.isFacingLeft = !enemy->base.animation.isFacingLeft;
+            enemy->base.movement.velocity.x = enemy->base.animation.isFacingLeft ? -1 : 1;
         }
+
     }
 }

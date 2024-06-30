@@ -70,7 +70,7 @@ bool processEvents(SDL_Window *window, Humanoid *player) {
     }
 
     // Handle player movement if the player is not null
-    if (player) {
+    if (player && player->isAlive) {
         HandlePlayerState(state, player);
     }
 

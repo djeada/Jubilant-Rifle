@@ -109,7 +109,7 @@ void runGame() {
 
     while (gameRunning) {
         gameRunning = processEvents(window, &player);
-        updateHumanoid(&player, &enemies, &map);
+        updatePlayerState(&player, &enemies, &map);
         updateEnemies(&enemies);
         centerCameraOnPlayer(&camera, &player);
         render(renderer, &map, &player, &camera, &enemies);
