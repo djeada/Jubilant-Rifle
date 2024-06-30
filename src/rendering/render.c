@@ -2,27 +2,11 @@
 #include "entities/bullet.h"
 #include "utils/resources.h"
 #include "utils/utils.h"
+#include "utils/consts.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
-
-// Constants
-#define GAME_WIDTH 1920
-#define GAME_HEIGHT 1080
-#define SPRITE_WIDTH 40
-#define SPRITE_HEIGHT 100
-#define SPRITES_PER_ROW 6
-#define BULLET_SPRITE_WIDTH 20
-#define BULLET_SPRITE_HEIGHT 20
-#define HEALTH_BAR_OFFSET_X 20
-#define HEALTH_BAR_OFFSET_Y 20
-#define HEALTH_BAR_SCALE 2
-#define HEALTH_BAR_BG_WIDTH 102
-#define HEALTH_BAR_BG_HEIGHT 12
-#define HEALTH_BAR_WIDTH 100
-#define HEALTH_BAR_HEIGHT 10
-#define HEALTH_BAR_TEXT "Level 1 "
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
                           int windowHeight) {
@@ -109,7 +93,7 @@ void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
   renderBullets(renderer, &player->bulletManager, camera);
 }
 
-void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
+void renderHealthBar(SDL_Renderer *renderer, unsigned int length, Humanoid *player) {
   SDL_Rect healthBarBackground = {10 + HEALTH_BAR_OFFSET_X,
                                   0 + HEALTH_BAR_OFFSET_Y,
                                   HEALTH_BAR_BG_WIDTH * HEALTH_BAR_SCALE,
@@ -132,6 +116,44 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length) {
                        30 * HEALTH_BAR_SCALE,
                        HEALTH_BAR_HEIGHT * HEALTH_BAR_SCALE};
 
+  SDL_RenderCopy(renderer, texture, NULL, &textRect);
+
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+
+  // Render player's position next to the health bar
+  char positionText[50];
+  sprintf(positionText, "X: %d Y: %d", (int)player->movement.position.x, (int)player->movement.position.y);
+  surface = TTF_RenderText_Solid(getResourcesInstance()->font, positionText, color);
+  texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  SDL_Rect positionRect = {12 + HEALTH_BAR_OFFSET_X + 40 * HEALTH_BAR_SCALE, 1 + HEALTH_BAR_OFFSET_Y, 100, 20};
+  SDL_RenderCopy(renderer, texture, NULL, &positionRect);
+
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+}
+
+void renderEnemyCount(SDL_Renderer *renderer, Vector *enemies) {
+  int aliveEnemies = 0;
+  for (size_t i = 0; i < enemies->size; i++) {
+    Humanoid *enemy = (Humanoid *)enemies->items[i];
+    if (enemy->isAlive) {
+      aliveEnemies++;
+    }
+  }
+
+  char enemyCountText[50];
+  sprintf(enemyCountText, "Enemies: %d/%zu", aliveEnemies, enemies->size);
+  
+  SDL_Color color = {255, 255, 255, 255};
+  SDL_Surface *surface = TTF_RenderText_Solid(getResourcesInstance()->font, enemyCountText, color);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  int textWidth = 100; // Adjust width as needed
+  int textHeight = 20; // Adjust height as needed
+
+  SDL_Rect textRect = {GAME_WIDTH - textWidth - 10, 10, textWidth, textHeight};
   SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
   SDL_FreeSurface(surface);
@@ -179,6 +201,7 @@ void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
     renderPlayer(renderer, enemy, camera);
   }
 
-  renderHealthBar(renderer, 100);
+  renderHealthBar(renderer, 100, player);
+  renderEnemyCount(renderer, enemies);
   SDL_RenderPresent(renderer);
 }

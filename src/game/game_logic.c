@@ -86,17 +86,18 @@ void checkWorldBounds(Humanoid *player, Map *map) {
     player->movement.position.x = 0;
   }
   if (player->movement.position.x > map->width) {
-    player->movement.position.x = WORLD_WIDTH;
+    player->movement.position.x = map->width;
   }
   if (player->movement.position.y < 0) {
     player->movement.position.y = 0;
   }
-  if (player->movement.position.y > WORLD_HEIGHT) {
+  if (player->movement.position.y > map->height) {
     humanoidDie(player);
   }
 }
 
 void updatePlayerState(Humanoid *player, Vector *enemies, Map *map) {
+  if (!player->isAlive) return;
   updateAnimation(player);
   updatePosition(player);
   handleShooting(player, enemies);
