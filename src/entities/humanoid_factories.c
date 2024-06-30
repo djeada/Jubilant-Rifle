@@ -36,7 +36,7 @@ void createHumanoids(Vector *newHumanoids, Map *map,
   for (size_t i = 0; i < map->platformCount; ++i) {
     Enemy *humanoid = (Enemy *)newHumanoids->items[i];
     Point position = {map->platforms[i].x + map->platforms[i].width / 2,
-                      map->platforms[i].y - PLAYER_FRAME_HEIGHT};
+                      map->platforms[i].y - HUMANOID_FRAME_HEIGHT};
     pointCopyConstructor(&humanoid->base.movement.position, &position);
     humanoid->patrolStart = makePoint(map->platforms[i].x, map->platforms[i].y);
     humanoid->patrolEnd = makePoint(

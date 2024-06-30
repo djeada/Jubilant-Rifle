@@ -7,7 +7,7 @@
 #include "utils/vector.h"
 
 bool checkCollision(const Humanoid *humanoid, const Platform *platform);
-void updateHumanoid(Humanoid *humanoid, Map *map);
-void updateEnemies(Vector *enemies, Map *map);
+void updateHumanoid(Humanoid *humanoid, Vector *enemies, Map *map);
+void updateEnemies(Vector *enemies);
 
 #endif // GAME_LOGIC_H
