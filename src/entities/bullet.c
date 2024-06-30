@@ -3,22 +3,17 @@
 
 void bulletConstructor(void *obj, ...) {
   va_list args;
-  va_start(args, obj); // Initialize va_list with the last known fixed argument
-
-  bulletConstructorGeneric(obj,
-                           args); // Pass the va_list to the actual constructor
-
-  va_end(args); // Clean up va_list
+  va_start(args, obj);
+  bulletConstructorGeneric(obj, args);
+  va_end(args);
 }
 
 void bulletConstructorGeneric(void *obj, va_list args) {
   if (!obj)
     return;
   Bullet *bullet = (Bullet *)obj;
-  AnimationState animation = va_arg(
-      args, AnimationState); // Assuming AnimationState can be passed this way
-  MovementState movement = va_arg(
-      args, MovementState); // Assuming MovementState can be passed this way
+  AnimationState animation = va_arg(args, AnimationState);
+  MovementState movement = va_arg(args, MovementState);
   SDL_Texture *texture = va_arg(args, SDL_Texture *);
 
   bullet->animation = animation;
@@ -44,7 +39,6 @@ void bulletMove(Bullet *bullet) {
   if (!bullet)
     return;
 
-  // Update the bullet's position based on its velocity
   bullet->movement.position.x += bullet->movement.velocity.x;
   bullet->movement.position.y += bullet->movement.velocity.y;
 }

@@ -23,9 +23,9 @@ void movementStateStop(MovementState *movement) {
   movement->velocity.y = 0;
 }
 
-void movementStateFall(MovementState *movement) { 
-  movement->position.y += FALL_INCREMENT; 
-  }
+void movementStateFall(MovementState *movement) {
+  movement->position.y += FALL_INCREMENT;
+}
 
 bool movementStateIsJumping(MovementState *movement) {
   return movement->velocity.y != 0;

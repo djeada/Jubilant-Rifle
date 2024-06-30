@@ -5,7 +5,6 @@ void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
                               AnimationState animation, MovementState movement,
                               SDL_Texture *texture) {
 
-  // Initialize vector with Generic arguments
   vectorInit(&manager->bullets, bulletNumber, sizeof(Bullet),
              bulletConstructorGeneric, animation, movement, texture);
 
@@ -14,14 +13,12 @@ void bulletManagerConstructor(BulletManager *manager, int bulletNumber,
 
 void bulletManagerCopyConstructor(BulletManager *dest,
                                   const BulletManager *src) {
-  // Perform a deep copy of the bullets vector
   vectorCopyConstructor(&dest->bullets, &src->bullets,
                         bulletCopyConstructorGeneric);
   dest->nextAvailable = src->nextAvailable;
 }
 
 void bulletManagerDestructor(BulletManager *manager) {
-  // Clean up resources used by BulletManager
   vectorFree(&manager->bullets, NULL);
 }
 

@@ -1,6 +1,7 @@
 
 extern "C" {
 #include "entities/movement_state.h"
+#include "utils/consts.h"
 }
 
 #include <gtest/gtest.h>
@@ -47,7 +48,7 @@ TEST_F(MovementStateTest, StopsCorrectly) {
 TEST_F(MovementStateTest, FallsCorrectly) {
   int initialY = state.position.y;
   movementStateFall(&state);
-  EXPECT_EQ(state.position.y, initialY + 5);
+  EXPECT_EQ(state.position.y, initialY + FALL_INCREMENT);
 }
 
 // Test jumping state

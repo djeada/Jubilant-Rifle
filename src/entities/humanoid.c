@@ -7,12 +7,11 @@
 
 void humanoidConstructor(void *obj, ...) {
   va_list args;
-  va_start(args, obj); // Initialize va_list with the last known fixed argument
+  va_start(args, obj);
 
-  humanoidConstructorGeneric(
-      obj, args); // Pass the va_list to the actual constructor
+  humanoidConstructorGeneric(obj, args);
 
-  va_end(args); // Clean up va_list
+  va_end(args);
 }
 
 void humanoidConstructorGeneric(void *obj, va_list args) {
@@ -20,12 +19,9 @@ void humanoidConstructorGeneric(void *obj, va_list args) {
     return;
 
   Humanoid *humanoid = (Humanoid *)obj;
-  humanoid->animation =
-      va_arg(args, AnimationState); // Retrieve AnimationState from Generic args
-  humanoid->movement =
-      va_arg(args, MovementState); // Retrieve MovementState from Generic args
-  humanoid->texture =
-      va_arg(args, SDL_Texture *); // Retrieve SDL_Texture* from Generic args
+  humanoid->animation = va_arg(args, AnimationState);
+  humanoid->movement = va_arg(args, MovementState);
+  humanoid->texture = va_arg(args, SDL_Texture *);
 
   humanoid->life = 100;
   humanoid->isAlive = true;
@@ -53,12 +49,7 @@ void humanoidDestructor(void *data) {
     return;
 
   Humanoid *humanoid = (Humanoid *)data;
-
-  // Use vectorFree to properly deallocate the Vector and its items.
   bulletManagerDestructor(&humanoid->bulletManager);
-
-  // Assuming that texture is managed elsewhere (shared resource), we don't
-  // destroy it here.
 }
 
 void humanoidDie(Humanoid *humanoid) {
@@ -66,9 +57,7 @@ void humanoidDie(Humanoid *humanoid) {
     return;
 
   humanoid->isAlive = false;
-  animationStateHide(
-      &humanoid
-           ->animation); // Assuming animationStateHide is defined elsewhere.
+  animationStateHide(&humanoid->animation);
 }
 
 void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage) {

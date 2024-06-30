@@ -16,106 +16,113 @@
 #include "utils/time_manager.h"
 #include "utils/utils.h"
 
-void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map, Humanoid *player) {
-    mapDestructor(map);
-    humanoidDestructor(player);
-    freeResourcesInstance();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map,
+             Humanoid *player) {
+  mapDestructor(map);
+  humanoidDestructor(player);
+  freeResourcesInstance();
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
 
-    IMG_Quit(); // After destroying all IMG textures but before SDL_Quit
-    SDL_Quit();
-    TTF_Quit();
+  IMG_Quit(); // After destroying all IMG textures but before SDL_Quit
+  SDL_Quit();
+  TTF_Quit();
 }
 
 int initializeSDL(SDL_Window **window, SDL_Renderer **renderer) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return -1;
-    }
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n",
+            SDL_GetError());
+    return -1;
+  }
 
-    SDL_DisplayMode current;
-    SDL_GetCurrentDisplayMode(0, &current); // Get current display mode for the default display
+  SDL_DisplayMode current;
+  SDL_GetCurrentDisplayMode(
+      0, &current); // Get current display mode for the default display
 
-    *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               current.w, current.h, // Use current display resolution
-                               SDL_WINDOW_FULLSCREEN);
+  *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED, current.w,
+                             current.h, // Use current display resolution
+                             SDL_WINDOW_FULLSCREEN);
 
-    if (!*window) {
-        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return -1;
-    }
+  if (!*window) {
+    fprintf(stderr, "Window could not be created! SDL_Error: %s\n",
+            SDL_GetError());
+    SDL_Quit();
+    return -1;
+  }
 
-    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
-    if (!*renderer) {
-        fprintf(stderr, "Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
-        SDL_DestroyWindow(*window);
-        SDL_Quit();
-        return -1;
-    }
+  *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
+  if (!*renderer) {
+    fprintf(stderr, "Renderer could not be created! SDL_Error: %s\n",
+            SDL_GetError());
+    SDL_DestroyWindow(*window);
+    SDL_Quit();
+    return -1;
+  }
 
-    // Set logical size for renderer
-    setRenderLogicalSize(*renderer, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-    IMG_Init(IMG_INIT_PNG); // Initialize image library
-    TTF_Init();             // Initialize TTF library
+  // Set logical size for renderer
+  setRenderLogicalSize(*renderer, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+  IMG_Init(IMG_INIT_PNG); // Initialize image library
+  TTF_Init();             // Initialize TTF library
 
-    return 0;
+  return 0;
 }
 
 int initializeMap(Map *map) {
-    if (parseMapFile(MAP_FILE_PATH, map) != 0) {
-        fprintf(stderr, "Failed to load map.\n");
-        return -1;
-    }
-    return 0;
+  if (parseMapFile(MAP_FILE_PATH, map) != 0) {
+    fprintf(stderr, "Failed to load map.\n");
+    return -1;
+  }
+  return 0;
 }
 
-bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map, Humanoid *player, Vector *enemies) {
-    if (initializeSDL(window, renderer) != 0) {
-        return false;
-    }
+bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
+                    Humanoid *player, Vector *enemies) {
+  if (initializeSDL(window, renderer) != 0) {
+    return false;
+  }
 
-    if (initializeMap(map) != 0) {
-        cleanup(*renderer, *window, map, player);
-        return false;
-    }
+  if (initializeMap(map) != 0) {
+    cleanup(*renderer, *window, map, player);
+    return false;
+  }
 
-    if (!initializeResourcesInstance(*renderer)) {
-        cleanup(*renderer, *window, map, player);
-        return false;
-    }
+  if (!initializeResourcesInstance(*renderer)) {
+    cleanup(*renderer, *window, map, player);
+    return false;
+  }
 
-    createPlayerHumanoid(player);
-    createEnemies(enemies, map);
+  createPlayerHumanoid(player);
+  createEnemies(enemies, map);
 
-    return true;
+  return true;
 }
 
 void runGame() {
-    SDL_Window *window = NULL;
-    SDL_Renderer *renderer = NULL;
-    Map map = {0};
-    Humanoid player = {0};
-    Vector enemies = {0};
-    Camera camera = {0, 0, 500, 500};
+  SDL_Window *window = NULL;
+  SDL_Renderer *renderer = NULL;
+  Map map = {0};
+  Humanoid player = {0};
+  Vector enemies = {0};
+  Camera camera = {0, 0, 500, 500};
 
-    if (!initializeGame(&window, &renderer, &map, &player, &enemies)) {
-        return; // Initialization failed
-    }
+  if (!initializeGame(&window, &renderer, &map, &player, &enemies)) {
+    return; // Initialization failed
+  }
 
-    timeManagerInit();
-    int gameRunning = 1;
+  timeManagerInit();
+  int gameRunning = 1;
 
-    while (gameRunning) {
-        gameRunning = processEvents(window, &player);
-        updatePlayerState(&player, &enemies, &map);
-        updateEnemies(&enemies);
-        centerCameraOnPlayer(&camera, &player);
-        render(renderer, &map, &player, &camera, &enemies);
-        timeManagerUpdate();
-        SDL_Delay(10); // Sleep to prevent CPU exhaustion
-    }
+  while (gameRunning) {
+    gameRunning = processEvents(window, &player);
+    updatePlayerState(&player, &enemies, &map);
+    updateEnemies(&enemies);
+    centerCameraOnPlayer(&camera, &player, &map);
+    render(renderer, &map, &player, &camera, &enemies);
+    timeManagerUpdate();
+    SDL_Delay(10); // Sleep to prevent CPU exhaustion
+  }
 
-    cleanup(renderer, window, &map, &player);
+  cleanup(renderer, window, &map, &player);
 }

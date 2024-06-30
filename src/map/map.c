@@ -1,6 +1,7 @@
 #include "map/map.h"
 #include "utils/utils.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int allocatePlatforms(Map *map, size_t count) {
@@ -14,20 +15,81 @@ int allocatePlatforms(Map *map, size_t count) {
 }
 
 char *allocateBackgroundImagePath(const char *path) {
-  char *newPath =
-      customStrdup(path); // No need for custom customStrdup, use strdup
+  char *newPath = strdup(path); // No need for custom customStrdup, use strdup
   if (!newPath) {
     return NULL; // Memory allocation failure
   }
   return newPath;
 }
 
-int parsePlatform(const char *line, Platform *platform) {
-  int dummy; // Used to absorb the platform index, which is not used after
-             // parsing
-  // sscanf returns the number of successfully filled fields
-  return sscanf(line, "platform%d = {%d, %d, %d, %d}", &dummy, &platform->x,
-                &platform->y, &platform->width, &platform->height) == 5;
+int parseStringValue(const char *json, const char *key, char *value,
+                     size_t valueSize) {
+  char *start = strstr(json, key);
+  if (!start)
+    return -1;
+  start = strchr(start, ':');
+  if (!start)
+    return -1;
+  start += 2; // Skip over the ": "
+  if (*start == '"')
+    start++; // Skip opening quote
+  char *end = strchr(start, '"');
+  if (!end)
+    return -1;
+  size_t len = end - start;
+  if (len >= valueSize)
+    return -1;
+  strncpy(value, start, len);
+  value[len] = '\0';
+  return 0;
+}
+
+int parseIntValue(const char *json, const char *key, int *value) {
+  char *start = strstr(json, key);
+  if (!start)
+    return -1;
+  start = strchr(start, ':');
+  if (!start)
+    return -1;
+  *value = atoi(start + 1);
+  return 0;
+}
+
+int parsePlatforms(const char *json, Platform *platforms,
+                   size_t platformCount) {
+  char *start = strstr(json, "\"platforms\"");
+  if (!start)
+    return -1;
+  start = strchr(start, '[');
+  if (!start)
+    return -1;
+  start++; // Move past the '['
+
+  size_t index = 0;
+  while (index < platformCount) {
+    Platform *platform = &platforms[index];
+    if (sscanf(start,
+               " { \"x\": %d , \"y\": %d , \"width\": %d , \"height\": %d } ,",
+               &platform->x, &platform->y, &platform->width,
+               &platform->height) == 4) {
+      index++;
+      start = strchr(start, '}');
+      if (!start)
+        return -1;
+      start += 2; // Move past the '},'
+    } else if (sscanf(start,
+                      " { \"x\": %d , \"y\": %d , \"width\": %d , \"height\": "
+                      "%d }",
+                      &platform->x, &platform->y, &platform->width,
+                      &platform->height) == 4) {
+      index++;
+      break;
+    } else {
+      return -1;
+    }
+  }
+
+  return index == platformCount ? 0 : -1;
 }
 
 int parseMapFile(const char *filePath, Map *map) {
@@ -42,59 +104,55 @@ int parseMapFile(const char *filePath, Map *map) {
     return -1;
   }
 
-  char line[128];
-  size_t currentPlatformIndex = 0;
-  while (fgets(line, sizeof(line), file)) {
-    char *newline = strchr(line, '\n');
-    if (newline)
-      *newline = '\0';
-
-    if (strncmp(line, "background_image =", 18) == 0) {
-      char *imagePath = line + 18;
-      imagePath += strspn(imagePath, " =");
-      free(map->backgroundImage);
-      map->backgroundImage = allocateBackgroundImagePath(imagePath);
-      if (!map->backgroundImage) {
-        perror("Memory allocation failed for background image");
-        fclose(file);
-        return -1;
-      }
-    } else if (strncmp(line, "platform_count =", 16) == 0) {
-      size_t count = atoi(line + 16);
-      if (count <= 0) {
-        fprintf(stderr, "Invalid platform count\n");
-        fclose(file);
-        return -1;
-      }
-      if (allocatePlatforms(map, count) != 0) {
-        perror("Memory allocation failed for platforms");
-        fclose(file);
-        return -1;
-      }
-    } else if (sscanf(line, "platform%*d = {%*d, %*d, %*d, %*d}") ==
-                   0 && // This line checks if the string follows the platform
-                        // pattern
-               currentPlatformIndex < map->platformCount) {
-      if (!parsePlatform(line, &map->platforms[currentPlatformIndex])) {
-        fprintf(stderr, "Platform parsing failed\n");
-        fclose(file);
-        return -1;
-      }
-      currentPlatformIndex++;
-    } else {
-      fprintf(stderr, "Unrecognized line or platform count exceeded\n");
-      fclose(file);
-      return -1;
-    }
-  }
-
-  if (currentPlatformIndex != map->platformCount) {
-    fprintf(stderr, "Platform count mismatch\n");
+  fseek(file, 0, SEEK_END);
+  long length = ftell(file);
+  fseek(file, 0, SEEK_SET);
+  char *data = malloc(length + 1);
+  if (!data) {
+    perror("Memory allocation failed");
     fclose(file);
     return -1;
   }
-
+  fread(data, 1, length, file);
+  data[length] = '\0';
   fclose(file);
+
+  char backgroundImagePath[256];
+  if (parseStringValue(data, "\"background_image\"", backgroundImagePath,
+                       sizeof(backgroundImagePath)) != 0) {
+    fprintf(stderr, "Failed to parse background image path\n");
+    free(data);
+    return -1;
+  }
+
+  map->backgroundImage = allocateBackgroundImagePath(backgroundImagePath);
+  if (!map->backgroundImage) {
+    perror("Memory allocation failed for background image");
+    free(data);
+    return -1;
+  }
+
+  if (parseIntValue(data, "\"width\"", &map->width) != 0 ||
+      parseIntValue(data, "\"height\"", &map->height) != 0) {
+    fprintf(stderr, "Failed to parse map dimensions\n");
+    free(data);
+    return -1;
+  }
+
+  size_t platformCount = 20; // We know there are 20 platforms
+  if (allocatePlatforms(map, platformCount) != 0) {
+    perror("Memory allocation failed for platforms");
+    free(data);
+    return -1;
+  }
+
+  if (parsePlatforms(data, map->platforms, platformCount) != 0) {
+    fprintf(stderr, "Failed to parse platforms\n");
+    free(data);
+    return -1;
+  }
+
+  free(data);
   return 0;
 }
 

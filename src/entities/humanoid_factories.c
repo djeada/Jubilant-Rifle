@@ -45,12 +45,12 @@ void createHumanoids(Vector *newHumanoids, Map *map,
 }
 
 void createPlayerHumanoidGeneric(void *obj, va_list args) {
-  (void)args; // Unused
+  (void)args;
   createPlayerHumanoid((Humanoid *)obj);
 }
 
 void createEnemyHumanoidGeneric(void *obj, va_list args) {
-  (void)args; // Unused
+  (void)args;
   createEnemyHumanoid((Enemy *)obj);
 }
 

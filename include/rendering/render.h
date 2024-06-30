@@ -11,7 +11,7 @@ typedef struct Camera {
   int width, height;
 } Camera;
 
-void centerCameraOnPlayer(Camera *camera, Humanoid *player);
+void centerCameraOnPlayer(Camera *camera, Humanoid *player, Map* map);
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
                           int windowHeight);
