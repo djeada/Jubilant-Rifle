@@ -6,8 +6,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/scripts")
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
 include_directories(include)
 
 file(GLOB_RECURSE SOURCES "src/*.c")
@@ -21,7 +22,7 @@ target_compile_options(main PRIVATE -Wall -Wextra -Werror -Wpedantic -fsanitize=
 target_link_options(main PRIVATE -fsanitize=address)
 
 # Link against the math library along with the SDL libraries for main_lib
-target_link_libraries(main main_lib ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} m)
+target_link_libraries(main main_lib ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_MIXER_LIBRARIES} m)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -48,6 +49,7 @@ endfunction()
 move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/textures ${CMAKE_BINARY_DIR}/resources/textures)
 move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/maps ${CMAKE_BINARY_DIR}/resources/maps)
 move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts ${CMAKE_BINARY_DIR}/resources/fonts)
+move_resources(${CMAKE_CURRENT_SOURCE_DIR}/resources/audio ${CMAKE_BINARY_DIR}/resources/audio)
 
 include(CheckLanguage)
 check_language(CXX)
