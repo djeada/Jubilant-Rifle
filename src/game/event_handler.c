@@ -1,7 +1,6 @@
 #include "game/event_handler.h"
 #include "utils/consts.h"
 
-// Handle window events, particularly the close event
 bool ProcessWindowEvent(const SDL_Event *event, SDL_Window **window) {
   if (event->type == SDL_WINDOWEVENT &&
       event->window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -14,7 +13,6 @@ bool ProcessWindowEvent(const SDL_Event *event, SDL_Window **window) {
   return true;
 }
 
-// Toggle fullscreen mode for the window
 void ToggleFullscreen(SDL_Window *window) {
   Uint32 fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
   Uint32 isFullscreen = SDL_GetWindowFlags(window) & fullscreenFlag;
@@ -26,7 +24,6 @@ void ToggleFullscreen(SDL_Window *window) {
   }
 }
 
-// Handle key events, such as ESC to quit and F to toggle fullscreen
 bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
   if (event->type == SDL_KEYDOWN) {
     switch (event->key.keysym.sym) {
@@ -42,28 +39,24 @@ bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
   return true;
 }
 
-// Handle player state based on keyboard input
-void HandlePlayerState(const Uint8 *state, Humanoid *player) {
+void HandlePlayerState(const Uint8 *state, Player *player) {
   if (state[SDL_SCANCODE_UP]) {
-    player->movement.velocity.y = -JUMP_SPEED;
+    player->base.movement.velocity.y = -JUMP_SPEED;
   }
   if (state[SDL_SCANCODE_LEFT]) {
-    player->movement.velocity.x = -MOVE_SPEED;
-    player->animation.isFacingLeft =
-        true; // Update the direction the player is facing
+    player->base.movement.velocity.x = -MOVE_SPEED;
+    player->base.animation.isFacingLeft = true;
   }
   if (state[SDL_SCANCODE_RIGHT]) {
-    player->movement.velocity.x = MOVE_SPEED;
-    player->animation.isFacingLeft =
-        false; // Update the direction the player is facing
+    player->base.movement.velocity.x = MOVE_SPEED;
+    player->base.animation.isFacingLeft = false;
   }
-  if (state[SDL_SCANCODE_SPACE]) { // Handle the space key
-    humanoidShoot(player);
+  if (state[SDL_SCANCODE_SPACE]) {
+    humanoidShoot(&player->base);
   }
 }
 
-// Process all SDL events and handle player input
-bool processEvents(SDL_Window *window, Humanoid *player) {
+bool processEvents(SDL_Window *window, Player *player) {
   SDL_Event event;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -74,8 +67,7 @@ bool processEvents(SDL_Window *window, Humanoid *player) {
     }
   }
 
-  // Handle player movement if the player is not null
-  if (player && player->isAlive) {
+  if (player && playerIsAlive(player)) {
     HandlePlayerState(state, player);
   }
 

@@ -15,6 +15,7 @@ void setupHumanoid(Humanoid *humanoid, int initialSpriteIndex,
   humanoidConstructor(humanoid, animation, movement, texture);
 }
 
+// TODO: Position Map dependent
 void createPlayerHumanoid(Humanoid *newHumanoid) {
   Point initialPos = {100, 100};
   Point initialVel = {0, 0};
@@ -22,6 +23,7 @@ void createPlayerHumanoid(Humanoid *newHumanoid) {
                 getResourcesInstance()->playerTexture);
 }
 
+// TODO: Position Platform dependent
 void createEnemyHumanoid(Enemy *newHumanoid) {
   Point initialPos = {100, 100};
   Point initialVel = {0, 0};

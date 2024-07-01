@@ -17,9 +17,9 @@
 #include "utils/utils.h"
 
 void cleanup(SDL_Renderer *renderer, SDL_Window *window, Map *map,
-             Humanoid *player) {
+             Player *player) {
   mapDestructor(map);
-  humanoidDestructor(player);
+  humanoidDestructor(&player->base);
   freeResourcesInstance();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
@@ -78,7 +78,7 @@ int initializeMap(Map *map) {
 }
 
 bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
-                    Humanoid *player, Vector *enemies) {
+                    Player *player, Vector *enemies) {
   if (initializeSDL(window, renderer) != 0) {
     return false;
   }
@@ -93,7 +93,7 @@ bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
     return false;
   }
 
-  createPlayerHumanoid(player);
+  playerFactory(player);
   createEnemies(enemies, map);
 
   return true;
@@ -103,7 +103,7 @@ void runGame() {
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
   Map map = {0};
-  Humanoid player = {0};
+  Player player = {0};
   Vector enemies = {0};
   Camera camera = {0, 0, 500, 500};
 
@@ -118,7 +118,7 @@ void runGame() {
     gameRunning = processEvents(window, &player);
     updatePlayerState(&player, &enemies, &map);
     updateEnemies(&enemies);
-    centerCameraOnPlayer(&camera, &player, &map);
+    centerCameraOnPlayer(&camera, &player.base, &map);
     render(renderer, &map, &player, &camera, &enemies);
     timeManagerUpdate();
     SDL_Delay(10); // Sleep to prevent CPU exhaustion

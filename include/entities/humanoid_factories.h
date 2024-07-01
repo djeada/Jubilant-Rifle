@@ -5,6 +5,9 @@
 #include "entities/humanoid.h"
 #include "map/map.h"
 
+void setupHumanoid(Humanoid *humanoid, int initialSpriteIndex,
+                   bool isFacingLeft, Point initialPos, Point initialVel,
+                   bool isVisible, SDL_Texture *texture);
 void createHumanoid(Humanoid *newHumanoid, int initialSpriteIndex,
                     bool isFacingLeft, Point initialPos, Point initialVel,
                     bool isVisible, SDL_Texture *texture);

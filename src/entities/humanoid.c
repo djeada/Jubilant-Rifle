@@ -23,9 +23,7 @@ void humanoidConstructorGeneric(void *obj, va_list args) {
   humanoid->movement = va_arg(args, MovementState);
   humanoid->texture = va_arg(args, SDL_Texture *);
 
-  humanoid->life = 100;
-  humanoid->isAlive = true;
-
+  lifeConstructor(&humanoid->life, 100);
   createBulletManagerForHumanoid(&humanoid->bulletManager, humanoid);
 }
 
@@ -39,9 +37,7 @@ void humanoidCopyConstructor(Humanoid *destination, const Humanoid *source) {
 
   bulletManagerCopyConstructor(&destination->bulletManager,
                                &source->bulletManager);
-
-  destination->life = source->life;
-  destination->isAlive = source->isAlive;
+  lifeCopyConstructor(&destination->life, &source->life);
 }
 
 void humanoidDestructor(void *data) {
@@ -52,22 +48,23 @@ void humanoidDestructor(void *data) {
   bulletManagerDestructor(&humanoid->bulletManager);
 }
 
+bool humanoidIsAlive(Humanoid *humanoid) {
+  return lifeIsAlive(&humanoid->life);
+}
+
 void humanoidDie(Humanoid *humanoid) {
   if (!humanoid)
     return;
-
-  humanoid->isAlive = false;
+  lifeDie(&humanoid->life);
   animationStateHide(&humanoid->animation);
 }
 
 void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage) {
-  if (!humanoid || !humanoid->isAlive)
+  if (!humanoid || !humanoidIsAlive(humanoid))
     return;
 
-  if ((int)humanoid->life > (int)damage) {
-    humanoid->life -= damage;
-  } else {
-    humanoid->life = 0;
+  lifeTakeDamage(&humanoid->life, damage);
+  if (!lifeIsAlive(&humanoid->life)) {
     humanoidDie(humanoid);
   }
 }

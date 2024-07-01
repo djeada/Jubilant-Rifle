@@ -1,5 +1,6 @@
 #include "rendering/render.h"
 #include "entities/bullet.h"
+#include "entities/enemy.h"
 #include "utils/consts.h"
 #include "utils/resources.h"
 #include "utils/utils.h"
@@ -69,33 +70,34 @@ void renderBullets(SDL_Renderer *renderer, BulletManager *bulletManager,
   }
 }
 
-void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
-  if (!player->isAlive || !player->animation.isVisible)
+void renderHumanoid(SDL_Renderer *renderer, Humanoid *humanoid,
+                    Camera *camera) {
+  if (!humanoidIsAlive(humanoid) || !humanoid->animation.isVisible)
     return;
 
   int sheetX =
-      (player->animation.currentSpriteIndex % SPRITES_PER_ROW) * SPRITE_WIDTH;
-  int sheetY =
-      (player->animation.currentSpriteIndex / SPRITES_PER_ROW) * SPRITE_HEIGHT;
+      (humanoid->animation.currentSpriteIndex % SPRITES_PER_ROW) * SPRITE_WIDTH;
+  int sheetY = (humanoid->animation.currentSpriteIndex / SPRITES_PER_ROW) *
+               SPRITE_HEIGHT;
 
   SDL_Rect sourceRect = {sheetX, sheetY, SPRITE_WIDTH, SPRITE_HEIGHT};
-  SDL_Rect destinationRect = {player->movement.position.x - camera->x,
-                              player->movement.position.y - camera->y,
+  SDL_Rect destinationRect = {humanoid->movement.position.x - camera->x,
+                              humanoid->movement.position.y - camera->y,
                               SPRITE_WIDTH, SPRITE_HEIGHT};
 
   SDL_RendererFlip flip =
-      player->animation.isFacingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+      humanoid->animation.isFacingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-  if (SDL_RenderCopyEx(renderer, player->texture, &sourceRect, &destinationRect,
-                       0.0, NULL, flip) != 0) {
+  if (SDL_RenderCopyEx(renderer, humanoid->texture, &sourceRect,
+                       &destinationRect, 0.0, NULL, flip) != 0) {
     logError("Unable to render player");
   }
 
-  renderBullets(renderer, &player->bulletManager, camera);
+  renderBullets(renderer, &humanoid->bulletManager, camera);
 }
 
-void renderHealthBar(SDL_Renderer *renderer, unsigned int length,
-                     Humanoid *player) {
+void renderHealthBar(SDL_Renderer *renderer, Player *player) {
+  unsigned int length = 100;
   SDL_Rect healthBarBackground = {10 + HEALTH_BAR_OFFSET_X,
                                   0 + HEALTH_BAR_OFFSET_Y,
                                   HEALTH_BAR_BG_WIDTH * HEALTH_BAR_SCALE,
@@ -110,8 +112,13 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length,
   SDL_RenderFillRect(renderer, &healthBar);
 
   SDL_Color color = {255, 255, 255, 255};
-  SDL_Surface *surface = TTF_RenderText_Solid(getResourcesInstance()->font,
-                                              HEALTH_BAR_TEXT, color);
+
+  char text[256];
+  char levelStr[50];
+  snprintf(levelStr, sizeof(levelStr), "%d", player->level);
+  snprintf(text, sizeof(text), "%s %s", HEALTH_BAR_TEXT, levelStr);
+  SDL_Surface *surface =
+      TTF_RenderText_Solid(getResourcesInstance()->font, text, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
   SDL_Rect textRect = {12 + HEALTH_BAR_OFFSET_X, 1 + HEALTH_BAR_OFFSET_Y,
@@ -125,8 +132,8 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length,
 
   // Render player's position next to the health bar
   char positionText[50];
-  sprintf(positionText, "X: %d Y: %d", (int)player->movement.position.x,
-          (int)player->movement.position.y);
+  sprintf(positionText, "X: %d Y: %d", (int)player->base.movement.position.x,
+          (int)player->base.movement.position.y);
   surface =
       TTF_RenderText_Solid(getResourcesInstance()->font, positionText, color);
   texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -142,8 +149,8 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length,
 void renderEnemyCount(SDL_Renderer *renderer, Vector *enemies) {
   int aliveEnemies = 0;
   for (size_t i = 0; i < enemies->size; i++) {
-    Humanoid *enemy = (Humanoid *)enemies->items[i];
-    if (enemy->isAlive) {
+    Enemy *enemy = (Enemy *)enemies->items[i];
+    if (enemyIsAlive(enemy)) {
       aliveEnemies++;
     }
   }
@@ -254,28 +261,28 @@ void renderGameOverOverlay(SDL_Renderer *renderer) {
   SDL_DestroyTexture(textTexture);
 }
 
-void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
+void render(SDL_Renderer *renderer, Map *map, Player *player, Camera *camera,
             Vector *enemies) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(renderer);
 
   renderMap(renderer, map);
-  renderPlatforms(renderer, map, camera, player); // Pass player here
-  renderPlayer(renderer, player, camera);
+  renderPlatforms(renderer, map, camera, &player->base);
+  renderHumanoid(renderer, &player->base, camera);
 
   for (size_t i = 0; i < enemies->size; i++) {
-    Humanoid *enemy = (Humanoid *)enemies->items[i];
-    if (abs((int)(enemy->movement.position.x - player->movement.position.x)) <=
-        2000) {
-      renderPlayer(renderer, enemy, camera);
+    Enemy *enemy = (Enemy *)enemies->items[i];
+    if (abs((int)(enemy->base.movement.position.x -
+                  player->base.movement.position.x)) <= 2000) {
+      renderHumanoid(renderer, &enemy->base, camera);
     }
   }
 
-  renderHealthBar(renderer, 100, player);
+  renderHealthBar(renderer, player);
   renderEnemyCount(renderer, enemies);
 
   // Check if player is alive, if not render GameOver overlay
-  if (!player->isAlive) {
+  if (!playerIsAlive(player)) {
     renderGameOverOverlay(renderer);
   }
 

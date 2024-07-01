@@ -15,7 +15,7 @@
 #define HEALTH_BAR_BG_HEIGHT 12
 #define HEALTH_BAR_WIDTH 100
 #define HEALTH_BAR_HEIGHT 10
-#define HEALTH_BAR_TEXT "Level 1 "
+#define HEALTH_BAR_TEXT "Level: "
 
 #define BACKGROUND_TEXTURE_PATH "resources/textures/background.png"
 #define BULLET_TEXTURE_PATH "resources/textures/bullet.png"

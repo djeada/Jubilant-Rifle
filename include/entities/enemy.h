@@ -5,9 +5,10 @@
 
 typedef struct {
   Humanoid base;
-  // Enemy specific fields...
   Point patrolStart;
   Point patrolEnd;
 } Enemy;
+
+bool enemyIsAlive(Enemy *enemy);
 
 #endif

@@ -33,19 +33,23 @@ bool checkCollisionWithBullet(Humanoid *humanoid, const Bullet *bullet) {
            leftB >= rightE);
 }
 
-void handleShooting(Humanoid *player, Vector *enemies) {
-  for (size_t i = 0; i < player->bulletManager.bullets.size; ++i) {
-    Bullet *bullet = (Bullet *)player->bulletManager.bullets.items[i];
+void handlePlayerShooting(Player *player, Vector *enemies) {
+  for (size_t i = 0; i < player->base.bulletManager.bullets.size; ++i) {
+    Bullet *bullet = (Bullet *)player->base.bulletManager.bullets.items[i];
 
     if (movementStateIsMoving(&bullet->movement)) {
       movementStateMoveHorizontal(&bullet->movement);
 
       for (size_t j = 0; j < enemies->size; ++j) {
         Enemy *enemy = (Enemy *)enemies->items[j];
+        if (!enemyIsAlive(enemy)) {
+          continue;
+        }
         if (checkCollisionWithBullet(&enemy->base, bullet)) {
           humanoidDecreaseLife(&enemy->base, 1000);
-          if (!enemy->base.isAlive) {
+          if (!enemyIsAlive(enemy)) {
             humanoidDie(&enemy->base);
+            playerIncreaseExperience(player, 1000);
           }
           movementStateStop(&bullet->movement);
           animationStateHide(&bullet->animation);
@@ -53,7 +57,7 @@ void handleShooting(Humanoid *player, Vector *enemies) {
         }
       }
 
-      if (pointDistance(&player->movement.position,
+      if (pointDistance(&player->base.movement.position,
                         &bullet->movement.position) > 500) {
         movementStateStop(&bullet->movement);
         animationStateHide(&bullet->animation);
@@ -96,18 +100,18 @@ void checkWorldBounds(Humanoid *player, Map *map) {
   }
 }
 
-void updatePlayerState(Humanoid *player, Vector *enemies, Map *map) {
-  if (!player->isAlive)
+void updatePlayerState(Player *player, Vector *enemies, Map *map) {
+  if (!playerIsAlive(player))
     return;
-  updateAnimation(player);
-  updatePosition(player);
-  handleShooting(player, enemies);
-  checkWorldBounds(player, map);
+  updateAnimation(&player->base);
+  updatePosition(&player->base);
+  handlePlayerShooting(player, enemies);
+  checkWorldBounds(&player->base, map);
 
-  bool onPlatform = handleCollisions(player, map);
-  applyGravity(player, onPlatform);
+  bool onPlatform = handleCollisions(&player->base, map);
+  applyGravity(&player->base, onPlatform);
 
-  movementStateStop(&player->movement);
+  movementStateStop(&player->base.movement);
 }
 
 bool checkCollision(const Humanoid *humanoid, const Platform *platform) {
