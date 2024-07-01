@@ -1,8 +1,19 @@
 #include "map/map.h"
+#include "utils/consts.h"
 #include "utils/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+Point getRandomPositionOnPlatform(Platform *platform) {
+
+  int random_x = platform->x + rand() % platform->width - HUMANOID_FRAME_WIDTH;
+  int y = platform->y - HUMANOID_FRAME_HEIGHT;
+
+  Point position = {random_x, y};
+  return position;
+}
 
 int allocatePlatforms(Map *map, size_t count) {
   free(map->platforms); // Free old platforms if they exist.

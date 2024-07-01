@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 #include <stdlib.h>
+#include "utils/point.h"
 
 typedef struct {
   int x;
@@ -17,6 +18,7 @@ typedef struct {
   int height;
 } Map;
 
+Point getRandomPositionOnPlatform(Platform* platform);
 int allocatePlatforms(Map* map, size_t count);
 char* allocateBackgroundImagePath(const char* path);
 int parseStringValue(const char* json, const char* key, char* value, size_t valueSize);

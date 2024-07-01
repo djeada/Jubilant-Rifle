@@ -41,14 +41,14 @@ bool ProcessKeyEvent(const SDL_Event *event, SDL_Window *window) {
 
 void HandlePlayerState(const Uint8 *state, Player *player) {
   if (state[SDL_SCANCODE_UP]) {
-    player->base.movement.velocity.y = -JUMP_SPEED;
+    player->base.movement.velocity.y = -PLAYER_JUMP_SPEED;
   }
   if (state[SDL_SCANCODE_LEFT]) {
-    player->base.movement.velocity.x = -MOVE_SPEED;
+    player->base.movement.velocity.x = -PLAYER_MOVE_SPEED;
     player->base.animation.isFacingLeft = true;
   }
   if (state[SDL_SCANCODE_RIGHT]) {
-    player->base.movement.velocity.x = MOVE_SPEED;
+    player->base.movement.velocity.x = PLAYER_MOVE_SPEED;
     player->base.animation.isFacingLeft = false;
   }
   if (state[SDL_SCANCODE_SPACE]) {

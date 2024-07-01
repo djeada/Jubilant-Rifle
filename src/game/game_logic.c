@@ -135,14 +135,19 @@ void updateEnemies(Vector *enemies) {
     updatePosition(&enemy->base);
     updateAnimation(&enemy->base);
 
-    if ((enemy->base.animation.isFacingLeft &&
-         enemy->base.movement.position.x < enemy->patrolStart.x) ||
-        (!enemy->base.animation.isFacingLeft &&
-         enemy->base.movement.position.x > enemy->patrolEnd.x) ||
-        enemy->base.movement.velocity.x == 0) {
-      enemy->base.animation.isFacingLeft = !enemy->base.animation.isFacingLeft;
+    bool isFacingLeft = enemy->base.animation.isFacingLeft;
+    float posX = enemy->base.movement.position.x;
+    float startX = enemy->patrolStart.x;
+    float endX = enemy->patrolEnd.x;
+
+    bool isBeyondLeftBound = isFacingLeft && posX < startX;
+    bool isBeyondRightBound =
+        !isFacingLeft && posX + HUMANOID_FRAME_WIDTH > endX;
+
+    if (isBeyondLeftBound || isBeyondRightBound) {
+      enemy->base.animation.isFacingLeft = !isFacingLeft;
       enemy->base.movement.velocity.x =
-          enemy->base.animation.isFacingLeft ? -1 : 1;
+          !isFacingLeft ? -ENEMY_MOVE_SPEED : ENEMY_MOVE_SPEED;
     }
   }
 }

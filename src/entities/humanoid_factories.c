@@ -1,6 +1,8 @@
 #include "entities/humanoid_factories.h"
 #include "utils/consts.h"
 #include "utils/resources.h"
+#include <stdlib.h>
+#include <time.h>
 
 void setupHumanoid(Humanoid *humanoid, int initialSpriteIndex,
                    bool isFacingLeft, Point initialPos, Point initialVel,
@@ -26,9 +28,11 @@ void createPlayerHumanoid(Humanoid *newHumanoid) {
 // TODO: Position Platform dependent
 void createEnemyHumanoid(Enemy *newHumanoid) {
   Point initialPos = {100, 100};
-  Point initialVel = {0, 0};
-  setupHumanoid(&newHumanoid->base, 0, false, initialPos, initialVel, true,
-                getResourcesInstance()->enemyTexture);
+  int randomDirection =
+      (rand() % 2 == 0) ? -ENEMY_MOVE_SPEED : ENEMY_MOVE_SPEED;
+  Point initialVel = {randomDirection, 0};
+  setupHumanoid(&newHumanoid->base, 0, randomDirection < 0, initialPos,
+                initialVel, true, getResourcesInstance()->enemyTexture);
 }
 
 void createHumanoids(Vector *newHumanoids, Map *map,
@@ -37,8 +41,7 @@ void createHumanoids(Vector *newHumanoids, Map *map,
              createHumanoidFunc);
   for (size_t i = 0; i < map->platformCount; ++i) {
     Enemy *humanoid = (Enemy *)newHumanoids->items[i];
-    Point position = {map->platforms[i].x + map->platforms[i].width / 2,
-                      map->platforms[i].y - HUMANOID_FRAME_HEIGHT};
+    Point position = getRandomPositionOnPlatform(&map->platforms[i]);
     pointCopyConstructor(&humanoid->base.movement.position, &position);
     humanoid->patrolStart = makePoint(map->platforms[i].x, map->platforms[i].y);
     humanoid->patrolEnd = makePoint(

@@ -48,7 +48,7 @@ TEST_F(MovementStateTest, StopsCorrectly) {
 TEST_F(MovementStateTest, FallsCorrectly) {
   int initialY = state.position.y;
   movementStateFall(&state);
-  EXPECT_EQ(state.position.y, initialY + FALL_INCREMENT);
+  EXPECT_EQ(state.position.y, initialY + PLAYER_FALL_INCREMENT);
 }
 
 // Test jumping state
