@@ -67,4 +67,5 @@ char *customStrdup(const char *str) {
 // Utility function to log SDL errors and handle them accordingly.
 void logError(const char *msg) {
   fprintf(stderr, "%s! SDL Error: %s\n", msg, SDL_GetError());
+  SDL_Log("Error: %s - %s", msg, SDL_GetError());
 }

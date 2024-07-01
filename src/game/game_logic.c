@@ -97,7 +97,8 @@ void checkWorldBounds(Humanoid *player, Map *map) {
 }
 
 void updatePlayerState(Humanoid *player, Vector *enemies, Map *map) {
-  if (!player->isAlive) return;
+  if (!player->isAlive)
+    return;
   updateAnimation(player);
   updatePosition(player);
   handleShooting(player, enemies);

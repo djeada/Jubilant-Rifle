@@ -1,11 +1,12 @@
 #include "rendering/render.h"
 #include "entities/bullet.h"
+#include "utils/consts.h"
 #include "utils/resources.h"
 #include "utils/utils.h"
-#include "utils/consts.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 #include <stdbool.h>
 
 void setRenderLogicalSize(SDL_Renderer *renderer, int windowWidth,
@@ -93,7 +94,8 @@ void renderPlayer(SDL_Renderer *renderer, Humanoid *player, Camera *camera) {
   renderBullets(renderer, &player->bulletManager, camera);
 }
 
-void renderHealthBar(SDL_Renderer *renderer, unsigned int length, Humanoid *player) {
+void renderHealthBar(SDL_Renderer *renderer, unsigned int length,
+                     Humanoid *player) {
   SDL_Rect healthBarBackground = {10 + HEALTH_BAR_OFFSET_X,
                                   0 + HEALTH_BAR_OFFSET_Y,
                                   HEALTH_BAR_BG_WIDTH * HEALTH_BAR_SCALE,
@@ -123,11 +125,14 @@ void renderHealthBar(SDL_Renderer *renderer, unsigned int length, Humanoid *play
 
   // Render player's position next to the health bar
   char positionText[50];
-  sprintf(positionText, "X: %d Y: %d", (int)player->movement.position.x, (int)player->movement.position.y);
-  surface = TTF_RenderText_Solid(getResourcesInstance()->font, positionText, color);
+  sprintf(positionText, "X: %d Y: %d", (int)player->movement.position.x,
+          (int)player->movement.position.y);
+  surface =
+      TTF_RenderText_Solid(getResourcesInstance()->font, positionText, color);
   texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  SDL_Rect positionRect = {12 + HEALTH_BAR_OFFSET_X + 40 * HEALTH_BAR_SCALE, 1 + HEALTH_BAR_OFFSET_Y, 100, 20};
+  SDL_Rect positionRect = {12 + HEALTH_BAR_OFFSET_X + 40 * HEALTH_BAR_SCALE,
+                           1 + HEALTH_BAR_OFFSET_Y, 100, 20};
   SDL_RenderCopy(renderer, texture, NULL, &positionRect);
 
   SDL_FreeSurface(surface);
@@ -145,13 +150,14 @@ void renderEnemyCount(SDL_Renderer *renderer, Vector *enemies) {
 
   char enemyCountText[50];
   sprintf(enemyCountText, "Enemies: %d/%zu", aliveEnemies, enemies->size);
-  
+
   SDL_Color color = {255, 255, 255, 255};
-  SDL_Surface *surface = TTF_RenderText_Solid(getResourcesInstance()->font, enemyCountText, color);
+  SDL_Surface *surface =
+      TTF_RenderText_Solid(getResourcesInstance()->font, enemyCountText, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  int textWidth = 100; // Adjust width as needed
-  int textHeight = 20; // Adjust height as needed
+  int textWidth = 100;
+  int textHeight = 20;
 
   SDL_Rect textRect = {GAME_WIDTH - textWidth - 10, 10, textWidth, textHeight};
   SDL_RenderCopy(renderer, texture, NULL, &textRect);
@@ -174,17 +180,78 @@ void centerCameraOnPlayer(Camera *camera, Humanoid *player, Map *map) {
                   : camera->y;
 }
 
-void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera) {
+void renderPlatforms(SDL_Renderer *renderer, Map *map, Camera *camera,
+                     Humanoid *player) {
   for (size_t i = 0; i < map->platformCount; ++i) {
-    SDL_Rect rect = {map->platforms[i].x - camera->x,
-                     map->platforms[i].y - camera->y, map->platforms[i].width,
-                     map->platforms[i].height};
+    if (abs((int)(map->platforms[i].x - player->movement.position.x)) <= 2000) {
+      SDL_Rect rect = {map->platforms[i].x - camera->x,
+                       map->platforms[i].y - camera->y, map->platforms[i].width,
+                       map->platforms[i].height};
 
-    if (SDL_RenderCopy(renderer, getResourcesInstance()->platformTexture, NULL,
-                       &rect) != 0) {
-      logError("SDL could not render the platform texture");
+      if (SDL_RenderCopy(renderer, getResourcesInstance()->platformTexture,
+                         NULL, &rect) != 0) {
+        logError("SDL could not render the platform texture");
+      }
     }
   }
+}
+
+void renderGameOverOverlay(SDL_Renderer *renderer) {
+  const char *gameOverText = "Game Over";
+  SDL_Color textColor = {255, 255, 255, 255}; // White color for Game Over text
+  SDL_Color backgroundColor = {0, 0, 0,
+                               128}; // Semi-transparent black background
+
+  // Load a larger font size
+  TTF_Font *largeFont =
+      TTF_OpenFont(FONT_PATH, 72); // Adjust the path as needed
+  if (!largeFont) {
+    logError("Unable to load large font");
+    return;
+  }
+
+  // Create surface and texture for the text
+  SDL_Surface *textSurface =
+      TTF_RenderText_Solid(largeFont, gameOverText, textColor);
+  if (!textSurface) {
+    logError("Unable to create text surface");
+    TTF_CloseFont(largeFont);
+    return;
+  }
+
+  SDL_Texture *textTexture =
+      SDL_CreateTextureFromSurface(renderer, textSurface);
+  if (!textTexture) {
+    logError("Unable to create text texture");
+    SDL_FreeSurface(textSurface);
+    TTF_CloseFont(largeFont);
+    return;
+  }
+
+  int textWidth = textSurface->w;
+  int textHeight = textSurface->h;
+
+  SDL_FreeSurface(textSurface);
+  TTF_CloseFont(largeFont);
+
+  // Set up the background rectangle
+  SDL_Rect backgroundRect = {(GAME_WIDTH - textWidth) / 2 - 20,
+                             (GAME_HEIGHT - textHeight) / 2 - 20,
+                             textWidth + 40, textHeight + 40};
+
+  // Render the background
+  SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g,
+                         backgroundColor.b, backgroundColor.a);
+  SDL_RenderFillRect(renderer, &backgroundRect);
+
+  // Set up the text rectangle
+  SDL_Rect textRect = {(GAME_WIDTH - textWidth) / 2,
+                       (GAME_HEIGHT - textHeight) / 2, textWidth, textHeight};
+
+  // Render the text
+  SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+
+  SDL_DestroyTexture(textTexture);
 }
 
 void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
@@ -193,15 +260,24 @@ void render(SDL_Renderer *renderer, Map *map, Humanoid *player, Camera *camera,
   SDL_RenderClear(renderer);
 
   renderMap(renderer, map);
-  renderPlatforms(renderer, map, camera);
+  renderPlatforms(renderer, map, camera, player); // Pass player here
   renderPlayer(renderer, player, camera);
 
   for (size_t i = 0; i < enemies->size; i++) {
     Humanoid *enemy = (Humanoid *)enemies->items[i];
-    renderPlayer(renderer, enemy, camera);
+    if (abs((int)(enemy->movement.position.x - player->movement.position.x)) <=
+        2000) {
+      renderPlayer(renderer, enemy, camera);
+    }
   }
 
   renderHealthBar(renderer, 100, player);
   renderEnemyCount(renderer, enemies);
+
+  // Check if player is alive, if not render GameOver overlay
+  if (!player->isAlive) {
+    renderGameOverOverlay(renderer);
+  }
+
   SDL_RenderPresent(renderer);
 }
