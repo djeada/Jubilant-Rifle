@@ -8,6 +8,6 @@
 
 bool checkCollision(const Humanoid *humanoid, const Platform *platform);
 void updatePlayerState(Player *humanoid, Vector *enemies, Map *map);
-void updateEnemies(Vector *enemies);
+void updateEnemies(Vector *enemies, Player* player);
 
 #endif // GAME_LOGIC_H

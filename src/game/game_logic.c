@@ -5,7 +5,7 @@
 #include "utils/resources.h"
 #include "utils/time_manager.h"
 
-void updateAnimation(Humanoid *humanoid) {
+void incrementAnimation(Humanoid *humanoid) {
   if (movementStateIsMoving(&humanoid->movement)) {
     if (timeManagerGetTime() % 3 == 0) {
       animationStateIncrementSprite(&humanoid->animation);
@@ -33,18 +33,42 @@ bool checkCollisionWithBullet(Humanoid *humanoid, const Bullet *bullet) {
            leftB >= rightE);
 }
 
+void fillApproximateEnemies(Vector *enemies, Player *player,
+                            Vector *approxEnemies, float proximityThreshold) {
+  approxEnemies->size = 0;
+
+  for (size_t i = 0; i < enemies->size; ++i) {
+    Enemy *enemy = (Enemy *)enemies->items[i];
+    if (enemyIsAlive(enemy)) {
+      if (pointDistance(&player->base.movement.position,
+                        &enemy->base.movement.position) <= proximityThreshold) {
+        if (approxEnemies->size >= approxEnemies->capacity) {
+          approxEnemies->capacity *= 2;
+          approxEnemies->items = realloc(
+              approxEnemies->items, approxEnemies->capacity * sizeof(void *));
+        }
+        approxEnemies->items[approxEnemies->size++] = enemy;
+      }
+    }
+  }
+}
+
 void handlePlayerShooting(Player *player, Vector *enemies) {
+  Vector approxEnemies;
+  approxEnemies.size = 0;
+  approxEnemies.capacity = 10;
+  approxEnemies.items = malloc(approxEnemies.capacity * sizeof(void *));
+  float proximityThreshold = 1000.0f;
+  fillApproximateEnemies(enemies, player, &approxEnemies, proximityThreshold);
+
   for (size_t i = 0; i < player->base.bulletManager.bullets.size; ++i) {
     Bullet *bullet = (Bullet *)player->base.bulletManager.bullets.items[i];
 
     if (movementStateIsMoving(&bullet->movement)) {
       movementStateMoveHorizontal(&bullet->movement);
 
-      for (size_t j = 0; j < enemies->size; ++j) {
-        Enemy *enemy = (Enemy *)enemies->items[j];
-        if (!enemyIsAlive(enemy)) {
-          continue;
-        }
+      for (size_t j = 0; j < approxEnemies.size; ++j) {
+        Enemy *enemy = (Enemy *)approxEnemies.items[j];
         if (checkCollisionWithBullet(&enemy->base, bullet)) {
           humanoidDecreaseLife(&enemy->base, 1000);
           if (!enemyIsAlive(enemy)) {
@@ -58,6 +82,34 @@ void handlePlayerShooting(Player *player, Vector *enemies) {
       }
 
       if (pointDistance(&player->base.movement.position,
+                        &bullet->movement.position) > 500) {
+        movementStateStop(&bullet->movement);
+        animationStateHide(&bullet->animation);
+      }
+    }
+  }
+
+  free(approxEnemies.items);
+}
+
+void handleEnemyShooting(Enemy *enemy, Player *player) {
+  for (size_t i = 0; i < enemy->base.bulletManager.bullets.size; ++i) {
+    Bullet *bullet = (Bullet *)enemy->base.bulletManager.bullets.items[i];
+
+    if (movementStateIsMoving(&bullet->movement)) {
+      movementStateMoveHorizontal(&bullet->movement);
+
+      if (checkCollisionWithBullet(&player->base, bullet)) {
+        // humanoidDecreaseLife(&player->base, 1000);
+        if (!playerIsAlive(player)) {
+          humanoidDie(&player->base);
+        }
+        movementStateStop(&bullet->movement);
+        animationStateHide(&bullet->animation);
+        break;
+      }
+
+      if (pointDistance(&enemy->base.movement.position,
                         &bullet->movement.position) > 500) {
         movementStateStop(&bullet->movement);
         animationStateHide(&bullet->animation);
@@ -103,7 +155,8 @@ void checkWorldBounds(Humanoid *player, Map *map) {
 void updatePlayerState(Player *player, Vector *enemies, Map *map) {
   if (!playerIsAlive(player))
     return;
-  updateAnimation(&player->base);
+
+  incrementAnimation(&player->base);
   updatePosition(&player->base);
   handlePlayerShooting(player, enemies);
   checkWorldBounds(&player->base, map);
@@ -128,26 +181,46 @@ bool checkCollision(const Humanoid *humanoid, const Platform *platform) {
            leftA >= rightB);
 }
 
-void updateEnemies(Vector *enemies) {
+void updateEnemies(Vector *enemies, Player *player) {
   for (size_t i = 0; i < enemies->size; ++i) {
     Enemy *enemy = (Enemy *)enemies->items[i];
 
-    updatePosition(&enemy->base);
-    updateAnimation(&enemy->base);
+    if (!enemyIsAlive(enemy)) {
+      continue;
+    }
 
-    bool isFacingLeft = enemy->base.animation.isFacingLeft;
-    float posX = enemy->base.movement.position.x;
-    float startX = enemy->patrolStart.x;
-    float endX = enemy->patrolEnd.x;
+    if (pointDistanceX(&enemy->base.movement.position,
+                       &player->base.movement.position) < 500 &&
+        pointDistanceY(&enemy->base.movement.position,
+                       &player->base.movement.position) < 100 &&
+        playerIsAlive(player)) {
 
-    bool isBeyondLeftBound = isFacingLeft && posX < startX;
-    bool isBeyondRightBound =
-        !isFacingLeft && posX + HUMANOID_FRAME_WIDTH > endX;
+      enemy->base.animation.isFacingLeft = isPointLeftOf(
+          &player->base.movement.position, &enemy->base.movement.position);
+      animationStateStop(&enemy->base.animation);
+      humanoidShoot(&enemy->base);
+      handleEnemyShooting(enemy, player);
+    }
 
-    if (isBeyondLeftBound || isBeyondRightBound) {
-      enemy->base.animation.isFacingLeft = !isFacingLeft;
-      enemy->base.movement.velocity.x =
-          !isFacingLeft ? -ENEMY_MOVE_SPEED : ENEMY_MOVE_SPEED;
+    else {
+
+      updatePosition(&enemy->base);
+      incrementAnimation(&enemy->base);
+
+      bool isFacingLeft = enemy->base.animation.isFacingLeft;
+      float posX = enemy->base.movement.position.x;
+      float startX = enemy->patrolStart.x;
+      float endX = enemy->patrolEnd.x;
+
+      bool isBeyondLeftBound = isFacingLeft && posX < startX;
+      bool isBeyondRightBound =
+          !isFacingLeft && posX + HUMANOID_FRAME_WIDTH > endX;
+
+      if (isBeyondLeftBound || isBeyondRightBound) {
+        enemy->base.animation.isFacingLeft = !isFacingLeft;
+        enemy->base.movement.velocity.x =
+            !isFacingLeft ? -ENEMY_MOVE_SPEED : ENEMY_MOVE_SPEED;
+      }
     }
   }
 }

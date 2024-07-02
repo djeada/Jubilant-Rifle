@@ -47,3 +47,59 @@ float pointDistance(const Point *p1, const Point *p2) {
   }
   return 0.0f;
 }
+
+float pointDistanceX(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return fabs(p1->x - p2->x);
+  }
+  return 0.0f;
+}
+
+float pointDistanceY(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return fabs(p1->y - p2->y);
+  }
+  return 0.0f;
+}
+
+float pointDotProduct(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return (p1->x * p2->x + p1->y * p2->y);
+  }
+  return 0.0f;
+}
+
+float pointCrossProduct(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return (p1->x * p2->y - p1->y * p2->x);
+  }
+  return 0.0f;
+}
+
+int pointOrientation(const Point *p, const Point *q, const Point *r) {
+  if (p && q && r) {
+    float val = (q->y - p->y) * (r->x - q->x) - (q->x - p->x) * (r->y - q->y);
+    if (val > 0) {
+      return 1; // Counterclockwise
+    } else if (val < 0) {
+      return -1; // Clockwise
+    } else {
+      return 0; // Collinear
+    }
+  }
+  return 0;
+}
+
+int isPointLeftOf(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return (p1->x < p2->x) ? 1 : 0;
+  }
+  return 0;
+}
+
+int isPointRightOf(const Point *p1, const Point *p2) {
+  if (p1 && p2) {
+    return (p1->x > p2->x) ? 1 : 0;
+  }
+  return 0;
+}

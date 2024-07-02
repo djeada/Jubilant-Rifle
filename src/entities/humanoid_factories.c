@@ -26,14 +26,13 @@ void createEnemyHumanoid(Enemy *newHumanoid) {
                 initialVel, true, getResourcesInstance()->enemyTexture);
 }
 
-
 void createEnemyHumanoidGeneric(void *obj, va_list args) {
   (void)args;
   createEnemyHumanoid((Enemy *)obj);
 }
 
 void createEnemies(Vector *newEnemies, Map *map) {
-    vectorInit(newEnemies, map->platformCount, sizeof(Enemy),
+  vectorInit(newEnemies, map->platformCount, sizeof(Enemy),
              createEnemyHumanoidGeneric);
   for (size_t i = 0; i < map->platformCount; ++i) {
     Enemy *humanoid = (Enemy *)newEnemies->items[i];

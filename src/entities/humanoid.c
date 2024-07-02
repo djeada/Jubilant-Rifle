@@ -57,6 +57,12 @@ void humanoidDie(Humanoid *humanoid) {
     return;
   lifeDie(&humanoid->life);
   animationStateHide(&humanoid->animation);
+  for (size_t i = 0; i < humanoid->bulletManager.bullets.size; ++i) {
+    Bullet *bullet = (Bullet *)humanoid->bulletManager.bullets.items[i];
+
+    movementStateStop(&bullet->movement);
+    animationStateHide(&bullet->animation);
+  }
 }
 
 void humanoidDecreaseLife(Humanoid *humanoid, unsigned int damage) {

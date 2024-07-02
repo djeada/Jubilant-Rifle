@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 #include "entities/humanoid.h"
 #include "entities/humanoid_factories.h"
@@ -51,8 +51,8 @@ int initializeSDL(SDL_Window **window, SDL_Renderer **renderer) {
   SDL_GetCurrentDisplayMode(0, &current);
 
   *window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, current.w,
-                             current.h, SDL_WINDOW_FULLSCREEN);
+                             SDL_WINDOWPOS_UNDEFINED, current.w, current.h,
+                             SDL_WINDOW_FULLSCREEN);
 
   if (!*window) {
     fprintf(stderr, "Window could not be created! SDL_Error: %s\n",
@@ -112,15 +112,15 @@ bool initializeGame(SDL_Window **window, SDL_Renderer **renderer, Map *map,
 
   bgMusic = Mix_LoadMUS("resources/audio/entangled_life_lish_grooves.mp3");
   if (bgMusic == NULL) {
-    fprintf(stderr, "Failed to load background music! SDL_mixer Error: %s\n", Mix_GetError());
+    logError("Failed to load background music! SDL_mixer Error: ");
+    logError(Mix_GetError());
     return false;
   }
 
   return true;
 }
 
-void* playMusic(void* arg) {
-
+void *playMusic(void *arg) {
   (void)arg;
   Mix_PlayMusic(bgMusic, -1);
   return NULL;
@@ -146,7 +146,7 @@ void runGame() {
   while (gameRunning) {
     gameRunning = processEvents(window, &player);
     updatePlayerState(&player, &enemies, &map);
-    updateEnemies(&enemies);
+    updateEnemies(&enemies, &player);
     centerCameraOnPlayer(&camera, &player.base, &map);
     render(renderer, &map, &player, &camera, &enemies);
     timeManagerUpdate();

@@ -275,6 +275,7 @@ void render(SDL_Renderer *renderer, Map *map, Player *player, Camera *camera,
     if (abs((int)(enemy->base.movement.position.x -
                   player->base.movement.position.x)) <= 2000) {
       renderHumanoid(renderer, &enemy->base, camera);
+      renderBullets(renderer, &enemy->base.bulletManager, camera);
     }
   }
 
