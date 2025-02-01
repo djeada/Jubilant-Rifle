@@ -2,8 +2,7 @@
 #define POINT_H
 
 typedef struct {
-  float x;
-  float y;
+    float x, y;
 } Point;
 
 void pointConstructor(Point *point, float x, float y);

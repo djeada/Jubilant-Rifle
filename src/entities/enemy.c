@@ -1,3 +1,8 @@
 #include "entities/enemy.h"
 
-bool enemyIsAlive(Enemy *enemy) { return humanoidIsAlive(&enemy->base); }
+
+void enemy_update(Entity *self, float dt) {
+    Enemy *enemy = (Enemy*)self;
+    common_update(self, dt);
+    enemy->shootTimer -= dt;
+}

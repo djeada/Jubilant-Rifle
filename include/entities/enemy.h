@@ -1,14 +1,12 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include "entities/humanoid.h"
-
+#include "entities/entity.h"
 typedef struct {
-  Humanoid base;
-  Point patrolStart;
-  Point patrolEnd;
+    Entity base;
+    float shootTimer;
 } Enemy;
 
-bool enemyIsAlive(Enemy *enemy);
+void enemy_update(Entity *self, float dt);
 
 #endif
