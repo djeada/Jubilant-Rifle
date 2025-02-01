@@ -20,14 +20,18 @@ For an optimal gaming experience, Jubilant Rifle requires:
 
 - A system running **C** programming environment and **SDL2** framework.
 - **CMake** version 3.9 or higher for building the game.
-- 
+-
 ### Dependencies Installation on Debian-Based Systems
 
 Execute the following command in the terminal to install SDL2:
 
 ```bash
-apt install libsdl2-dev libsdl2-image-dev  libsdl2-mixer-dev  libsdl2-ttf-dev  
+apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 ```
+
+TODO: to install cmake
+
+TODO: to verify your c compiler
 
 ## Building and running the game
 
@@ -53,18 +57,16 @@ The development of **Jubilant Rifle** is an ongoing process. We aim to continuou
 - [x] **Shooting Mechanics**: Refined the shooting experience for the player, making it more responsive and satisfying.
 - [x] **Enemy AI**: Improved enemy AI, making them more challenging and strategic in combat.
 - [x] **Level Configuration Parser**: Developed a system to read and apply custom map configurations, paving the way for user-created levels.
-- [ ] **Cutscene Integration**: Create introductory and concluding cutscenes to give context and depth to the game narrative.
+- [ ] **Soundtrack and Sound Effects**: Compose a full original soundtrack and detailed sound effects for an immersive audio experience.
 - [ ] **Multi-Level Support**: Implement multiple levels with increasing difficulty and varied environments.
 - [ ] **Boss Battles**: Introduce challenging boss fights that require strategy and skill to overcome.
 - [ ] **Power-Ups and Special Abilities**: Add power-ups that temporarily enhance the player's abilities or provide new ways to play.
+- [ ] **Cutscene Integration**: Create introductory and concluding cutscenes to give context and depth to the game narrative.
 - [ ] **Local Multiplayer**: Implement a local co-op or versus mode to play with friends.
-- [ ] **Global Leaderboards**: Include a global leaderboard system to encourage competitive play.
-- [ ] **Soundtrack and Sound Effects**: Compose a full original soundtrack and detailed sound effects for an immersive audio experience.
 - [ ] **Customizable Controls**: Allow players to customize their control schemes.
-- [ ] **Accessibility Features**: Include options for colorblind mode, adjustable difficulty levels, and other accessibility improvements.
-- [ ] **Mobile Platform Support**: Expand the game to be playable on mobile devices with touch controls.
-- [ ] **Cloud Saving**: Enable players to save their game progress to the cloud for cross-platform play.
 - [ ] **Achievements and Trophies**: Implement a system for in-game achievements to provide players with additional challenges and rewards.
+- [ ] **Cloud Saving**: Enable players to save their game progress to the cloud for cross-platform play.
+- [ ] **Global Leaderboards**: Include a global leaderboard system to encourage competitive play.
 
 *Please note that this roadmap is subject to change based on player feedback and our internal prioritization. We're dedicated to creating the best experience possible and welcome community input on the direction of the game's development.*
 
