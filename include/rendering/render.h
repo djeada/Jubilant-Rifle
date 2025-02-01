@@ -18,10 +18,9 @@ TextureManager initTextureManager(SDL_Renderer *renderer);
 // Frees all textures.
 void destroyTextureManager(TextureManager *tm);
 
-// Draws the bullets.
+void render(SDL_Renderer *renderer, TextureManager *tm, Entity* player, BulletPool *pool, EnemyArray *arr);
+void player_draw(Entity* player, SDL_Renderer *renderer, TextureManager *tm) ;
 void bullet_pool_draw(BulletPool *pool, SDL_Renderer *renderer, TextureManager *tm);
-
-// Draws the enemies.
 void enemy_array_draw(EnemyArray *arr, SDL_Renderer *renderer, TextureManager *tm);
 
 #endif // RENDER_H

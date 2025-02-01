@@ -1,7 +1,9 @@
 #include "utils/time_manager.h"
 
 // The singleton instance of TimeManager as a static variable.
-static struct { int globalTime; } timeManager;
+static struct {
+  int globalTime;
+} timeManager;
 
 void timeManagerInit() { timeManager.globalTime = 0; }
 
