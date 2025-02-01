@@ -1,6 +1,8 @@
 #include "game/game.h"
 #include "rendering/render.h"
+#include "utils/consts.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
@@ -10,9 +12,15 @@ int main(int argc, char *argv[]) {
     printf("SDL_Init Error: %s\n", SDL_GetError());
     return 1;
   }
+  if (TTF_Init() != 0) {
+    fprintf(stderr, "TTF_Init Error: %s\n", TTF_GetError());
+    SDL_Quit();
+    return 1;
+  }
 
-  SDL_Window *win = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED,
-                                     SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+  SDL_Window *win =
+      SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                       WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, 0);
   if (!win) {
     SDL_Quit();
     return 1;
@@ -36,6 +44,7 @@ int main(int argc, char *argv[]) {
   destroyTextureManager(&texManager);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(win);
+  TTF_Quit();
   SDL_Quit();
   return 0;
 }

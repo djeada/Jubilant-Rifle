@@ -52,7 +52,8 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
   while (gameState != STATE_EXIT) {
     if (gameState == STATE_MENU) {
       runMainMenu(renderer, &gameState);
-    } else if (gameState == STATE_GAME) {
+      printf("Menu exited with state: %d\n", gameState);
+    } else if (gameState == STATE_GAME || true) {
       // --- Create/Reset Game Objects ---
       Entity *player = player_create(320, 400);
 
