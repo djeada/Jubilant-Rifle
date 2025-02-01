@@ -5,8 +5,10 @@
 #include <stdbool.h>
 #include "entities/entity.h"
 #include "game/game_state.h"
+#include "entities/bullet_pool.h"  // for bullet_pool_spawn()
 
-// Processes all pending events and updates the player and game state accordingly.
-void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState, bool *gameRunning);
+// Processes pending events, updating the player and game state.
+// The bullet pool pointer is provided so that the player can shoot.
+void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState, bool *gameRunning, BulletPool *bulletPool);
 
 #endif // EVENT_HANDLER_H

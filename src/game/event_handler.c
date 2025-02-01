@@ -1,6 +1,6 @@
 #include "game/event_handler.h"
 
-void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState, bool *gameRunning) {
+void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState, bool *gameRunning, BulletPool *bulletPool) {
     while (SDL_PollEvent(e)) {
         if (e->type == SDL_QUIT) {
             *gameState = STATE_EXIT;
@@ -19,6 +19,11 @@ void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState, bool *
                 player->vel.y = -200;
             if (e->key.keysym.sym == SDLK_DOWN)
                 player->vel.y = 200;
+            if (e->key.keysym.sym == SDLK_SPACE) {
+                // Player shoots: spawn a bullet from the player’s position going upward.
+                // Adjust the spawn offset so that the bullet appears from the center/top of the player.
+                bullet_pool_spawn(bulletPool, player->pos.x + 20, player->pos.y, 0, -300);
+            }
         }
         if (e->type == SDL_KEYUP) {
             if (e->key.keysym.sym == SDLK_LEFT || e->key.keysym.sym == SDLK_RIGHT)
