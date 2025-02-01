@@ -58,7 +58,12 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
             Entity *player = entity_create(ENTITY_PLAYER, 320, 400);
             player->health = 100;
             player->update = player_update;
-            // (Assuming player->anim has been set up elsewhere with proper frameCount, etc.)
+            // Initialize player animation:
+            player->anim = malloc(sizeof(Animation));
+            player->anim->frameCount = 6;         // e.g. 6 frames in the sprite sheet
+            player->anim->frameDuration = 0.1f;     // each frame lasts 0.1 seconds
+            player->anim->timer = 0;
+            player->anim->currentFrame = 0;
             
             EnemyArray enemies;
             enemy_array_init(&enemies);
@@ -68,7 +73,12 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                 enemy->base.health = 30;
                 enemy->base.update = enemy_update;
                 enemy->shootTimer = 2.0f;
-                // (Set up enemy->base.anim if needed)
+                // Initialize enemy animation:
+                enemy->base.anim = malloc(sizeof(Animation));
+                enemy->base.anim->frameCount = 6;     // adjust if needed
+                enemy->base.anim->frameDuration = 0.2f; // slower animation, for example
+                enemy->base.anim->timer = 0;
+                enemy->base.anim->currentFrame = 0;
                 enemy_array_add(&enemies, enemy);
             }
             
@@ -101,11 +111,10 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                 SDL_RenderClear(renderer);
                 
-                // Render the player using its animation state.
-                SDL_Rect playerDest = { (int)player->pos.x, (int)player->pos.y, SPRITE_WIDTH, SPRITE_HEIGHT };
-                // The renderAnimatedEntity helper is in render.c. We can inline similar logic here:
+                // Render player using animation state.
+                SDL_Rect playerDest = { (int)player->pos.x, (int)player->pos.y, SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT };
                 if (player->anim) {
-                    SDL_Rect src = { player->anim->currentFrame * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT };
+                    SDL_Rect src = { player->anim->currentFrame * SPRITE_WIDTH, 0, SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT };
                     SDL_RenderCopy(renderer, texManager->playerTex, &src, &playerDest);
                 } else {
                     SDL_RenderCopy(renderer, texManager->playerTex, NULL, &playerDest);
@@ -118,7 +127,7 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                 SDL_Delay(10);
             }
             
-            // --- Clean Up ---
+            // --- Clean Up Game Objects ---
             entity_destroy(player);
             enemy_array_destroy(&enemies);
             bullet_pool_destroy(&bulletPool);

@@ -20,6 +20,16 @@ void entity_destroy(Entity *e) {
 }
 
 void common_update(Entity *self, float dt) {
+    // Update position based on velocity.
     self->pos.x += self->vel.x * dt;
     self->pos.y += self->vel.y * dt;
+
+    // Update animation (if any).
+    if (self->anim) {
+        self->anim->timer += dt;
+        if (self->anim->timer >= self->anim->frameDuration) {
+            self->anim->timer -= self->anim->frameDuration;
+            self->anim->currentFrame = (self->anim->currentFrame + 1) % self->anim->frameCount;
+        }
+    }
 }
