@@ -1,8 +1,8 @@
-// main_menu.c
 #include "game/game_state.h"
-#include "utils/consts.h" // Use the constants defined in consts.h
+#include "utils/consts.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -113,15 +113,29 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
   // Variables for the button pulse effect.
   Uint32 startTime = SDL_GetTicks();
 
+  // Track the currently selected button (for keyboard navigation).
+  int selectedButton = 0;
+
   // Main loop.
   while (menuRunning) {
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         *state = STATE_EXIT;
         menuRunning = false;
-      }
-      if (event.type == SDL_MOUSEBUTTONDOWN &&
-          event.button.button == SDL_BUTTON_LEFT) {
+      } else if (event.type == SDL_MOUSEMOTION) {
+        // Update the selected button based on mouse movement.
+        int mx = event.motion.x;
+        int my = event.motion.y;
+        for (int i = 0; i < buttonCount; i++) {
+          SDL_Rect r = buttons[i].rect;
+          if (mx >= r.x && mx <= (r.x + r.w) && my >= r.y &&
+              my <= (r.y + r.h)) {
+            selectedButton = i;
+            break;
+          }
+        }
+      } else if (event.type == SDL_MOUSEBUTTONDOWN &&
+                 event.button.button == SDL_BUTTON_LEFT) {
         int mx = event.button.x;
         int my = event.button.y;
         for (int i = 0; i < buttonCount; i++) {
@@ -133,15 +147,16 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
             break;
           }
         }
-      }
-      if (event.type == SDL_KEYDOWN) {
-        // Pressing ESC or ENTER triggers state changes.
+      } else if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_ESCAPE) {
           *state = STATE_EXIT;
           menuRunning = false;
-        }
-        if (event.key.keysym.sym == SDLK_RETURN) {
-          *state = STATE_GAME;
+        } else if (event.key.keysym.sym == SDLK_UP) {
+          selectedButton = (selectedButton - 1 + buttonCount) % buttonCount;
+        } else if (event.key.keysym.sym == SDLK_DOWN) {
+          selectedButton = (selectedButton + 1) % buttonCount;
+        } else if (event.key.keysym.sym == SDLK_RETURN) {
+          *state = buttons[selectedButton].targetState;
           menuRunning = false;
         }
       }
@@ -152,25 +167,32 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
                            COLOR_BG.a);
     SDL_RenderClear(renderer);
 
-    // Get mouse position for hover effects.
+    // Also get the mouse state so that if the mouse is hovering over a button,
+    // we update the selection (this is useful if no MOUSEMOTION event occurs).
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
+    for (int i = 0; i < buttonCount; i++) {
+      SDL_Rect r = buttons[i].rect;
+      if (mouseX >= r.x && mouseX <= (r.x + r.w) && mouseY >= r.y &&
+          mouseY <= (r.y + r.h)) {
+        selectedButton = i;
+        break;
+      }
+    }
 
     // Compute pulse factor using a sine wave for a subtle animation.
     Uint32 elapsed = SDL_GetTicks() - startTime;
     float pulse =
-        0.05f *
-        sinf(elapsed / 200.0f); // scale variation between -0.05 and +0.05
+        0.05f * sinf(elapsed / 200.0f); // variation between -0.05 and +0.05
 
     // Render each button.
     for (int i = 0; i < buttonCount; i++) {
       SDL_Rect btnRect = buttons[i].rect;
-      // Check if the mouse is hovering.
-      bool hover = (mouseX >= btnRect.x && mouseX <= (btnRect.x + btnRect.w) &&
-                    mouseY >= btnRect.y && mouseY <= (btnRect.y + btnRect.h));
+      // Highlight the button if it is the current selection.
+      bool isSelected = (i == selectedButton);
 
-      // Adjust scale for the pulse effect on hover.
-      float scale = hover ? (1.0f + pulse) : 1.0f;
+      // Adjust scale for the pulse effect when selected.
+      float scale = isSelected ? (1.0f + pulse) : 1.0f;
       int scaledW = (int)(btnRect.w * scale);
       int scaledH = (int)(btnRect.h * scale);
       int offsetX = (scaledW - btnRect.w) / 2;
@@ -184,8 +206,8 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
       SDL_RenderFillRect(renderer, &shadowRect);
 
-      // Draw the button background.
-      SDL_Color btnColor = hover ? COLOR_BUTTON_HOVER : COLOR_BUTTON;
+      // Draw the button background (use the hover color if selected).
+      SDL_Color btnColor = isSelected ? COLOR_BUTTON_HOVER : COLOR_BUTTON;
       SDL_SetRenderDrawColor(renderer, btnColor.r, btnColor.g, btnColor.b,
                              btnColor.a);
       SDL_RenderFillRect(renderer, &scaledRect);
@@ -198,7 +220,6 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
 
       // Render the button text (centered within the button).
       int textW, textH;
-      // Get text dimensions.
       SDL_Texture *tempTex = renderText(renderer, font, buttons[i].text,
                                         COLOR_TEXT, &textW, &textH);
       if (tempTex) {
