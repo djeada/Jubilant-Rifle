@@ -1,11 +1,10 @@
 #include "game/game.h"
-#include "game/event_handler.h"
-
 #include "entities/bullet_pool.h"
 #include "entities/enemy.h"
 #include "entities/enemy_array.h"
 #include "entities/entity.h"
 #include "entities/player.h"
+#include "game/event_handler.h"
 #include "game/game_state.h"
 #include "game/main_menu.h"
 #include "utils/consts.h"
@@ -55,30 +54,12 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
       runMainMenu(renderer, &gameState);
     } else if (gameState == STATE_GAME) {
       // --- Create/Reset Game Objects ---
-      Entity *player = entity_create(ENTITY_PLAYER, 320, 400);
-      player->health = 100;
-      player->update = player_update;
-      // Initialize player animation:
-      player->anim = malloc(sizeof(Animation));
-      player->anim->frameCount = 6;       // e.g. 6 frames in the sprite sheet
-      player->anim->frameDuration = 0.1f; // each frame lasts 0.1 seconds
-      player->anim->timer = 0;
-      player->anim->currentFrame = 0;
+      Entity *player = player_create(320, 400);
 
       EnemyArray enemies;
       enemy_array_init(&enemies);
       for (int i = 0; i < 5; i++) {
-        Enemy *enemy = malloc(sizeof(Enemy));
-        enemy->base = *entity_create(ENTITY_ENEMY, 50 + i * 100, 50);
-        enemy->base.health = 30;
-        enemy->base.update = enemy_update;
-        enemy->shootTimer = 2.0f;
-        // Initialize enemy animation:
-        enemy->base.anim = malloc(sizeof(Animation));
-        enemy->base.anim->frameCount = 6;       // adjust if needed
-        enemy->base.anim->frameDuration = 0.2f; // slower animation, for example
-        enemy->base.anim->timer = 0;
-        enemy->base.anim->currentFrame = 0;
+        Enemy *enemy = enemy_create(50 + i * 100, 50);
         enemy_array_add(&enemies, enemy);
       }
 
