@@ -8,7 +8,7 @@
 #include "entities/bullet_pool.h"
 #include "game/game_state.h"
 #include "game/main_menu.h"
-
+#include "utils/consts.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -49,7 +49,6 @@ static void handleCollisions(BulletPool *pool, Entity *player, EnemyArray *enemi
 
 void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
     GameState gameState = STATE_MENU;
-    
     while (gameState != STATE_EXIT) {
         if (gameState == STATE_MENU) {
             runMainMenu(renderer, &gameState);
@@ -57,8 +56,9 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
         else if (gameState == STATE_GAME) {
             // --- Create/Reset Game Objects ---
             Entity *player = entity_create(ENTITY_PLAYER, 320, 400);
-            player->health = 100;  // starting health
+            player->health = 100;
             player->update = player_update;
+            // (Assuming player->anim has been set up elsewhere with proper frameCount, etc.)
             
             EnemyArray enemies;
             enemy_array_init(&enemies);
@@ -67,7 +67,8 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                 enemy->base = *entity_create(ENTITY_ENEMY, 50 + i * 100, 50);
                 enemy->base.health = 30;
                 enemy->base.update = enemy_update;
-                enemy->shootTimer = 2.0f;  // enemy shoots every 2 seconds
+                enemy->shootTimer = 2.0f;
+                // (Set up enemy->base.anim if needed)
                 enemy_array_add(&enemies, enemy);
             }
             
@@ -77,16 +78,13 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
             bool gameRunning = true;
             Uint32 last = SDL_GetTicks();
             SDL_Event e;
-            
             while (gameRunning && gameState == STATE_GAME) {
-                // --- Process Input (movement & shooting) ---
                 handleGameEvents(&e, player, &gameState, &gameRunning, &bulletPool);
                 
                 Uint32 now = SDL_GetTicks();
                 float dt = (now - last) / 1000.0f;
                 last = now;
                 
-                // --- Update ---
                 if (player->update)
                     player->update(player, dt);
                 enemy_array_update(&enemies, dt, &bulletPool);
@@ -103,8 +101,16 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                 SDL_RenderClear(renderer);
                 
-                SDL_Rect playerRect = { (int)player->pos.x, (int)player->pos.y, 50, 50 };
-                SDL_RenderCopy(renderer, texManager->playerTex, NULL, &playerRect);
+                // Render the player using its animation state.
+                SDL_Rect playerDest = { (int)player->pos.x, (int)player->pos.y, SPRITE_WIDTH, SPRITE_HEIGHT };
+                // The renderAnimatedEntity helper is in render.c. We can inline similar logic here:
+                if (player->anim) {
+                    SDL_Rect src = { player->anim->currentFrame * SPRITE_WIDTH, 0, SPRITE_WIDTH, SPRITE_HEIGHT };
+                    SDL_RenderCopy(renderer, texManager->playerTex, &src, &playerDest);
+                } else {
+                    SDL_RenderCopy(renderer, texManager->playerTex, NULL, &playerDest);
+                }
+                
                 enemy_array_draw(&enemies, renderer, texManager);
                 bullet_pool_draw(&bulletPool, renderer, texManager);
                 
