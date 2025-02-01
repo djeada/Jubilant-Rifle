@@ -5,9 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
+int initSDL() {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     printf("SDL_Init Error: %s\n", SDL_GetError());
     return 1;
@@ -17,34 +15,64 @@ int main(int argc, char *argv[]) {
     SDL_Quit();
     return 1;
   }
+  return 0;
+}
 
-  SDL_Window *win =
-      SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, 0);
+SDL_Window *createWindow() {
+  SDL_Window *win = SDL_CreateWindow(
+      "Jubilant Rifle", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, 0);
   if (!win) {
     SDL_Quit();
-    return 1;
   }
+  return win;
+}
 
+SDL_Renderer *createRenderer(SDL_Window *win) {
   SDL_Renderer *renderer =
       SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
   if (!renderer) {
     SDL_DestroyWindow(win);
     SDL_Quit();
-    return 1;
   }
+  return renderer;
+}
 
-  // Initialize textures (TextureManager is defined in render.h/render.c)
-  TextureManager texManager = initTextureManager(renderer);
-
-  // Run the game loop (which handles both menu and game states)
-  runGame(renderer, &texManager);
-
-  // Cleanup
-  destroyTextureManager(&texManager);
+void cleanup(SDL_Renderer *renderer, SDL_Window *win,
+             TextureManager *texManager) {
+  destroyTextureManager(texManager);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(win);
   TTF_Quit();
   SDL_Quit();
+}
+
+int main(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+
+  // Initialize SDL and TTF
+  if (initSDL() != 0) {
+    return 1;
+  }
+
+  // Create the SDL window and renderer
+  SDL_Window *win = createWindow();
+  if (!win)
+    return 1;
+
+  SDL_Renderer *renderer = createRenderer(win);
+  if (!renderer)
+    return 1;
+
+  // Initialize textures
+  TextureManager texManager = initTextureManager(renderer);
+
+  // Run the game loop
+  runGame(renderer, &texManager);
+
+  // Clean up all resources
+  cleanup(renderer, win, &texManager);
+
   return 0;
 }
