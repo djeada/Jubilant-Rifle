@@ -1,9 +1,9 @@
 #include "entities/player.h"
 
-Entity *player_create(float x, float y) {
-  Entity *player = entity_create(ENTITY_PLAYER, x, y);
+Entity *playerCreate(float x, float y) {
+  Entity *player = entityCreate(ENTITY_PLAYER, x, y);
   player->health = 100;
-  player->update = player_update;
+  player->update = playerUpdate;
   player->anim = malloc(sizeof(Animation));
   player->anim->frameCount = 6;       // e.g. 6 frames in the sprite sheet
   player->anim->frameDuration = 0.1f; // each frame lasts 0.1 seconds
@@ -12,4 +12,4 @@ Entity *player_create(float x, float y) {
   return player;
 }
 
-void player_update(Entity *self, float dt) { common_update(self, dt); }
+void playerUpdate(Entity *self, float dt) { commonEntityUpdate(self, dt); }

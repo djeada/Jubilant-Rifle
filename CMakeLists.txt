@@ -25,16 +25,16 @@ file(GLOB_RECURSE HEADERS "include/*.h")
 
 # Create a static library and an executable.
 add_library(main_lib STATIC ${SOURCES} ${HEADERS})
-add_executable(main ${SOURCES})
+add_executable(jubilant-rifle ${SOURCES})  # Change here to 'jubilant-rifle'
 
 # Set the C standard and compile/link options.
-set_target_properties(main PROPERTIES C_STANDARD 99)
-target_compile_options(main PRIVATE -Wall -Wextra -Werror -Wpedantic -fsanitize=address)
-target_link_options(main PRIVATE -fsanitize=address)
+set_target_properties(jubilant-rifle PROPERTIES C_STANDARD 99)  # Change to 'jubilant-rifle'
+target_compile_options(jubilant-rifle PRIVATE -Wall -Wextra -Werror -Wpedantic -fsanitize=address)
+target_link_options(jubilant-rifle PRIVATE -fsanitize=address)
 
 # Link against main_lib, SDL2 (and related libraries), and the math library.
 target_link_libraries(
-    main
+    jubilant-rifle  # Change here to 'jubilant-rifle'
     main_lib
     ${SDL2_LIBRARIES}
     ${SDL2_IMAGE_LIBRARIES}

@@ -12,9 +12,9 @@ typedef struct {
     int capacity;
 } EnemyArray;
 
-void enemy_array_init(EnemyArray *arr);
-void enemy_array_add(EnemyArray *arr, Enemy *enemy);
-void enemy_array_update(EnemyArray *arr, float dt, BulletPool *pool);
-void enemy_array_destroy(EnemyArray *arr);
+void enemyArrayInit(EnemyArray *arr);
+void enemyArrayAdd(EnemyArray *arr, Enemy *enemy);
+void enemyArrayUpdate(EnemyArray *arr, float dt, BulletPool *pool);
+void enemyArrayDestroy(EnemyArray *arr);
 
 #endif // ENEMY_ARRAY_H

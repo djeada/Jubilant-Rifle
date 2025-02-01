@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 #include "utils/point.h"
-
+#include <stdbool.h>  
 
 typedef struct {
     SDL_Texture *tex;
@@ -25,14 +25,14 @@ typedef struct Entity {
     EntityType type;
     Point pos;
     Point vel;
-    int alive;
     int health;
     Animation *anim; // Pointer to animation data (if any)
     void (*update)(struct Entity *self, float dt);
 } Entity;
 
-Entity* entity_create(EntityType type, float x, float y);
-void entity_destroy(Entity *e);
-void common_update(Entity *self, float dt);
+Entity* entityCreate(EntityType type, float x, float y);
+void entityDestroy(Entity *e);
+void commonEntityUpdate(Entity *self, float dt);
+bool isEntityAlive(const Entity *e);
 
 #endif // ENTITY_H

@@ -24,8 +24,7 @@ void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState,
         // Player shoots: spawn a bullet from the player’s position going
         // upward. Adjust the spawn offset so that the bullet appears from the
         // center/top of the player.
-        bullet_pool_spawn(bulletPool, player->pos.x + 20, player->pos.y, 0,
-                          -300);
+        bulletPoolSpawn(bulletPool, player->pos.x + 20, player->pos.y, 0, -300);
       }
     }
     if (e->type == SDL_KEYUP) {

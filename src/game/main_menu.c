@@ -1,12 +1,13 @@
-#include "game/game_state.h"
-#include "utils/consts.h"
+#include "game/main_menu.h"
+#include "game/game_state.h" // Adjust include path if necessary
+#include "utils/consts.h" // For WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, FONT_PATH, etc.
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-// --- Aesthetic constants ---
+// --- Aesthetic Constants ---
 static const SDL_Color COLOR_BG = {50, 50, 50, 255};
 static const SDL_Color COLOR_BUTTON = {20, 120, 20, 255};
 static const SDL_Color COLOR_BUTTON_HOVER = {40, 200, 40, 255};
@@ -14,14 +15,29 @@ static const SDL_Color COLOR_BUTTON_BORDER = {255, 255, 255, 255};
 static const SDL_Color COLOR_TEXT = {255, 255, 255, 255};
 static const SDL_Color COLOR_TEXT_SHADOW = {0, 0, 0, 150};
 
+// --- Internal Types ---
 typedef struct Button {
   SDL_Rect rect;
   const char *text;
   GameState targetState;
 } Button;
 
-SDL_Texture *renderText(SDL_Renderer *renderer, TTF_Font *font,
-                        const char *text, SDL_Color color, int *w, int *h) {
+// --- Forward Declarations for Helper Functions ---
+static SDL_Texture *renderText(SDL_Renderer *renderer, TTF_Font *font,
+                               const char *text, SDL_Color color, int *w,
+                               int *h);
+static void renderTextWithShadow(SDL_Renderer *renderer, TTF_Font *font,
+                                 const char *text, int x, int y);
+static bool pointInRect(int x, int y, const SDL_Rect *rect);
+static void renderButton(SDL_Renderer *renderer, TTF_Font *font,
+                         const Button *button, bool isSelected, float pulse);
+
+// --- Helper Function Definitions ---
+
+// Renders the given text into an SDL_Texture.
+static SDL_Texture *renderText(SDL_Renderer *renderer, TTF_Font *font,
+                               const char *text, SDL_Color color, int *w,
+                               int *h) {
   SDL_Surface *surface = TTF_RenderText_Blended(font, text, color);
   if (!surface) {
     fprintf(stderr, "TTF_RenderText_Blended Error: %s\n", TTF_GetError());
@@ -37,9 +53,9 @@ SDL_Texture *renderText(SDL_Renderer *renderer, TTF_Font *font,
   return texture;
 }
 
-// Helper: Render text with a slight shadow offset.
-void renderTextWithShadow(SDL_Renderer *renderer, TTF_Font *font,
-                          const char *text, int x, int y) {
+// Renders text with a slight shadow offset.
+static void renderTextWithShadow(SDL_Renderer *renderer, TTF_Font *font,
+                                 const char *text, int x, int y) {
   int textW, textH;
   // Render shadow.
   SDL_Texture *shadowTex =
@@ -59,13 +75,63 @@ void renderTextWithShadow(SDL_Renderer *renderer, TTF_Font *font,
   }
 }
 
+// Returns true if point (x,y) lies within the given SDL_Rect.
+static bool pointInRect(int x, int y, const SDL_Rect *rect) {
+  return (x >= rect->x && x <= (rect->x + rect->w) && y >= rect->y &&
+          y <= (rect->y + rect->h));
+}
+
+// Renders a single button. If it is selected, apply a pulse effect.
+static void renderButton(SDL_Renderer *renderer, TTF_Font *font,
+                         const Button *button, bool isSelected, float pulse) {
+  SDL_Rect btnRect = button->rect;
+
+  // Apply pulse effect (scale slightly if selected).
+  float scale = isSelected ? (1.0f + pulse) : 1.0f;
+  int scaledW = (int)(btnRect.w * scale);
+  int scaledH = (int)(btnRect.h * scale);
+  int offsetX = (scaledW - btnRect.w) / 2;
+  int offsetY = (scaledH - btnRect.h) / 2;
+  SDL_Rect scaledRect = {btnRect.x - offsetX, btnRect.y - offsetY, scaledW,
+                         scaledH};
+
+  // Draw drop shadow.
+  SDL_Rect shadowRect = {scaledRect.x + 4, scaledRect.y + 4, scaledRect.w,
+                         scaledRect.h};
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
+  SDL_RenderFillRect(renderer, &shadowRect);
+
+  // Draw button background (hover color if selected).
+  SDL_Color btnColor = isSelected ? COLOR_BUTTON_HOVER : COLOR_BUTTON;
+  SDL_SetRenderDrawColor(renderer, btnColor.r, btnColor.g, btnColor.b,
+                         btnColor.a);
+  SDL_RenderFillRect(renderer, &scaledRect);
+
+  // Draw button border.
+  SDL_SetRenderDrawColor(renderer, COLOR_BUTTON_BORDER.r, COLOR_BUTTON_BORDER.g,
+                         COLOR_BUTTON_BORDER.b, COLOR_BUTTON_BORDER.a);
+  SDL_RenderDrawRect(renderer, &scaledRect);
+
+  // Center and render the button text.
+  int textW, textH;
+  SDL_Texture *tempTex =
+      renderText(renderer, font, button->text, COLOR_TEXT, &textW, &textH);
+  if (tempTex) {
+    SDL_DestroyTexture(tempTex);
+  }
+  int textX = scaledRect.x + (scaledRect.w - textW) / 2;
+  int textY = scaledRect.y + (scaledRect.h - textH) / 2;
+  renderTextWithShadow(renderer, font, button->text, textX, textY);
+}
+
+// --- Main Menu Function ---
+
 void runMainMenu(SDL_Renderer *renderer, GameState *state) {
   printf("Entering runMainMenu()\n");
-
   SDL_Event event;
   bool menuRunning = true;
 
-  // Window dimensions (using values from consts.h).
+  // Use window dimensions from your constants.
   const int windowWidth = WINDOWED_MODE_WIDTH;
   const int windowHeight = WINDOWED_MODE_HEIGHT;
 
@@ -76,7 +142,7 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
   const int buttonX = (windowWidth - buttonWidth) / 2;
   int startY = windowHeight / 2 - ((buttonHeight * 5) + (spacing * 4)) / 2;
 
-  // Define the buttons.
+  // Define the menu buttons.
   Button buttons[] = {{{buttonX, startY + 0 * (buttonHeight + spacing),
                         buttonWidth, buttonHeight},
                        "New Game",
@@ -99,7 +165,7 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
                        STATE_EXIT}};
   const int buttonCount = sizeof(buttons) / sizeof(buttons[0]);
 
-  // Load the font using the same FONT_PATH defined in consts.h.
+  // Load the font.
   TTF_Font *font = TTF_OpenFont(FONT_PATH, 28);
   if (!font) {
     fprintf(stderr, "Failed to load font from '%s': %s\n", FONT_PATH,
@@ -110,38 +176,27 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
     return;
   }
 
-  // Variables for the button pulse effect.
   Uint32 startTime = SDL_GetTicks();
+  int selectedButton = 0; // Tracks the currently selected button.
 
-  // Track the currently selected button (for keyboard navigation).
-  int selectedButton = 0;
-
-  // Main loop.
   while (menuRunning) {
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         *state = STATE_EXIT;
         menuRunning = false;
       } else if (event.type == SDL_MOUSEMOTION) {
-        // Update the selected button based on mouse movement.
-        int mx = event.motion.x;
-        int my = event.motion.y;
+        int mx = event.motion.x, my = event.motion.y;
         for (int i = 0; i < buttonCount; i++) {
-          SDL_Rect r = buttons[i].rect;
-          if (mx >= r.x && mx <= (r.x + r.w) && my >= r.y &&
-              my <= (r.y + r.h)) {
+          if (pointInRect(mx, my, &buttons[i].rect)) {
             selectedButton = i;
             break;
           }
         }
       } else if (event.type == SDL_MOUSEBUTTONDOWN &&
                  event.button.button == SDL_BUTTON_LEFT) {
-        int mx = event.button.x;
-        int my = event.button.y;
+        int mx = event.button.x, my = event.button.y;
         for (int i = 0; i < buttonCount; i++) {
-          SDL_Rect r = buttons[i].rect;
-          if (mx >= r.x && mx <= (r.x + r.w) && my >= r.y &&
-              my <= (r.y + r.h)) {
+          if (pointInRect(mx, my, &buttons[i].rect)) {
             *state = buttons[i].targetState;
             menuRunning = false;
             break;
@@ -162,76 +217,33 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
       }
     }
 
-    // Clear the screen with the background color.
+    // Clear the screen.
     SDL_SetRenderDrawColor(renderer, COLOR_BG.r, COLOR_BG.g, COLOR_BG.b,
                            COLOR_BG.a);
     SDL_RenderClear(renderer);
 
-    // Also get the mouse state so that if the mouse is hovering over a button,
-    // we update the selection (this is useful if no MOUSEMOTION event occurs).
+    // Update the current selection based on the mouse position.
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     for (int i = 0; i < buttonCount; i++) {
-      SDL_Rect r = buttons[i].rect;
-      if (mouseX >= r.x && mouseX <= (r.x + r.w) && mouseY >= r.y &&
-          mouseY <= (r.y + r.h)) {
+      if (pointInRect(mouseX, mouseY, &buttons[i].rect)) {
         selectedButton = i;
         break;
       }
     }
 
-    // Compute pulse factor using a sine wave for a subtle animation.
+    // Compute a pulse factor (using a sine wave) for the selected button.
     Uint32 elapsed = SDL_GetTicks() - startTime;
-    float pulse =
-        0.05f * sinf(elapsed / 200.0f); // variation between -0.05 and +0.05
+    float pulse = 0.05f * sinf(elapsed / 200.0f);
 
-    // Render each button.
+    // Render all buttons.
     for (int i = 0; i < buttonCount; i++) {
-      SDL_Rect btnRect = buttons[i].rect;
-      // Highlight the button if it is the current selection.
       bool isSelected = (i == selectedButton);
-
-      // Adjust scale for the pulse effect when selected.
-      float scale = isSelected ? (1.0f + pulse) : 1.0f;
-      int scaledW = (int)(btnRect.w * scale);
-      int scaledH = (int)(btnRect.h * scale);
-      int offsetX = (scaledW - btnRect.w) / 2;
-      int offsetY = (scaledH - btnRect.h) / 2;
-      SDL_Rect scaledRect = {btnRect.x - offsetX, btnRect.y - offsetY, scaledW,
-                             scaledH};
-
-      // Draw drop shadow.
-      SDL_Rect shadowRect = {scaledRect.x + 4, scaledRect.y + 4, scaledRect.w,
-                             scaledRect.h};
-      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
-      SDL_RenderFillRect(renderer, &shadowRect);
-
-      // Draw the button background (use the hover color if selected).
-      SDL_Color btnColor = isSelected ? COLOR_BUTTON_HOVER : COLOR_BUTTON;
-      SDL_SetRenderDrawColor(renderer, btnColor.r, btnColor.g, btnColor.b,
-                             btnColor.a);
-      SDL_RenderFillRect(renderer, &scaledRect);
-
-      // Draw the button border.
-      SDL_SetRenderDrawColor(renderer, COLOR_BUTTON_BORDER.r,
-                             COLOR_BUTTON_BORDER.g, COLOR_BUTTON_BORDER.b,
-                             COLOR_BUTTON_BORDER.a);
-      SDL_RenderDrawRect(renderer, &scaledRect);
-
-      // Render the button text (centered within the button).
-      int textW, textH;
-      SDL_Texture *tempTex = renderText(renderer, font, buttons[i].text,
-                                        COLOR_TEXT, &textW, &textH);
-      if (tempTex) {
-        SDL_DestroyTexture(tempTex);
-      }
-      int textX = scaledRect.x + (scaledRect.w - textW) / 2;
-      int textY = scaledRect.y + (scaledRect.h - textH) / 2;
-      renderTextWithShadow(renderer, font, buttons[i].text, textX, textY);
+      renderButton(renderer, font, &buttons[i], isSelected, pulse);
     }
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(16); // Approximately 60 FPS.
+    SDL_Delay(16); // ~60 FPS.
   }
 
   printf("Exiting runMainMenu()\n");

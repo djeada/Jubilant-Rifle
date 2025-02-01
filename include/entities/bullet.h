@@ -3,5 +3,5 @@
 
 #include "entities/entity.h"
 
-void bullet_update(Entity *self, float dt) ;
+void bulletUpdate(Entity *self, float dt) ;
 #endif

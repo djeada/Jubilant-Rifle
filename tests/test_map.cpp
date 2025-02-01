@@ -1,6 +1,5 @@
 extern "C" {
 #include "map/map.h"
-#include "utils/utils.h"
 }
 
 #include <gtest/gtest.h>
