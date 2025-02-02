@@ -34,3 +34,4 @@ void commonEntityUpdate(Entity *self, float dt) {
 }
 
 bool isEntityAlive(const Entity *e) { return e && e->health > 0; }
+

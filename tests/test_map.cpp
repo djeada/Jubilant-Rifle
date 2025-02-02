@@ -48,6 +48,11 @@ protected:
     map.backgroundImage = NULL;
     map.platforms = NULL;
     map.platformCount = 0;
+    // Initialize the map rectangle to zeros.
+    map.rect.x = 0;
+    map.rect.y = 0;
+    map.rect.w = 0;
+    map.rect.h = 0;
   }
 
   void TearDown() override {
@@ -62,7 +67,7 @@ TEST_F(MapTest, AllocatePlatforms) {
   EXPECT_NE(map.platforms, nullptr);
   EXPECT_EQ(map.platformCount, 10);
 
-  // Ensure that reallocating doesn't cause issues
+  // Ensure that reallocating doesn't cause issues.
   EXPECT_EQ(allocatePlatforms(&map, 5), 0);
   EXPECT_NE(map.platforms, nullptr);
   EXPECT_EQ(map.platformCount, 5);
@@ -107,32 +112,32 @@ TEST_F(MapTest, ParsePlatforms) {
   EXPECT_EQ(parsePlatforms(json, platforms, 2), 0);
   EXPECT_EQ(platforms[0].x, 10);
   EXPECT_EQ(platforms[0].y, 20);
-  EXPECT_EQ(platforms[0].width, 30);
-  EXPECT_EQ(platforms[0].height, 40);
+  EXPECT_EQ(platforms[0].w, 30);  // SDL_Rect uses 'w' for width.
+  EXPECT_EQ(platforms[0].h, 40);  // SDL_Rect uses 'h' for height.
   EXPECT_EQ(platforms[1].x, 50);
   EXPECT_EQ(platforms[1].y, 60);
-  EXPECT_EQ(platforms[1].width, 70);
-  EXPECT_EQ(platforms[1].height, 80);
+  EXPECT_EQ(platforms[1].w, 70);
+  EXPECT_EQ(platforms[1].h, 80);
 }
 
 // Test the parseMapFile function with a valid file.
 TEST_F(MapTest, ParseMapFile_Valid) {
   EXPECT_EQ(parseMapFile("test_map.json", &map), 0);
   EXPECT_STREQ(map.backgroundImage, "/home/adam/Jubilant-Rifle/resources/textures/background.png");
-  EXPECT_EQ(map.width, 8000);
-  EXPECT_EQ(map.height, 1000);
+  EXPECT_EQ(map.rect.w, 8000);  // Map width from JSON.
+  EXPECT_EQ(map.rect.h, 1000);  // Map height from JSON.
   EXPECT_EQ(map.platformCount, 20);
 
-  // Check some platforms to ensure parsing is correct
+  // Check some platforms to ensure parsing is correct.
   EXPECT_EQ(map.platforms[0].x, 100);
   EXPECT_EQ(map.platforms[0].y, 880);
-  EXPECT_EQ(map.platforms[0].width, 300);
-  EXPECT_EQ(map.platforms[0].height, 20);
+  EXPECT_EQ(map.platforms[0].w, 300);
+  EXPECT_EQ(map.platforms[0].h, 20);
 
   EXPECT_EQ(map.platforms[19].x, 7600);
   EXPECT_EQ(map.platforms[19].y, 400);
-  EXPECT_EQ(map.platforms[19].width, 350);
-  EXPECT_EQ(map.platforms[19].height, 20);
+  EXPECT_EQ(map.platforms[19].w, 350);
+  EXPECT_EQ(map.platforms[19].h, 20);
 }
 
 // Test the destructor to ensure proper cleanup.

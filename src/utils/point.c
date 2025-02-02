@@ -103,3 +103,4 @@ int isPointRightOf(const Point *p1, const Point *p2) {
   }
   return 0;
 }
+

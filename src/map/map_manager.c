@@ -27,3 +27,4 @@ int getNextMap(MapManager *manager, Map *map) {
 
   return 0;
 }
+

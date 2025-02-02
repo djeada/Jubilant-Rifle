@@ -249,3 +249,4 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
   printf("Exiting runMainMenu()\n");
   TTF_CloseFont(font);
 }
+

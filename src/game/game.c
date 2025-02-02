@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
+void gameLoop(SDL_Renderer *renderer, TextureManager *texManager, Map *map,
               Player *player, EnemyArray *enemies, BulletPool *bulletPool,
               bool *gameRunning, GameState *gameState, Uint32 *last) {
   SDL_Event e;
@@ -42,7 +42,7 @@ void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
     }
 
     // --- Render ---
-    render(renderer, texManager, player, bulletPool, enemies);
+    render(renderer, texManager, map, player, bulletPool, enemies);
     SDL_Delay(16);
   }
 }
@@ -70,8 +70,8 @@ void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
   Uint32 last = SDL_GetTicks();
 
   // Start the game loop
-  gameLoop(renderer, texManager, player, &enemies, &bulletPool, &gameRunning,
-           gameState, &last);
+  gameLoop(renderer, texManager, map, player, &enemies, &bulletPool,
+           &gameRunning, gameState, &last);
 
   // --- Clean Up Game Objects ---
   playerDestroy(player);
@@ -116,3 +116,4 @@ void runGame(SDL_Renderer *renderer) {
     }
   }
 }
+

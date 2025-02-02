@@ -31,3 +31,4 @@ void playerDestroy(Player *player) {
 bool isPlayerAlive(const Player *player) {
   return isEntityAlive(&player->base);
 }
+

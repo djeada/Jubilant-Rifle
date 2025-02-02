@@ -38,8 +38,8 @@ void enemyArrayUpdate(EnemyArray *arr, float dt, BulletPool *pool) {
     // Process shooting.
     enemy->shootTimer -= dt;
     if (enemy->shootTimer <= 0) {
-      bulletPoolSpawn(pool, enemy->base.pos.x + 20, enemy->base.pos.y + 50, 0,
-                      150);
+      bulletPoolSpawn(pool, BULLET_SOURCE_ENEMY, enemy->base.pos.x + 20,
+                      enemy->base.pos.y + 50, 150, 0);
       enemy->shootTimer = 2.0f;
     }
     i++;
@@ -53,3 +53,4 @@ void enemyArrayDestroy(EnemyArray *arr) {
   }
   free(arr->data);
 }
+

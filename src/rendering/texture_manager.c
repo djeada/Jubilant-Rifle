@@ -81,3 +81,4 @@ void destroyTextureManager(TextureManager *tm) {
   SDL_DestroyTexture(tm->backgroundTex);
   TTF_CloseFont(tm->font);
 }
+

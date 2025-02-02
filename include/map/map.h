@@ -1,21 +1,18 @@
 #ifndef MAP_H
 #define MAP_H
+
 #include <stdlib.h>
+#include <SDL2/SDL.h>
 #include "utils/point.h"
 
-typedef struct {
-  int x;
-  int y;
-  int width;
-  int height;
-} Platform;
+// Use SDL_Rect for platforms.
+typedef SDL_Rect Platform;
 
 typedef struct {
-  Platform *platforms;
-  size_t platformCount;
-  char *backgroundImage;
-    int width;
-  int height;
+    Platform *platforms;
+    size_t platformCount;
+    char *backgroundImage;
+    SDL_Rect rect; // The map's boundaries: top-left is (0, 0), bottom is (width, height).
 } Map;
 
 Point getRandomPositionOnPlatform(Platform* platform);

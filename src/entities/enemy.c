@@ -19,3 +19,4 @@ void enemyUpdate(Entity *self, float dt) {
   commonEntityUpdate(self, dt);
   enemy->shootTimer -= dt;
 }
+

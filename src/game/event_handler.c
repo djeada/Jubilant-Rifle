@@ -21,8 +21,8 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
       if (e->key.keysym.sym == SDLK_DOWN)
         player->base.vel.y = 200;
       if (e->key.keysym.sym == SDLK_SPACE)
-        bulletPoolSpawn(bulletPool, player->base.pos.x + 20, player->base.pos.y,
-                        0, -300);
+        bulletPoolSpawn(bulletPool, BULLET_SOURCE_PLAYER,
+                        player->base.pos.x + 20, player->base.pos.y, 300, 0);
     }
     if (e->type == SDL_KEYUP) {
       if (e->key.keysym.sym == SDLK_LEFT || e->key.keysym.sym == SDLK_RIGHT)
@@ -32,3 +32,4 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
     }
   }
 }
+

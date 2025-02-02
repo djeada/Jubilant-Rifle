@@ -1,13 +1,13 @@
 #include "map/map.h"
-#include "utils/consts.h"
+#include "utils/consts.h" // Ensure HUMANOID_FRAME_WIDTH / HUMANOID_FRAME_HEIGHT are defined.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 Point getRandomPositionOnPlatform(Platform *platform) {
-
-  int random_x = platform->x + rand() % platform->width - HUMANOID_FRAME_WIDTH;
+  // Use platform->w and platform->h (instead of width/height) for SDL_Rect.
+  int random_x = platform->x + (rand() % (platform->w - HUMANOID_FRAME_WIDTH));
   int y = platform->y - HUMANOID_FRAME_HEIGHT;
 
   Point position = {random_x, y};
@@ -25,7 +25,7 @@ int allocatePlatforms(Map *map, size_t count) {
 }
 
 char *allocateBackgroundImagePath(const char *path) {
-  char *newPath = strdup(path); // No need for custom customStrdup, use strdup
+  char *newPath = strdup(path); // Use strdup to allocate a copy.
   if (!newPath) {
     return NULL; // Memory allocation failure
   }
@@ -40,7 +40,7 @@ int parseStringValue(const char *json, const char *key, char *value,
   start = strchr(start, ':');
   if (!start)
     return -1;
-  start += 2; // Skip over the ": "
+  start += 2; // Skip over ": "
   if (*start == '"')
     start++; // Skip opening quote
   char *end = strchr(start, '"');
@@ -78,28 +78,26 @@ int parsePlatforms(const char *json, Platform *platforms,
   size_t index = 0;
   while (index < platformCount) {
     Platform *platform = &platforms[index];
+    // Note: JSON uses "width" and "height", which we map to SDL_Rect's w and h.
     if (sscanf(start,
                " { \"x\": %d , \"y\": %d , \"width\": %d , \"height\": %d } ,",
-               &platform->x, &platform->y, &platform->width,
-               &platform->height) == 4) {
+               &platform->x, &platform->y, &platform->w, &platform->h) == 4) {
       index++;
       start = strchr(start, '}');
       if (!start)
         return -1;
-      start += 2; // Move past the '},'
-    } else if (sscanf(start,
-                      " { \"x\": %d , \"y\": %d , \"width\": %d , \"height\": "
-                      "%d }",
-                      &platform->x, &platform->y, &platform->width,
-                      &platform->height) == 4) {
+      start += 2; // Move past "},"
+    } else if (
+        sscanf(start,
+               " { \"x\": %d , \"y\": %d , \"width\": %d , \"height\": %d }",
+               &platform->x, &platform->y, &platform->w, &platform->h) == 4) {
       index++;
       break;
     } else {
       return -1;
     }
   }
-
-  return index == platformCount ? 0 : -1;
+  return (index == platformCount) ? 0 : -1;
 }
 
 int parseMapFile(const char *filePath, Map *map) {
@@ -127,6 +125,7 @@ int parseMapFile(const char *filePath, Map *map) {
   data[length] = '\0';
   fclose(file);
 
+  // Parse the background image path.
   char backgroundImagePath[256];
   if (parseStringValue(data, "\"background_image\"", backgroundImagePath,
                        sizeof(backgroundImagePath)) != 0) {
@@ -134,7 +133,6 @@ int parseMapFile(const char *filePath, Map *map) {
     free(data);
     return -1;
   }
-
   map->backgroundImage = allocateBackgroundImagePath(backgroundImagePath);
   if (!map->backgroundImage) {
     perror("Memory allocation failed for background image");
@@ -142,14 +140,23 @@ int parseMapFile(const char *filePath, Map *map) {
     return -1;
   }
 
-  if (parseIntValue(data, "\"width\"", &map->width) != 0 ||
-      parseIntValue(data, "\"height\"", &map->height) != 0) {
+  // Parse map dimensions from the JSON.
+  int width, height;
+  if (parseIntValue(data, "\"width\"", &width) != 0 ||
+      parseIntValue(data, "\"height\"", &height) != 0) {
     fprintf(stderr, "Failed to parse map dimensions\n");
     free(data);
     return -1;
   }
+  // Set the map's SDL_Rect. Top-left is (0,0) and dimensions come from the
+  // JSON.
+  map->rect.x = 0;
+  map->rect.y = 0;
+  map->rect.w = width;
+  map->rect.h = height;
 
-  size_t platformCount = 20; // We know there are 20 platforms
+  // For this example, we expect there to be 20 platforms.
+  size_t platformCount = 20;
   if (allocatePlatforms(map, platformCount) != 0) {
     perror("Memory allocation failed for platforms");
     free(data);
@@ -175,3 +182,4 @@ void mapDestructor(Map *map) {
     map->platformCount = 0;
   }
 }
+
