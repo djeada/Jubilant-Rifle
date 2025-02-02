@@ -38,9 +38,7 @@ SDL_Renderer *createRenderer(SDL_Window *win) {
   return renderer;
 }
 
-void cleanup(SDL_Renderer *renderer, SDL_Window *win,
-             TextureManager *texManager) {
-  destroyTextureManager(texManager);
+void cleanup(SDL_Renderer *renderer, SDL_Window *win) {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(win);
   TTF_Quit();
@@ -65,14 +63,11 @@ int main(int argc, char *argv[]) {
   if (!renderer)
     return 1;
 
-  // Initialize textures
-  TextureManager texManager = initTextureManager(renderer);
-
   // Run the game loop
-  runGame(renderer, &texManager);
+  runGame(renderer);
 
   // Clean up all resources
-  cleanup(renderer, win, &texManager);
+  cleanup(renderer, win);
 
   return 0;
 }

@@ -48,14 +48,18 @@ void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
 }
 
 void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
-               GameState *gameState) {
+               GameState *gameState, Map *map) {
   // --- Create/Reset Game Objects ---
   Player *player = playerCreate(320, 400);
 
   EnemyArray enemies;
   enemyArrayInit(&enemies);
-  for (int i = 0; i < 5; i++) {
-    Enemy *enemy = enemyCreate(50 + i * 100, 50);
+
+  // Create one enemy per platform using the platform's random position.
+  for (size_t i = 0; i < map->platformCount; i++) {
+    // Get a random position on the current platform.
+    Point enemyPos = getRandomPositionOnPlatform(&map->platforms[i]);
+    Enemy *enemy = enemyCreate(enemyPos.x, enemyPos.y);
     enemyArrayAdd(&enemies, enemy);
   }
 
@@ -73,9 +77,10 @@ void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
   playerDestroy(player);
   enemyArrayDestroy(&enemies);
   bulletPoolDestroy(&bulletPool);
+  destroyTextureManager(texManager);
 }
 
-void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
+void runGame(SDL_Renderer *renderer) {
   GameState gameState = STATE_MENU;
 
   while (gameState != STATE_EXIT) {
@@ -94,7 +99,13 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
                maps[(manager.currentIndex + manager.mapCount - 1) %
                     manager.mapCount]);
 
-        loadLevel(renderer, texManager, &gameState);
+        // Initialize textures
+        TextureManager texManager = initTextureManager(
+            renderer, PLAYER_TEXTURE_PATH, ENEMY_TEXTURE_PATH,
+            BULLET_TEXTURE_PATH, map.backgroundImage, FONT_PATH);
+        // Pass the map pointer to loadLevel so enemies can be created on its
+        // platforms.
+        loadLevel(renderer, &texManager, &gameState, &map);
 
         mapDestructor(&map);
       } else {
