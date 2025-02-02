@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
-              Entity *player, EnemyArray *enemies, BulletPool *bulletPool,
+              Player *player, EnemyArray *enemies, BulletPool *bulletPool,
               bool *gameRunning, GameState *gameState, Uint32 *last) {
   SDL_Event e;
 
@@ -27,16 +27,15 @@ void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
     float dt = (now - *last) / 1000.0f;
     *last = now;
 
-    // Update player, enemies, and bullet pool
-    if (player->update) {
-      player->update(player, dt);
+    if (player->base.update) {
+      player->base.update(&player->base, dt);
     }
     enemyArrayUpdate(enemies, dt, bulletPool);
     bulletPoolUpdate(bulletPool, dt);
     handleCollisions(bulletPool, player, enemies);
 
     // Check if the player is dead
-    if (player->health <= 0) {
+    if (!isPlayerAlive(player)) {
       printf("Player is dead!\n");
       *gameRunning = false;
       *gameState = STATE_MENU;
@@ -51,7 +50,7 @@ void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
 void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
                GameState *gameState) {
   // --- Create/Reset Game Objects ---
-  Entity *player = playerCreate(320, 400);
+  Player *player = playerCreate(320, 400);
 
   EnemyArray enemies;
   enemyArrayInit(&enemies);
@@ -71,7 +70,7 @@ void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
            gameState, &last);
 
   // --- Clean Up Game Objects ---
-  entityDestroy(player);
+  playerDestroy(player);
   enemyArrayDestroy(&enemies);
   bulletPoolDestroy(&bulletPool);
 }

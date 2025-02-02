@@ -1,6 +1,6 @@
 #include "game/event_handler.h"
 
-void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState,
+void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
                       bool *gameRunning, BulletPool *bulletPool) {
   while (SDL_PollEvent(e)) {
     if (e->type == SDL_QUIT) {
@@ -13,25 +13,22 @@ void handleGameEvents(SDL_Event *e, Entity *player, GameState *gameState,
         *gameRunning = false;
       }
       if (e->key.keysym.sym == SDLK_LEFT)
-        player->vel.x = -200;
+        player->base.vel.x = -200;
       if (e->key.keysym.sym == SDLK_RIGHT)
-        player->vel.x = 200;
+        player->base.vel.x = 200;
       if (e->key.keysym.sym == SDLK_UP)
-        player->vel.y = -200;
+        player->base.vel.y = -200;
       if (e->key.keysym.sym == SDLK_DOWN)
-        player->vel.y = 200;
-      if (e->key.keysym.sym == SDLK_SPACE) {
-        // Player shoots: spawn a bullet from the player’s position going
-        // upward. Adjust the spawn offset so that the bullet appears from the
-        // center/top of the player.
-        bulletPoolSpawn(bulletPool, player->pos.x + 20, player->pos.y, 0, -300);
-      }
+        player->base.vel.y = 200;
+      if (e->key.keysym.sym == SDLK_SPACE)
+        bulletPoolSpawn(bulletPool, player->base.pos.x + 20, player->base.pos.y,
+                        0, -300);
     }
     if (e->type == SDL_KEYUP) {
       if (e->key.keysym.sym == SDLK_LEFT || e->key.keysym.sym == SDLK_RIGHT)
-        player->vel.x = 0;
+        player->base.vel.x = 0;
       if (e->key.keysym.sym == SDLK_UP || e->key.keysym.sym == SDLK_DOWN)
-        player->vel.y = 0;
+        player->base.vel.y = 0;
     }
   }
 }

@@ -20,42 +20,40 @@ void handleBulletWindowCollision(BulletPool *pool) {
   }
 }
 
-void handleBulletEntityCollision(BulletPool *pool, Entity *player,
+void handleBulletEntityCollision(BulletPool *pool, Player *player,
                                  EnemyArray *enemies) {
   for (int i = 0; i < pool->activeCount; i++) {
     int bulletIndex = pool->activeIndices[i];
     Entity *bullet = pool->bullets[bulletIndex];
     if (!bullet || !isEntityAlive(bullet))
       continue;
-
     SDL_Rect bulletRect = {(int)bullet->pos.x, (int)bullet->pos.y, 10, 10};
-
-    if (bullet->vel.y > 0) { // Enemy bullet colliding with the player.
-      SDL_Rect playerRect = {(int)player->pos.x, (int)player->pos.y, 50, 50};
+    if (bullet->vel.y > 0) {
+      SDL_Rect playerRect = {(int)player->base.pos.x, (int)player->base.pos.y,
+                             50, 50};
       if (SDL_HasIntersection(&bulletRect, &playerRect)) {
-        player->health -= 10; // Apply damage to the player.
-        bullet->health = 0;   // Mark the bullet as destroyed.
+        player->base.health -= 10;
+        bullet->health = 0;
       }
-    } else if (bullet->vel.y < 0) { // Player bullet colliding with enemies.
+    } else if (bullet->vel.y < 0) {
       for (int j = 0; j < enemies->count; j++) {
-        Entity *enemyEntity = (Entity *)&enemies->data[j]->base;
+        Entity *enemyEntity = &enemies->data[j]->base;
         if (!isEntityAlive(enemyEntity))
           continue;
-
         SDL_Rect enemyRect = {(int)enemyEntity->pos.x, (int)enemyEntity->pos.y,
                               50, 50};
         if (SDL_HasIntersection(&bulletRect, &enemyRect)) {
-          enemyEntity->health -= 10; // Apply damage to the enemy.
-          bullet->health = 0;        // Destroy the bullet.
+          enemyEntity->health -= 10;
+          bullet->health = 0;
           if (enemyEntity->health <= 0)
-            enemyEntity->health = 0; // Optionally mark enemy as "destroyed".
+            enemyEntity->health = 0;
         }
       }
     }
   }
 }
 
-void handleCollisions(BulletPool *pool, Entity *player, EnemyArray *enemies) {
+void handleCollisions(BulletPool *pool, Player *player, EnemyArray *enemies) {
   handleBulletEntityCollision(pool, player, enemies);
   handleBulletWindowCollision(pool);
 }

@@ -14,12 +14,12 @@ static void renderAnimatedEntity(SDL_Renderer *renderer, SDL_Texture *tex,
   SDL_RenderCopy(renderer, tex, &src, dest);
 }
 
-void playerDraw(Entity *player, SDL_Renderer *renderer, TextureManager *tm) {
-  SDL_Rect playerDest = {(int)player->pos.x, (int)player->pos.y, SPRITE_WIDTH,
-                         HUMANOID_FRAME_HEIGHT};
-  if (player->anim) {
-    SDL_Rect src = {player->anim->currentFrame * SPRITE_WIDTH, 0, SPRITE_WIDTH,
-                    HUMANOID_FRAME_HEIGHT};
+void playerDraw(Player *player, SDL_Renderer *renderer, TextureManager *tm) {
+  SDL_Rect playerDest = {(int)player->base.pos.x, (int)player->base.pos.y,
+                         SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT};
+  if (player->base.anim) {
+    SDL_Rect src = {player->base.anim->currentFrame * SPRITE_WIDTH, 0,
+                    SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT};
     SDL_RenderCopy(renderer, tm->playerTex, &src, &playerDest);
   } else {
     SDL_RenderCopy(renderer, tm->playerTex, NULL, &playerDest);
@@ -52,7 +52,7 @@ void enemyArrayDraw(EnemyArray *arr, SDL_Renderer *renderer,
   }
 }
 
-void render(SDL_Renderer *renderer, TextureManager *tm, Entity *player,
+void render(SDL_Renderer *renderer, TextureManager *tm, Player *player,
             BulletPool *pool, EnemyArray *arr) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
