@@ -8,6 +8,7 @@
 #include "game/game_state.h"
 #include "game/main_menu.h"
 #include "game/physics.h"
+#include "map/map_manager.h"
 #include "utils/consts.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -83,7 +84,25 @@ void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
       runMainMenu(renderer, &gameState);
       printf("Menu exited with state: %d\n", gameState);
     } else if (gameState == STATE_GAME) {
-      loadLevel(renderer, texManager, &gameState);
+      const char *maps[] = MAPS;
+      size_t numMaps = sizeof(maps) / sizeof(maps[0]);
+      MapManager manager;
+
+      initMapManager(&manager, maps, numMaps);
+      Map map;
+      if (getNextMap(&manager, &map) == 0) {
+        printf("Loaded map from: %s\n",
+               maps[(manager.currentIndex + manager.mapCount - 1) %
+                    manager.mapCount]);
+
+        loadLevel(renderer, texManager, &gameState);
+
+        mapDestructor(&map);
+      } else {
+        fprintf(stderr, "Error loading map from: %s\n",
+                maps[(manager.currentIndex + manager.mapCount - 1) %
+                     manager.mapCount]);
+      }
     }
   }
 }
