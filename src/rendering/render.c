@@ -28,12 +28,12 @@ void playerDraw(Entity *player, SDL_Renderer *renderer, TextureManager *tm) {
 
 void bulletPoolDraw(BulletPool *pool, SDL_Renderer *renderer,
                     TextureManager *tm) {
-  for (int i = 0; i < BULLET_POOL_CAPACITY; i++) {
-    if (pool->bullets[i] && isEntityAlive(pool->bullets[i])) {
-      SDL_Rect dest = {(int)pool->bullets[i]->pos.x,
-                       (int)pool->bullets[i]->pos.y, BULLET_SPRITE_WIDTH,
+  for (int i = 0; i < pool->activeCount; i++) {
+    int index = pool->activeIndices[i];
+    if (pool->bullets[index] && isEntityAlive(pool->bullets[index])) {
+      SDL_Rect dest = {(int)pool->bullets[index]->pos.x,
+                       (int)pool->bullets[index]->pos.y, BULLET_SPRITE_WIDTH,
                        BULLET_SPRITE_HEIGHT};
-      // Bullets have no animation.
       SDL_RenderCopy(renderer, tm->bulletTex, NULL, &dest);
     }
   }

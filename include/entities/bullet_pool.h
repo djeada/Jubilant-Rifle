@@ -3,14 +3,20 @@
 
 #include "entities/entity.h"
 #include <SDL2/SDL.h>
-
-#define BULLET_POOL_CAPACITY 100
+#include <stdlib.h>
 
 typedef struct {
-    Entity *bullets[BULLET_POOL_CAPACITY];
+    Entity **bullets;      // Array of bullet pointers.
+    int capacity;          // Total capacity of the pool.
+
+    int *activeIndices;    // Array of indices into 'bullets' that are currently active.
+    int activeCount;       // The number of active bullets.
+
+    int *freeList;         // Free list: a linked list (by indices) of available bullet slots.
+    int freeListHead;      // Head index of the free list.
 } BulletPool;
 
-void bulletPoolInit(BulletPool *pool);
+void bulletPoolInit(BulletPool *pool, int capacity);
 void bulletPoolSpawn(BulletPool *pool, float x, float y, float vx, float vy);
 void bulletPoolUpdate(BulletPool *pool, float dt);
 void bulletPoolDestroy(BulletPool *pool);

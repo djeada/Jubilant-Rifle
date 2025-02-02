@@ -13,57 +13,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void gameLoop(SDL_Renderer *renderer, TextureManager *texManager,
+              Entity *player, EnemyArray *enemies, BulletPool *bulletPool,
+              bool *gameRunning, GameState *gameState, Uint32 *last) {
+  SDL_Event e;
+
+  while (*gameRunning && *gameState == STATE_GAME) {
+    handleGameEvents(&e, player, gameState, gameRunning, bulletPool);
+
+    // Calculate delta time
+    Uint32 now = SDL_GetTicks();
+    float dt = (now - *last) / 1000.0f;
+    *last = now;
+
+    // Update player, enemies, and bullet pool
+    if (player->update) {
+      player->update(player, dt);
+    }
+    enemyArrayUpdate(enemies, dt, bulletPool);
+    bulletPoolUpdate(bulletPool, dt);
+    handleCollisions(bulletPool, player, enemies);
+
+    // Check if the player is dead
+    if (player->health <= 0) {
+      printf("Player is dead!\n");
+      *gameRunning = false;
+      *gameState = STATE_MENU;
+    }
+
+    // --- Render ---
+    render(renderer, texManager, player, bulletPool, enemies);
+    SDL_Delay(16);
+  }
+}
+
+void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
+               GameState *gameState) {
+  // --- Create/Reset Game Objects ---
+  Entity *player = playerCreate(320, 400);
+
+  EnemyArray enemies;
+  enemyArrayInit(&enemies);
+  for (int i = 0; i < 5; i++) {
+    Enemy *enemy = enemyCreate(50 + i * 100, 50);
+    enemyArrayAdd(&enemies, enemy);
+  }
+
+  BulletPool bulletPool;
+  bulletPoolInit(&bulletPool, 100);
+
+  bool gameRunning = true;
+  Uint32 last = SDL_GetTicks();
+
+  // Start the game loop
+  gameLoop(renderer, texManager, player, &enemies, &bulletPool, &gameRunning,
+           gameState, &last);
+
+  // --- Clean Up Game Objects ---
+  entityDestroy(player);
+  enemyArrayDestroy(&enemies);
+  bulletPoolDestroy(&bulletPool);
+}
+
 void runGame(SDL_Renderer *renderer, TextureManager *texManager) {
   GameState gameState = STATE_MENU;
+
   while (gameState != STATE_EXIT) {
     if (gameState == STATE_MENU) {
       runMainMenu(renderer, &gameState);
       printf("Menu exited with state: %d\n", gameState);
-    } else if (gameState == STATE_GAME || true) {
-      // --- Create/Reset Game Objects ---
-      Entity *player = playerCreate(320, 400);
-
-      EnemyArray enemies;
-      enemyArrayInit(&enemies);
-      for (int i = 0; i < 5; i++) {
-        Enemy *enemy = enemyCreate(50 + i * 100, 50);
-        enemyArrayAdd(&enemies, enemy);
-      }
-
-      BulletPool bulletPool;
-      bulletPoolInit(&bulletPool);
-
-      bool gameRunning = true;
-      Uint32 last = SDL_GetTicks();
-      SDL_Event e;
-      while (gameRunning && gameState == STATE_GAME) {
-        handleGameEvents(&e, player, &gameState, &gameRunning, &bulletPool);
-
-        Uint32 now = SDL_GetTicks();
-        float dt = (now - last) / 1000.0f;
-        last = now;
-
-        if (player->update)
-          player->update(player, dt);
-        enemyArrayUpdate(&enemies, dt, &bulletPool);
-        bulletPoolUpdate(&bulletPool, dt);
-        handleCollisions(&bulletPool, player, &enemies);
-
-        if (player->health <= 0) {
-          printf("Player is dead!\n");
-          gameRunning = false;
-          gameState = STATE_MENU;
-        }
-
-        // --- Render ---
-        render(renderer, texManager, player, &bulletPool, &enemies);
-        SDL_Delay(10);
-      }
-
-      // --- Clean Up Game Objects ---
-      entityDestroy(player);
-      enemyArrayDestroy(&enemies);
-      bulletPoolDestroy(&bulletPool);
+    } else if (gameState == STATE_GAME) {
+      loadLevel(renderer, texManager, &gameState);
     }
   }
 }
