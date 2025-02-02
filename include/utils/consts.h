@@ -14,9 +14,6 @@
 #define GAME_WIDTH              1920
 #define GAME_HEIGHT             1080
 
-#define WORLD_WIDTH             3000
-#define WORLD_HEIGHT            1200
-
 /* --------------------- Texture and Font Paths --------------------- */
 #define BACKGROUND_TEXTURE_PATH "resources/textures/background.png"
 #define PLAYER_TEXTURE_PATH     "resources/textures/player.png"

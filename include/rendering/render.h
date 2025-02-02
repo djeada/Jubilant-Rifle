@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 #include "rendering/texture_manager.h"
+#include "entities/bullet_pool.h"
+#include "entities/enemy_array.h"
 #include "entities/player.h"
 
 void render(SDL_Renderer *renderer, TextureManager *tm, Player* player, BulletPool *pool, EnemyArray *arr);

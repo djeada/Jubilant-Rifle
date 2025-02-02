@@ -5,6 +5,6 @@
 #include "rendering/render.h"
 
 // Runs the main game loop (which includes switching between menu and game)
-void runGame(SDL_Renderer *renderer, TextureManager *texManager);
+void runGame(SDL_Renderer *renderer);
 
 #endif // GAME_H
