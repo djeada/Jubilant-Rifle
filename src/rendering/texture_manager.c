@@ -4,7 +4,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
-// --- Helper: Create Fallback Texture ---
 static SDL_Texture *createFallbackTexture(SDL_Renderer *renderer,
                                           SDL_Color color, int w, int h) {
   SDL_Texture *tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
@@ -58,8 +57,6 @@ initTextureManager(SDL_Renderer *renderer, const char *playerTexturePath,
       BULLET_SPRITE_WIDTH, BULLET_SPRITE_HEIGHT);
 
   // Load background texture (fallback: white rectangle)
-  // Here we assume SCREEN_WIDTH and SCREEN_HEIGHT are defined in
-  // "utils/consts.h"
   tm.backgroundTex = loadTextureOrFallback(renderer, backgroundTexturePath,
                                            (SDL_Color){255, 255, 255, 255},
                                            GAME_WIDTH, GAME_HEIGHT);

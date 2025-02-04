@@ -32,3 +32,7 @@ void bulletUpdate(Bullet *bullet, float dt) {
   commonEntityUpdate(&bullet->base, dt);
 }
 
+bool isBulletAlive(const Bullet *bullet) {
+  return isEntityAlive(&bullet->base);
+}
+

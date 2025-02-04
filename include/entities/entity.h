@@ -1,11 +1,12 @@
 #ifndef ENTITY_H
 #define ENTITY_H
+
 #include <SDL2/SDL.h>
-
 #include <stdlib.h>
+#include <stdbool.h>
 #include "utils/point.h"
-#include <stdbool.h>  
 
+/* --- Animation --- */
 typedef struct {
     SDL_Texture *tex;
     int frameCount;
@@ -14,11 +15,18 @@ typedef struct {
     int currentFrame;
 } Animation;
 
+/* --- Entity Types --- */
 typedef enum {
     ENTITY_PLAYER,
     ENTITY_ENEMY,
     ENTITY_BULLET
 } EntityType;
+
+/* --- Direction --- */
+typedef enum {
+    DIRECTION_LEFT,
+    DIRECTION_RIGHT
+} Direction;
 
 /* --- Base Entity --- */
 typedef struct Entity {
@@ -30,9 +38,12 @@ typedef struct Entity {
     void (*update)(struct Entity *self, float dt);
 } Entity;
 
+/* --- Entity API --- */
 Entity* entityCreate(EntityType type, float x, float y);
 void entityDestroy(Entity *e);
 void commonEntityUpdate(Entity *self, float dt);
 bool isEntityAlive(const Entity *e);
+Direction getEntityFacingDirection(const Entity *e);
+bool isEntityMoving(const Entity *e);
 
 #endif // ENTITY_H

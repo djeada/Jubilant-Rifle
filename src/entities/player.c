@@ -32,3 +32,26 @@ bool isPlayerAlive(const Player *player) {
   return isEntityAlive(&player->base);
 }
 
+void playerSetHorizontalVelocity(Player *player, float vx) {
+  // TODO: add logic here to clamp the velocity or trigger animations.
+  player->base.vel.x = vx;
+}
+
+void playerSetVerticalVelocity(Player *player, float vy) {
+  player->base.vel.y = vy;
+}
+
+void playerStopHorizontal(Player *player) {
+  playerSetHorizontalVelocity(player, 0);
+}
+
+void playerStopVertical(Player *player) {
+  playerSetVerticalVelocity(player, 0);
+}
+
+void playerShoot(Player *player, BulletPool *bulletPool) {
+  // TODO: trigger a shooting animation or sound.
+  bulletPoolSpawn(bulletPool, BULLET_SOURCE_PLAYER, player->base.pos.x + 20,
+                  player->base.pos.y, 300, 0);
+}
+

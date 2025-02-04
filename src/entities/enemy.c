@@ -20,3 +20,11 @@ void enemyUpdate(Entity *self, float dt) {
   enemy->shootTimer -= dt;
 }
 
+bool isEnemyAlive(const Enemy *enemy) { return isEntityAlive(&enemy->base); }
+
+Direction getEnemyFacingDirectionon(const Enemy *enemy) {
+  return getEntityFacingDirection(&enemy->base);
+}
+
+bool isEnemyMoving(const Enemy *enemy) { return isEntityMoving(&enemy->base); }
+

@@ -12,23 +12,35 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
         *gameState = STATE_MENU;
         *gameRunning = false;
       }
-      if (e->key.keysym.sym == SDLK_LEFT)
-        player->base.vel.x = -200;
-      if (e->key.keysym.sym == SDLK_RIGHT)
-        player->base.vel.x = 200;
-      if (e->key.keysym.sym == SDLK_UP)
-        player->base.vel.y = -200;
-      if (e->key.keysym.sym == SDLK_DOWN)
-        player->base.vel.y = 200;
-      if (e->key.keysym.sym == SDLK_SPACE)
-        bulletPoolSpawn(bulletPool, BULLET_SOURCE_PLAYER,
-                        player->base.pos.x + 20, player->base.pos.y, 300, 0);
+      switch (e->key.keysym.sym) {
+      case SDLK_LEFT:
+        playerSetHorizontalVelocity(player, -200);
+        break;
+      case SDLK_RIGHT:
+        playerSetHorizontalVelocity(player, 200);
+        break;
+      case SDLK_UP:
+        playerSetVerticalVelocity(player, -200);
+        break;
+      case SDLK_DOWN:
+        playerSetVerticalVelocity(player, 200);
+        break;
+      case SDLK_SPACE:
+        playerShoot(player, bulletPool);
+        break;
+      }
     }
     if (e->type == SDL_KEYUP) {
-      if (e->key.keysym.sym == SDLK_LEFT || e->key.keysym.sym == SDLK_RIGHT)
-        player->base.vel.x = 0;
-      if (e->key.keysym.sym == SDLK_UP || e->key.keysym.sym == SDLK_DOWN)
-        player->base.vel.y = 0;
+      switch (e->key.keysym.sym) {
+      case SDLK_LEFT:
+      case SDLK_RIGHT:
+        playerStopHorizontal(player);
+        break;
+      case SDLK_UP:
+      case SDLK_DOWN:
+        playerStopVertical(player);
+        break;
+      }
     }
   }
 }

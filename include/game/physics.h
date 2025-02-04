@@ -6,7 +6,6 @@
 #include "entities/bullet_pool.h" 
 #include "entities/enemy_array.h" 
 
-
 void handleCollisions(BulletPool *pool, Player *player, EnemyArray *enemies);
 
 #endif // PHYSICS_H

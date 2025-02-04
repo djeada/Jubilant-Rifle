@@ -13,10 +13,8 @@ typedef struct Bullet {
     BulletSource source;
 } Bullet;
 
-// Creates a new bullet with the given source, position, and velocity.
 Bullet* bulletCreate(BulletSource source, float x, float y, float vx, float vy);
-
-// Updates a bullet (calls common entity update and then applies bullet‐specific logic).
 void bulletUpdate(Bullet *bullet, float dt);
+bool isBulletAlive(const Bullet *bullet);
 
 #endif // BULLET_H

@@ -98,15 +98,10 @@ void runGame(SDL_Renderer *renderer) {
         printf("Loaded map from: %s\n",
                maps[(manager.currentIndex + manager.mapCount - 1) %
                     manager.mapCount]);
-
-        // Initialize textures
         TextureManager texManager = initTextureManager(
             renderer, PLAYER_TEXTURE_PATH, ENEMY_TEXTURE_PATH,
             BULLET_TEXTURE_PATH, map.backgroundImage, FONT_PATH);
-        // Pass the map pointer to loadLevel so enemies can be created on its
-        // platforms.
         loadLevel(renderer, &texManager, &gameState, &map);
-
         mapDestructor(&map);
       } else {
         fprintf(stderr, "Error loading map from: %s\n",

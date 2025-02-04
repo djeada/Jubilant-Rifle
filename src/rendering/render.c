@@ -63,7 +63,7 @@ void bulletPoolDraw(BulletPool *pool, SDL_Renderer *renderer,
   for (int i = 0; i < pool->playerActiveCount; i++) {
     int index = pool->playerActiveIndices[i];
     Bullet *bullet = pool->playerBullets[index];
-    if (bullet && isEntityAlive(&bullet->base)) {
+    if (bullet && isBulletAlive(bullet)) {
       SDL_Rect bulletRect = {(int)bullet->base.pos.x, (int)bullet->base.pos.y,
                              BULLET_SPRITE_WIDTH, BULLET_SPRITE_HEIGHT};
       if (!isRectVisible(&bulletRect, camera))
@@ -79,7 +79,7 @@ void bulletPoolDraw(BulletPool *pool, SDL_Renderer *renderer,
   for (int i = 0; i < pool->enemyActiveCount; i++) {
     int index = pool->enemyActiveIndices[i];
     Bullet *bullet = pool->enemyBullets[index];
-    if (bullet && isEntityAlive(&bullet->base)) {
+    if (bullet && isBulletAlive(bullet)) {
       SDL_Rect bulletRect = {(int)bullet->base.pos.x, (int)bullet->base.pos.y,
                              BULLET_SPRITE_WIDTH, BULLET_SPRITE_HEIGHT};
       if (!isRectVisible(&bulletRect, camera))
