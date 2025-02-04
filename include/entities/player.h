@@ -1,28 +1,31 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "entities/entity.h"
-#include "entities/bullet_pool.h"
 
+#include "entities/bullet_pool.h"
+#include "entities/entity.h"
 
 typedef struct Player {
-    Entity base; 
-    int level;    
+  Entity base;
+  int level;
 } Player;
 
-// Creation and destruction
-Player* playerCreate(float x, float y);
-void playerDestroy(Player* player);
+/* Creation / Destruction */
+Player *playerCreate(float x, float y);
+void playerDestroy(Player *player);
 
-// Public API functions to control the player
-void playerSetHorizontalVelocity(Player* player, float vx);
-void playerSetVerticalVelocity(Player* player, float vy);
-void playerShoot(Player* player, BulletPool* bulletPool);
+/* Update */
+void playerUpdate(Entity *entity, float dt);
 
-// Possibly more actions (e.g., for animations, state changes)
-void playerStopHorizontal(Player* player);
-void playerStopVertical(Player* player);
+/* Actions */
+void playerSetHorizontalVelocity(Player *player, float vx);
+void playerSetVerticalVelocity(Player *player, float vy);
+void playerStopHorizontal(Player *player);
+void playerStopVertical(Player *player);
+void playerShoot(Player *player, BulletPool *bulletPool);
 
-void playerUpdate(Entity* entity, float dt);
+/* Queries */
 bool isPlayerAlive(const Player *player);
+Direction getPlayerFacingDirection(const Player *player);
 
 #endif // PLAYER_H
+

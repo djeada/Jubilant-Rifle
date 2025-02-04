@@ -2,7 +2,7 @@
 #define POINT_H
 
 typedef struct {
-    float x, y;
+  float x, y;
 } Point;
 
 void pointConstructor(Point *point, float x, float y);
@@ -20,3 +20,4 @@ int isPointLeftOf(const Point *p1, const Point *p2);
 int isPointRightOf(const Point *p1, const Point *p2);
 
 #endif // POINT_H
+

@@ -35,15 +35,6 @@ void commonEntityUpdate(Entity *self, float dt) {
 
 bool isEntityAlive(const Entity *e) { return e && e->health > 0; }
 
-Direction getEntityFacingDirection(const Entity *e) {
-  if (e->vel.x < 0) {
-    return DIRECTION_LEFT;
-  } else if (e->vel.x > 0) {
-    return DIRECTION_RIGHT;
-  }
-  return DIRECTION_RIGHT;
-}
-
 bool isEntityMoving(const Entity *e) {
   return (e->vel.x != 0 || e->vel.y != 0);
 }
