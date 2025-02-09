@@ -1,15 +1,10 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "entities/bullet_pool.h"
-#include "entities/enemy_array.h"
-#include "entities/player.h"
-#include "map/map.h"
-#include "rendering/texture_manager.h"
+#include "game/game_context.h"
 #include <SDL2/SDL.h>
 
-void render(SDL_Renderer *renderer, TextureManager *tm, Map *map,
-            Player *player, BulletPool *pool, EnemyArray *arr);
+void renderGame(GameContext *ctx);
 
 #endif // RENDER_H
 

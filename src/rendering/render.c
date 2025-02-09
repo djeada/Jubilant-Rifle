@@ -192,51 +192,51 @@ static void renderHealthBar(SDL_Renderer *renderer, Player *player,
 // Main Render Function with Camera Support and Entity Filtering
 // ---------------------------------------------------------------------------
 
-void render(SDL_Renderer *renderer, TextureManager *tm, Map *map,
-            Player *player, BulletPool *pool, EnemyArray *arr) {
+void renderGame(GameContext *ctx) {
   // Compute the camera view (world coordinates) centered on the player.
   SDL_Rect camera;
   camera.w = GAME_WIDTH;
   camera.h = GAME_HEIGHT;
-  camera.x = (int)(player->base.pos.x + SPRITE_WIDTH / 2 - GAME_WIDTH / 2);
-  camera.y =
-      (int)(player->base.pos.y + HUMANOID_FRAME_HEIGHT / 2 - GAME_HEIGHT / 2);
+  camera.x = (int)(ctx->player->base.pos.x + SPRITE_WIDTH / 2 - GAME_WIDTH / 2);
+  camera.y = (int)(ctx->player->base.pos.y + HUMANOID_FRAME_HEIGHT / 2 -
+                   GAME_HEIGHT / 2);
 
-  // Clamp the camera to the map bounds (obtained from the Map pointer).
-  if (camera.x < map->rect.x) {
-    camera.x = map->rect.x;
+  // Clamp the camera to the map bounds.
+  if (camera.x < ctx->map->rect.x) {
+    camera.x = ctx->map->rect.x;
   }
-  if (camera.y < map->rect.y) {
-    camera.y = map->rect.y;
+  if (camera.y < ctx->map->rect.y) {
+    camera.y = ctx->map->rect.y;
   }
-  if (camera.x > map->rect.x + map->rect.w - camera.w) {
-    camera.x = map->rect.x + map->rect.w - camera.w;
+  if (camera.x > ctx->map->rect.x + ctx->map->rect.w - camera.w) {
+    camera.x = ctx->map->rect.x + ctx->map->rect.w - camera.w;
   }
-  if (camera.y > map->rect.y + map->rect.h - camera.h) {
-    camera.y = map->rect.y + map->rect.h - camera.h;
+  if (camera.y > ctx->map->rect.y + ctx->map->rect.h - camera.h) {
+    camera.y = ctx->map->rect.y + ctx->map->rect.h - camera.h;
   }
 
   // Clear the renderer.
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(ctx->renderer);
 
-  // Render the background texture using the camera view.
+  // Render the background texture.
   SDL_Rect bgSrc = camera;
   SDL_Rect bgDest = {0, 0, GAME_WIDTH, GAME_HEIGHT};
-  SDL_RenderCopy(renderer, tm->backgroundTex, &bgSrc, &bgDest);
+  SDL_RenderCopy(ctx->renderer, ctx->texManager->backgroundTex, &bgSrc,
+                 &bgDest);
 
   // Render game entities relative to the camera.
-  playerDraw(player, renderer, tm, &camera);
-  enemyArrayDraw(arr, renderer, tm, &camera);
-  bulletPoolDraw(pool, renderer, tm, &camera);
+  playerDraw(ctx->player, ctx->renderer, ctx->texManager, &camera);
+  enemyArrayDraw(ctx->enemies, ctx->renderer, ctx->texManager, &camera);
+  bulletPoolDraw(ctx->bulletPool, ctx->renderer, ctx->texManager, &camera);
 
   // Render the map platforms.
-  renderMapPlatforms(renderer, map, &camera);
+  renderMapPlatforms(ctx->renderer, ctx->map, &camera);
 
-  // Render the UI (health bar, level text, etc.) in screen-space.
-  renderHealthBar(renderer, player, tm->font);
+  // Render the UI (e.g., health bar, level text).
+  renderHealthBar(ctx->renderer, ctx->player, ctx->texManager->font);
 
   // Present the final rendered frame.
-  SDL_RenderPresent(renderer);
+  SDL_RenderPresent(ctx->renderer);
 }
 

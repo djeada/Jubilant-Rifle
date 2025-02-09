@@ -1,10 +1,6 @@
 #include "game/game.h"
-#include "entities/bullet_pool.h"
-#include "entities/enemy.h"
-#include "entities/enemy_array.h"
-#include "entities/entity.h"
-#include "entities/player.h"
 #include "game/event_handler.h"
+#include "game/game_context.h"
 #include "game/game_state.h"
 #include "game/main_menu.h"
 #include "game/physics.h"
@@ -14,70 +10,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void gameLoop(SDL_Renderer *renderer, TextureManager *texManager, Map *map,
-              Player *player, EnemyArray *enemies, BulletPool *bulletPool,
-              bool *gameRunning, GameState *gameState, Uint32 *last) {
+void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
+              Uint32 *last) {
   SDL_Event e;
 
   while (*gameRunning && *gameState == STATE_GAME) {
-    handleGameEvents(&e, player, gameState, gameRunning, bulletPool);
+    handleGameEvents(&e, ctx->player, gameState, gameRunning, ctx->bulletPool);
 
-    // Calculate delta time
+    // Calculate delta time.
     Uint32 now = SDL_GetTicks();
     float dt = (now - *last) / 1000.0f;
     *last = now;
 
-    if (player->base.update) {
-      player->base.update(&player->base, dt);
+    if (ctx->player->base.update) {
+      ctx->player->base.update(&ctx->player->base, dt);
     }
-    enemyArrayUpdate(enemies, dt, bulletPool);
-    bulletPoolUpdate(bulletPool, dt);
-    handleCollisions(bulletPool, player, enemies);
+    enemyArrayUpdate(ctx->enemies, dt, ctx->bulletPool);
+    bulletPoolUpdate(ctx->bulletPool, dt);
+    handleCollisions(ctx->bulletPool, ctx->player, ctx->enemies);
 
-    // Check if the player is dead
-    if (!isPlayerAlive(player)) {
+    if (!isPlayerAlive(ctx->player)) {
       printf("Player is dead!\n");
       *gameRunning = false;
       *gameState = STATE_MENU;
     }
 
-    // --- Render ---
-    render(renderer, texManager, map, player, bulletPool, enemies);
+    // Render everything.
+    renderGame(ctx);
     SDL_Delay(16);
   }
 }
 
 void loadLevel(SDL_Renderer *renderer, TextureManager *texManager,
                GameState *gameState, Map *map) {
-  // --- Create/Reset Game Objects ---
+  // Create game objects dynamically.
   Player *player = playerCreate(320, 400);
 
-  EnemyArray enemies;
-  enemyArrayInit(&enemies);
+  // Allocate and initialize the enemy array on the heap.
+  EnemyArray *enemies = malloc(sizeof(EnemyArray));
+  enemyArrayInit(enemies);
 
-  // Create one enemy per platform using the platform's random position.
+  // Create one enemy per platform.
   for (size_t i = 0; i < map->platformCount; i++) {
-    // Get a random position on the current platform.
     Point enemyPos = getRandomPositionOnPlatform(&map->platforms[i]);
     Enemy *enemy = enemyCreate(enemyPos.x, enemyPos.y);
-    enemyArrayAdd(&enemies, enemy);
+    enemyArrayAdd(enemies, enemy);
   }
 
-  BulletPool bulletPool;
-  bulletPoolInit(&bulletPool, 100);
+  // Allocate and initialize the bullet pool on the heap.
+  BulletPool *bulletPool = malloc(sizeof(BulletPool));
+  bulletPoolInit(bulletPool, 100);
 
   bool gameRunning = true;
   Uint32 last = SDL_GetTicks();
 
-  // Start the game loop
-  gameLoop(renderer, texManager, map, player, &enemies, &bulletPool,
-           &gameRunning, gameState, &last);
+  // Create the game context struct with heap-allocated objects.
+  GameContext ctx = {
+      .renderer = renderer,
+      .texManager = texManager,
+      .map = map,
+      .player = player,
+      .enemies = enemies,
+      .bulletPool = bulletPool,
+  };
+
+  // Start the game loop.
+  gameLoop(&ctx, &gameRunning, gameState, &last);
 
   // --- Clean Up Game Objects ---
   playerDestroy(player);
-  enemyArrayDestroy(&enemies);
-  bulletPoolDestroy(&bulletPool);
+  enemyArrayDestroy(enemies);
+  bulletPoolDestroy(bulletPool);
   destroyTextureManager(texManager);
+
+  // Free the heap-allocated memory.
+  free(enemies);
+  free(bulletPool);
 }
 
 void runGame(SDL_Renderer *renderer) {
