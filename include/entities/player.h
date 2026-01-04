@@ -16,6 +16,7 @@ typedef struct Player {
   float meleeDamage;      /**< Damage dealt by melee attacks */
   int grenadeCount;       /**< Number of grenades available */
   int jumpsUsed;          /**< Number of jumps used since last landing */
+  bool isKneeling;        /**< Whether player is kneeling */
 } Player;
 
 /* Creation / Destruction */
@@ -92,6 +93,25 @@ bool playerUseGrenade(Player *player);
  * @return Number of grenades available.
  */
 int playerGetGrenadeCount(const Player *player);
+
+/**
+ * @brief Start kneeling.
+ * @param player The player.
+ */
+void playerStartKneeling(Player *player);
+
+/**
+ * @brief Stop kneeling.
+ * @param player The player.
+ */
+void playerStopKneeling(Player *player);
+
+/**
+ * @brief Check if player is currently kneeling.
+ * @param player The player.
+ * @return true if kneeling, false otherwise.
+ */
+bool playerIsKneeling(const Player *player);
 
 /* Queries */
 bool isPlayerAlive(const Player *player);

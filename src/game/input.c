@@ -11,7 +11,7 @@ static bool g_inputInitialized = false;
 /* Action names for display and config files */
 static const char *g_actionNames[ACTION_COUNT] = {
     "Move Left",  "Move Right", "Move Up", "Move Down", "Jump",
-    "Shoot",      "Pause",      "Menu",    "Confirm",   "Cancel"};
+    "Shoot",      "Kneel",      "Pause",   "Menu",      "Confirm",   "Cancel"};
 
 void inputConfigInit(InputConfig *config) {
   if (!config)
@@ -35,6 +35,9 @@ void inputConfigInit(InputConfig *config) {
 
   config->bindings[ACTION_SHOOT].primaryKey = SDLK_x;
   config->bindings[ACTION_SHOOT].secondaryKey = SDLK_LCTRL;
+
+  config->bindings[ACTION_KNEEL].primaryKey = SDLK_c;
+  config->bindings[ACTION_KNEEL].secondaryKey = SDLK_LSHIFT;
 
   config->bindings[ACTION_PAUSE].primaryKey = SDLK_p;
   config->bindings[ACTION_PAUSE].secondaryKey = SDLK_ESCAPE;
