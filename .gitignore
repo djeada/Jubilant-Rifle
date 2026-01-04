@@ -37,3 +37,9 @@ build
 
 # Analysis tools
 _codeql_detected_source_root
+
+# Example binaries
+examples/map_gen_example
+
+# Generated maps (optional - can be committed if desired)
+resources/maps/generated*.cfg
