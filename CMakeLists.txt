@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 project(Jubilant-Riffle)
 
+# Standard install directory variables like CMAKE_INSTALL_BINDIR.
+include(GNUInstallDirs)
+
 # Extend module path so it picks up our custom FindSDL2.cmake, etc.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts")
 
@@ -42,6 +45,10 @@ target_link_libraries(
     ${SDL2_MIXER_LIBRARIES}
     m
 )
+
+# Install the binary and game assets.
+install(TARGETS jubilant-rifle RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY resources/ DESTINATION ${CMAKE_INSTALL_DATADIR}/jubilant-rifle/resources)
 
 # Setup GoogleTest via FetchContent.
 include(FetchContent)

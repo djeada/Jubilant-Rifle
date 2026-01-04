@@ -76,15 +76,20 @@ To build and run the game, follow these steps:
 git clone https://github.com/djeada/Jubilant-Rifle.git
 cd Jubilant-Rifle
 
-# Create build directory
-mkdir build && cd build
-
-# Configure and build
-cmake ..
-make
+# Build
+make build
 
 # Run the game
-./jubilant-rifle
+make run
+```
+
+Additional make targets:
+
+```bash
+make install
+make test
+make clean
+make distclean
 ```
 
 ## Project Structure

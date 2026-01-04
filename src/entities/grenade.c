@@ -5,7 +5,6 @@
 /* Grenade constants */
 #define GRENADE_FUSE_TIME 2.0f        /* Seconds until explosion */
 #define GRENADE_EXPLOSION_DURATION 0.3f /* How long explosion lasts */
-#define GRENADE_EXPLOSION_RADIUS 80.0f
 #define GRENADE_EXPLOSION_DAMAGE 50
 #define GRENADE_GRAVITY 400.0f
 #define GRENADE_BOUNCE_FACTOR 0.5f
