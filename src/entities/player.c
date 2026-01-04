@@ -60,6 +60,7 @@ Player *playerCreate(float x, float y) {
   player->meleeDamage = MELEE_DAMAGE;
   player->grenadeCount = PLAYER_INITIAL_GRENADES;
   player->jumpsUsed = 0;
+  player->isKneeling = false;
 
   return player;
 }
@@ -176,4 +177,22 @@ int playerGetGrenadeCount(const Player *player) {
   if (!player)
     return 0;
   return player->grenadeCount;
+}
+
+void playerStartKneeling(Player *player) {
+  if (!player)
+    return;
+  player->isKneeling = true;
+}
+
+void playerStopKneeling(Player *player) {
+  if (!player)
+    return;
+  player->isKneeling = false;
+}
+
+bool playerIsKneeling(const Player *player) {
+  if (!player)
+    return false;
+  return player->isKneeling;
 }

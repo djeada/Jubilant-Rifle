@@ -40,6 +40,11 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
         /* Melee attack */
         playerMeleeAttack(player);
         break;
+      case SDLK_c:
+      case SDLK_LSHIFT:
+        /* Kneel */
+        playerStartKneeling(player);
+        break;
       default:
         break;
       }
@@ -59,6 +64,11 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
         playerStopVertical(player);
         player->climbIntentUp = false;
         player->climbIntentDown = false;
+        break;
+      case SDLK_c:
+      case SDLK_LSHIFT:
+        /* Stop kneeling */
+        playerStopKneeling(player);
         break;
       default:
         break;
@@ -118,6 +128,11 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
                            throwX, throwY, targetX, targetY);
         }
         break;
+      case SDLK_c:
+      case SDLK_LSHIFT:
+        /* Kneel */
+        playerStartKneeling(player);
+        break;
       default:
         break;
       }
@@ -137,6 +152,11 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
         playerStopVertical(player);
         player->climbIntentUp = false;
         player->climbIntentDown = false;
+        break;
+      case SDLK_c:
+      case SDLK_LSHIFT:
+        /* Stop kneeling */
+        playerStopKneeling(player);
         break;
       default:
         break;
