@@ -10,8 +10,13 @@
  * @brief Map structures and loading utilities.
  *
  * Provides functionality for loading, parsing, and managing game maps
- * including platforms and background images.
+ * including platforms, ladders, traps, flags, and background images.
  */
+
+/* Forward declarations for new map elements */
+struct LadderArray;
+struct TrapArray;
+struct FlagArray;
 
 /* Use SDL_Rect for platforms. */
 typedef SDL_Rect Platform;
@@ -24,6 +29,9 @@ typedef struct {
   size_t platformCount;   /**< Number of platforms */
   char *backgroundImage;  /**< Path to the background image */
   SDL_Rect rect;          /**< Map boundaries (top-left at origin) */
+  void *ladders;          /**< LadderArray for ladders (cast to avoid circular include) */
+  void *traps;            /**< TrapArray for environmental traps */
+  void *flags;            /**< FlagArray for capture objectives */
 } Map;
 
 /**

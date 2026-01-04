@@ -49,6 +49,10 @@ typedef struct {
   int currentCombo;      /**< Current combo count */
   float comboTimer;      /**< Time remaining in current combo */
   int levelReached;      /**< Highest level reached */
+  float elapsedTime;     /**< Total elapsed time in seconds for current level */
+  int flagsCaptured;     /**< Number of flags captured */
+  int meleeKills;        /**< Number of melee kills */
+  int grenadeKills;      /**< Number of grenade kills */
 } ScoreTracker;
 
 /**
@@ -109,6 +113,42 @@ float scoreGetAccuracy(const ScoreTracker *tracker);
  * @param tracker The score tracker to reset.
  */
 void scoreReset(ScoreTracker *tracker);
+
+/**
+ * @brief Update the elapsed time for the level.
+ * @param tracker The score tracker.
+ * @param dt Delta time since last update.
+ */
+void scoreUpdateElapsedTime(ScoreTracker *tracker, float dt);
+
+/**
+ * @brief Get the elapsed time formatted as MM:SS.
+ * @param tracker The score tracker.
+ * @param buffer Output buffer for the formatted time string.
+ * @param bufferSize Size of the output buffer.
+ */
+void scoreGetElapsedTimeString(const ScoreTracker *tracker, char *buffer, size_t bufferSize);
+
+/**
+ * @brief Register a flag capture.
+ * @param tracker The score tracker.
+ * @param basePoints Base points for the capture.
+ */
+void scoreRegisterFlagCapture(ScoreTracker *tracker, int basePoints);
+
+/**
+ * @brief Register a melee kill.
+ * @param tracker The score tracker.
+ * @param basePoints Base points for the kill.
+ */
+void scoreRegisterMeleeKill(ScoreTracker *tracker, int basePoints);
+
+/**
+ * @brief Register a grenade kill.
+ * @param tracker The score tracker.
+ * @param basePoints Base points for the kill.
+ */
+void scoreRegisterGrenadeKill(ScoreTracker *tracker, int basePoints);
 
 /**
  * @brief Initialize high score table.

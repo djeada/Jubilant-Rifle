@@ -1,5 +1,11 @@
 #include "rendering/render.h"
 #include "map/map.h" // For the Map definition.
+#include "map/ladder.h"
+#include "map/trap.h"
+#include "map/flag.h"
+#include "entities/grenade.h"
+#include "entities/grenade_pool.h"
+#include "game/score.h"
 #include "utils/consts.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -189,6 +195,303 @@ static void renderHealthBar(SDL_Renderer *renderer, Player *player,
 }
 
 // ---------------------------------------------------------------------------
+// Level Timer Rendering
+// ---------------------------------------------------------------------------
+
+static void renderTimer(SDL_Renderer *renderer, TTF_Font *font, 
+                        const ScoreTracker *tracker) {
+  if (!tracker)
+    return;
+    
+  char timeStr[16];
+  scoreGetElapsedTimeString(tracker, timeStr, sizeof(timeStr));
+  
+  SDL_Color textColor = {255, 255, 255, 255};
+  renderText(renderer, font, timeStr, TIMER_DISPLAY_X, TIMER_DISPLAY_Y, textColor);
+}
+
+// ---------------------------------------------------------------------------
+// Ladder Rendering
+// ---------------------------------------------------------------------------
+
+static void renderLadders(SDL_Renderer *renderer, const LadderArray *ladders,
+                           const SDL_Rect *camera) {
+  if (!ladders)
+    return;
+    
+  /* Set color for ladders (brown/wood color) */
+  SDL_SetRenderDrawColor(renderer, 139, 90, 43, 255);
+  
+  for (size_t i = 0; i < ladders->count; i++) {
+    SDL_Rect ladderRect = ladders->ladders[i].rect;
+    
+    if (!isRectVisible(&ladderRect, camera))
+      continue;
+      
+    applyCamera(&ladderRect, camera);
+    
+    /* Draw ladder sides */
+    SDL_Rect leftSide = {ladderRect.x, ladderRect.y, 5, ladderRect.h};
+    SDL_Rect rightSide = {ladderRect.x + ladderRect.w - 5, ladderRect.y, 5, ladderRect.h};
+    SDL_RenderFillRect(renderer, &leftSide);
+    SDL_RenderFillRect(renderer, &rightSide);
+    
+    /* Draw rungs */
+    int rungSpacing = 20;
+    for (int y = ladderRect.y + 10; y < ladderRect.y + ladderRect.h - 10; y += rungSpacing) {
+      SDL_Rect rung = {ladderRect.x + 5, y, ladderRect.w - 10, 4};
+      SDL_RenderFillRect(renderer, &rung);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Trap Rendering
+// ---------------------------------------------------------------------------
+
+static void renderTraps(SDL_Renderer *renderer, const TrapArray *traps,
+                         const SDL_Rect *camera) {
+  if (!traps)
+    return;
+    
+  for (size_t i = 0; i < traps->count; i++) {
+    const Trap *trap = &traps->traps[i];
+    SDL_Rect trapRect = trap->rect;
+    
+    if (!isRectVisible(&trapRect, camera))
+      continue;
+      
+    applyCamera(&trapRect, camera);
+    
+    /* Set color based on trap type */
+    switch (trap->type) {
+    case TRAP_TYPE_FUEL_BARREL:
+      if (trap->state == TRAP_STATE_TRIGGERED) {
+        /* Explosion effect - orange/red */
+        SDL_SetRenderDrawColor(renderer, 255, 100, 0, 200);
+        /* Draw explosion circle */
+        int radius = (int)trap->effectRadius;
+        SDL_Rect explosion = {trapRect.x - radius, trapRect.y - radius, 
+                              radius * 2, radius * 2};
+        SDL_RenderFillRect(renderer, &explosion);
+      } else if (trap->state != TRAP_STATE_DESTROYED) {
+        /* Barrel - dark red */
+        SDL_SetRenderDrawColor(renderer, 180, 50, 50, 255);
+        SDL_RenderFillRect(renderer, &trapRect);
+        /* Hazard stripe */
+        SDL_SetRenderDrawColor(renderer, 255, 200, 0, 255);
+        SDL_Rect stripe = {trapRect.x, trapRect.y + trapRect.h / 3, 
+                           trapRect.w, trapRect.h / 3};
+        SDL_RenderFillRect(renderer, &stripe);
+      }
+      break;
+      
+    case TRAP_TYPE_SPIKE_PIT:
+      /* Spikes - gray */
+      SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+      SDL_RenderFillRect(renderer, &trapRect);
+      /* Draw spike triangles as lines */
+      SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
+      for (int x = trapRect.x + 5; x < trapRect.x + trapRect.w - 5; x += 10) {
+        SDL_RenderDrawLine(renderer, x, trapRect.y + trapRect.h, 
+                           x + 5, trapRect.y);
+        SDL_RenderDrawLine(renderer, x + 5, trapRect.y, 
+                           x + 10, trapRect.y + trapRect.h);
+      }
+      break;
+      
+    case TRAP_TYPE_ELECTRIC_FENCE:
+      /* Electric - blue */
+      SDL_SetRenderDrawColor(renderer, 50, 150, 255, 255);
+      SDL_RenderFillRect(renderer, &trapRect);
+      if (trap->state == TRAP_STATE_ACTIVE) {
+        /* Sparking effect */
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
+        SDL_RenderFillRect(renderer, &trapRect);
+      }
+      break;
+      
+    case TRAP_TYPE_FIRE_GRATE:
+      /* Fire - orange */
+      SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255);
+      SDL_RenderFillRect(renderer, &trapRect);
+      break;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Flag Rendering
+// ---------------------------------------------------------------------------
+
+static void renderFlags(SDL_Renderer *renderer, TTF_Font *font,
+                         const FlagArray *flags, const SDL_Rect *camera) {
+  if (!flags)
+    return;
+    
+  for (size_t i = 0; i < flags->count; i++) {
+    const Flag *flag = &flags->flags[i];
+    SDL_Rect flagRect = flag->rect;
+    
+    if (!isRectVisible(&flagRect, camera))
+      continue;
+      
+    applyCamera(&flagRect, camera);
+    
+    /* Draw capture zone */
+    if (flag->state == FLAG_STATE_CAPTURED) {
+      SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+    } else if (flag->state == FLAG_STATE_CAPTURING) {
+      SDL_SetRenderDrawColor(renderer, 255, 255, 0, 100);
+    } else {
+      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
+    }
+    SDL_RenderFillRect(renderer, &flagRect);
+    
+    /* Draw flag pole */
+    SDL_SetRenderDrawColor(renderer, 139, 90, 43, 255);
+    int poleX = flagRect.x + flagRect.w / 2;
+    int poleY = flagRect.y;
+    SDL_Rect pole = {poleX - 2, poleY - 60, 4, 60};
+    SDL_RenderFillRect(renderer, &pole);
+    
+    /* Draw flag */
+    if (flag->state == FLAG_STATE_CAPTURED) {
+      SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    } else {
+      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    }
+    SDL_Rect flagSymbol = {poleX + 2, poleY - 60, 30, 20};
+    SDL_RenderFillRect(renderer, &flagSymbol);
+    
+    /* Draw capture progress bar if capturing */
+    if (flag->state == FLAG_STATE_CAPTURING) {
+      SDL_Rect progressBg = {flagRect.x, flagRect.y - 15, flagRect.w, 10};
+      SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+      SDL_RenderFillRect(renderer, &progressBg);
+      
+      int progressWidth = (int)(flagRect.w * flag->captureProgress);
+      SDL_Rect progressFill = {flagRect.x, flagRect.y - 15, progressWidth, 10};
+      SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+      SDL_RenderFillRect(renderer, &progressFill);
+    }
+  }
+  
+  (void)font; /* Unused for now, could be used for labels */
+}
+
+// ---------------------------------------------------------------------------
+// Grenade Rendering
+// ---------------------------------------------------------------------------
+
+static void renderGrenades(SDL_Renderer *renderer, const GrenadePool *pool,
+                            const SDL_Rect *camera) {
+  if (!pool)
+    return;
+    
+  for (int i = 0; i < MAX_GRENADES; i++) {
+    const Grenade *grenade = pool->grenades[i];
+    if (!grenade || !isGrenadeActive(grenade))
+      continue;
+      
+    SDL_Rect grenadeRect = {(int)grenade->base.pos.x - 8, 
+                             (int)grenade->base.pos.y - 8, 16, 16};
+    
+    if (!isRectVisible(&grenadeRect, camera))
+      continue;
+      
+    applyCamera(&grenadeRect, camera);
+    
+    if (isGrenadeExploding(grenade)) {
+      /* Draw explosion */
+      int radius = (int)grenade->explosionRadius;
+      SDL_Rect explosion = {grenadeRect.x - radius + 8, 
+                            grenadeRect.y - radius + 8,
+                            radius * 2, radius * 2};
+      
+      /* Multiple circles for explosion effect */
+      SDL_SetRenderDrawColor(renderer, 255, 200, 0, 200);
+      SDL_RenderFillRect(renderer, &explosion);
+      
+      SDL_Rect innerExplosion = {explosion.x + radius / 3, 
+                                  explosion.y + radius / 3,
+                                  radius * 4 / 3, radius * 4 / 3};
+      SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255);
+      SDL_RenderFillRect(renderer, &innerExplosion);
+      
+      SDL_Rect coreExplosion = {explosion.x + radius / 2, 
+                                 explosion.y + radius / 2,
+                                 radius, radius};
+      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+      SDL_RenderFillRect(renderer, &coreExplosion);
+    } else {
+      /* Draw grenade */
+      SDL_SetRenderDrawColor(renderer, 50, 100, 50, 255);
+      SDL_RenderFillRect(renderer, &grenadeRect);
+      
+      /* Draw pin/fuse indicator based on remaining time */
+      if (grenade->fuseTimer < 0.5f) {
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+      } else {
+        SDL_SetRenderDrawColor(renderer, 200, 150, 50, 255);
+      }
+      SDL_Rect fuse = {grenadeRect.x + 6, grenadeRect.y - 4, 4, 6};
+      SDL_RenderFillRect(renderer, &fuse);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Grenade Count UI
+// ---------------------------------------------------------------------------
+
+static void renderGrenadeCount(SDL_Renderer *renderer, TTF_Font *font,
+                                const Player *player) {
+  if (!player)
+    return;
+    
+  char grenadeText[32];
+  snprintf(grenadeText, sizeof(grenadeText), "Grenades: %d", player->grenadeCount);
+  
+  SDL_Color textColor = {255, 255, 255, 255};
+  renderText(renderer, font, grenadeText, HEALTH_BAR_OFFSET_X, 
+             HEALTH_BAR_OFFSET_Y + 60, textColor);
+}
+
+// ---------------------------------------------------------------------------
+// Score UI
+// ---------------------------------------------------------------------------
+
+static void renderScore(SDL_Renderer *renderer, TTF_Font *font,
+                         const ScoreTracker *tracker) {
+  if (!tracker)
+    return;
+    
+  char scoreText[32];
+  snprintf(scoreText, sizeof(scoreText), "Score: %d", tracker->currentScore);
+  
+  SDL_Color textColor = {255, 255, 0, 255};
+  renderText(renderer, font, scoreText, TIMER_DISPLAY_X - 150, 
+             TIMER_DISPLAY_Y, textColor);
+}
+
+// ---------------------------------------------------------------------------
+// Combo Display
+// ---------------------------------------------------------------------------
+
+static void renderCombo(SDL_Renderer *renderer, TTF_Font *font,
+                         const ScoreTracker *tracker) {
+  if (!tracker || tracker->currentCombo <= 1)
+    return;
+    
+  char comboText[32];
+  snprintf(comboText, sizeof(comboText), "Combo x%d!", tracker->currentCombo);
+  
+  SDL_Color textColor = {255, 100, 0, 255};
+  renderText(renderer, font, comboText, GAME_WIDTH / 2 - 50, 100, textColor);
+}
+
+// ---------------------------------------------------------------------------
 // Main Render Function with Camera Support and Entity Filtering
 // ---------------------------------------------------------------------------
 
@@ -225,16 +528,45 @@ void renderGame(GameContext *ctx) {
   SDL_RenderCopy(ctx->renderer, ctx->texManager->backgroundTex, &bgSrc,
                  &bgDest);
 
+  // Render the map platforms.
+  renderMapPlatforms(ctx->renderer, ctx->map, &camera);
+
+  // Render ladders (behind entities).
+  if (ctx->map->ladders) {
+    renderLadders(ctx->renderer, (LadderArray *)ctx->map->ladders, &camera);
+  }
+
+  // Render traps.
+  if (ctx->map->traps) {
+    renderTraps(ctx->renderer, (TrapArray *)ctx->map->traps, &camera);
+  }
+
+  // Render flags.
+  if (ctx->map->flags) {
+    renderFlags(ctx->renderer, ctx->texManager->font, 
+                (FlagArray *)ctx->map->flags, &camera);
+  }
+
   // Render game entities relative to the camera.
   playerDraw(ctx->player, ctx->renderer, ctx->texManager, &camera);
   enemyArrayDraw(ctx->enemies, ctx->renderer, ctx->texManager, &camera);
   bulletPoolDraw(ctx->bulletPool, ctx->renderer, ctx->texManager, &camera);
 
-  // Render the map platforms.
-  renderMapPlatforms(ctx->renderer, ctx->map, &camera);
+  // Render grenades.
+  if (ctx->grenadePool) {
+    renderGrenades(ctx->renderer, ctx->grenadePool, &camera);
+  }
 
-  // Render the UI (e.g., health bar, level text).
+  // Render the UI elements.
   renderHealthBar(ctx->renderer, ctx->player, ctx->texManager->font);
+  renderGrenadeCount(ctx->renderer, ctx->texManager->font, ctx->player);
+  
+  // Render score and timer.
+  if (ctx->scoreTracker) {
+    renderTimer(ctx->renderer, ctx->texManager->font, ctx->scoreTracker);
+    renderScore(ctx->renderer, ctx->texManager->font, ctx->scoreTracker);
+    renderCombo(ctx->renderer, ctx->texManager->font, ctx->scoreTracker);
+  }
 
   // Present the final rendered frame.
   SDL_RenderPresent(ctx->renderer);

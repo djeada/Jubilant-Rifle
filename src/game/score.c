@@ -25,6 +25,10 @@ void scoreTrackerInit(ScoreTracker *tracker) {
   tracker->currentCombo = 0;
   tracker->comboTimer = 0;
   tracker->levelReached = 1;
+  tracker->elapsedTime = 0.0f;
+  tracker->flagsCaptured = 0;
+  tracker->meleeKills = 0;
+  tracker->grenadeKills = 0;
 }
 
 void scoreAddPoints(ScoreTracker *tracker, int points) {
@@ -103,6 +107,46 @@ float scoreGetAccuracy(const ScoreTracker *tracker) {
 
 void scoreReset(ScoreTracker *tracker) {
   scoreTrackerInit(tracker);
+}
+
+void scoreUpdateElapsedTime(ScoreTracker *tracker, float dt) {
+  if (!tracker)
+    return;
+  tracker->elapsedTime += dt;
+}
+
+void scoreGetElapsedTimeString(const ScoreTracker *tracker, char *buffer, size_t bufferSize) {
+  if (!tracker || !buffer || bufferSize == 0)
+    return;
+  
+  int totalSeconds = (int)tracker->elapsedTime;
+  int minutes = totalSeconds / 60;
+  int seconds = totalSeconds % 60;
+  snprintf(buffer, bufferSize, "%02d:%02d", minutes, seconds);
+}
+
+void scoreRegisterFlagCapture(ScoreTracker *tracker, int basePoints) {
+  if (!tracker)
+    return;
+  
+  tracker->flagsCaptured++;
+  scoreAddPoints(tracker, basePoints);
+}
+
+void scoreRegisterMeleeKill(ScoreTracker *tracker, int basePoints) {
+  if (!tracker)
+    return;
+  
+  tracker->meleeKills++;
+  scoreRegisterKill(tracker, basePoints);
+}
+
+void scoreRegisterGrenadeKill(ScoreTracker *tracker, int basePoints) {
+  if (!tracker)
+    return;
+  
+  tracker->grenadeKills++;
+  scoreRegisterKill(tracker, basePoints);
 }
 
 void highScoreTableInit(HighScoreTable *table) {

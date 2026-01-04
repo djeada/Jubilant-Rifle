@@ -74,5 +74,40 @@
 /* --------------------- Other Gameplay Constants --------------------- */
 #define NUM_BULLETS 100
 
+/* --------------------- New Gameplay Features --------------------- */
+/* Melee Combat */
+#define MELEE_ATTACK_RANGE 50
+#define MELEE_ATTACK_DAMAGE 30
+#define MELEE_ATTACK_COOLDOWN 0.5f
+
+/* Grenades */
+#define GRENADE_FUSE_TIME 2.0f
+#define GRENADE_EXPLOSION_RADIUS 80
+#define GRENADE_EXPLOSION_DAMAGE 50
+#define GRENADE_THROW_SPEED 300
+#define MAX_GRENADES 20
+
+/* Parachute Enemies */
+#define PARACHUTE_SPAWN_INTERVAL 15.0f
+#define PARACHUTE_SPAWN_COUNT 3
+#define PARACHUTE_DESCENT_SPEED 50.0f
+
+/* Ladders */
+#define LADDER_CLIMB_SPEED 150
+#define LADDER_WIDTH 30
+
+/* Traps */
+#define TRAP_FUEL_BARREL_DAMAGE 75
+#define TRAP_SPIKE_DAMAGE 25
+#define TRAP_FIRE_DAMAGE 10
+
+/* Flags */
+#define FLAG_CAPTURE_TIME 3.0f
+#define FLAG_CAPTURE_POINTS 500
+
+/* Level Timer */
+#define TIMER_DISPLAY_X 1750
+#define TIMER_DISPLAY_Y 20
+
 #endif // CONSTS_H
 
