@@ -28,6 +28,7 @@
 - **Movement**: Use **arrow keys** or **WASD** to move the character across platforms.
 - **Shooting**: Press **Space** or **X** to shoot and eliminate enemies.
 - **Melee Attack**: Press **Z** or **Left Ctrl** for close-quarters combat.
+- **Kneeling**: Press **C** or **Left Shift** to kneel for a lower profile.
 - **Throw Grenade**: Press **G** to throw a grenade (limited supply).
 - **Climb Ladders**: Press **Up/W** while on a ladder to climb.
 - **Pause**: Press **Escape** to return to menu.
