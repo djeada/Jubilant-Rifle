@@ -26,8 +26,8 @@
 /* --------------------- Map Files --------------------- */
 #define MAPS                                                                   \
   {                                                                            \
-    "resources/maps/mountains.cfg", "resources/maps/mountains.cfg",            \
-        "resources/maps/mountains.cfg"                                         \
+    "resources/maps/mountains.cfg", "resources/maps/urban.cfg",                \
+        "resources/maps/desert.cfg", "resources/maps/industrial.cfg"          \
   }
 
 /* --------------------- Sprite and Animation Dimensions ---------------------
