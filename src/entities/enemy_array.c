@@ -3,6 +3,9 @@
 #include "entities/entity.h"
 #include "entities/player.h"
 #include "utils/consts.h"
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 /* ---------------------------------------------------------------------------
@@ -53,7 +56,17 @@ void enemyArrayAdd(EnemyArray *arr, Enemy *enemy) {
 
   /* Grow array if needed */
   if (arr->count >= arr->capacity) {
+    /* Check for overflow: ensure new capacity doesn't overflow int */
+    if (arr->capacity > INT_MAX / 2) {
+      return; /* Would overflow, don't grow */
+    }
     const int newCapacity = arr->capacity * 2;
+
+    /* Check for size_t overflow */
+    if ((size_t)newCapacity > SIZE_MAX / sizeof(Enemy *)) {
+      return; /* Would overflow in malloc */
+    }
+
     Enemy **newData = realloc(arr->data, sizeof(Enemy *) * (size_t)newCapacity);
 
     if (!newData)

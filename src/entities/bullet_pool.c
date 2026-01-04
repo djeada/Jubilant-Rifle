@@ -1,6 +1,51 @@
 #include "entities/bullet_pool.h"
 #include "utils/consts.h"
+#include <stddef.h>
 #include <stdlib.h>
+
+/* ---------------------------------------------------------------------------
+ * Helper Functions
+ * --------------------------------------------------------------------------- */
+
+/**
+ * @brief Allocate and initialize arrays for a bullet sub-pool.
+ *
+ * @param bullets Output: array of bullet pointers.
+ * @param activeIndices Output: array of active indices.
+ * @param freeList Output: free list array.
+ * @param freeListHead Output: head of free list.
+ * @param capacity Capacity to allocate.
+ * @return 0 on success, -1 on failure.
+ */
+static int allocateSubPool(Bullet ***bullets, int **activeIndices,
+                           int **freeList, int *freeListHead, int capacity) {
+  if (capacity <= 0)
+    return -1;
+
+  *bullets = malloc(sizeof(Bullet *) * (size_t)capacity);
+  *activeIndices = malloc(sizeof(int) * (size_t)capacity);
+  *freeList = malloc(sizeof(int) * (size_t)capacity);
+
+  if (!*bullets || !*activeIndices || !*freeList) {
+    free(*bullets);
+    free(*activeIndices);
+    free(*freeList);
+    *bullets = NULL;
+    *activeIndices = NULL;
+    *freeList = NULL;
+    return -1;
+  }
+
+  /* Initialize arrays */
+  for (int i = 0; i < capacity; i++) {
+    (*bullets)[i] = NULL;
+    (*freeList)[i] = i + 1;
+  }
+  (*freeList)[capacity - 1] = -1; /* End-of-list marker */
+  *freeListHead = 0;
+
+  return 0;
+}
 
 /* ---------------------------------------------------------------------------
  * Pool Initialization
@@ -15,55 +60,23 @@ void bulletPoolInit(BulletPool *pool, int totalCapacity) {
   const int enemyCap = totalCapacity - playerCap;
 
   /* Initialize player bullet sub-pool */
-  pool->playerCapacity = playerCap;
   pool->playerActiveCount = 0;
-  pool->playerBullets = malloc(sizeof(Bullet *) * (size_t)playerCap);
-  pool->playerActiveIndices = malloc(sizeof(int) * (size_t)playerCap);
-  pool->playerFreeList = malloc(sizeof(int) * (size_t)playerCap);
-
-  if (!pool->playerBullets || !pool->playerActiveIndices ||
-      !pool->playerFreeList) {
-    /* Handle allocation failure */
-    free(pool->playerBullets);
-    free(pool->playerActiveIndices);
-    free(pool->playerFreeList);
-    pool->playerBullets = NULL;
-    pool->playerActiveIndices = NULL;
-    pool->playerFreeList = NULL;
-    pool->playerCapacity = 0;
+  if (allocateSubPool(&pool->playerBullets, &pool->playerActiveIndices,
+                      &pool->playerFreeList, &pool->playerFreeListHead,
+                      playerCap) == 0) {
+    pool->playerCapacity = playerCap;
   } else {
-    for (int i = 0; i < playerCap; i++) {
-      pool->playerBullets[i] = NULL;
-      pool->playerFreeList[i] = i + 1;
-    }
-    pool->playerFreeList[playerCap - 1] = -1; /* End-of-list marker */
-    pool->playerFreeListHead = 0;
+    pool->playerCapacity = 0;
   }
 
   /* Initialize enemy bullet sub-pool */
-  pool->enemyCapacity = enemyCap;
   pool->enemyActiveCount = 0;
-  pool->enemyBullets = malloc(sizeof(Bullet *) * (size_t)enemyCap);
-  pool->enemyActiveIndices = malloc(sizeof(int) * (size_t)enemyCap);
-  pool->enemyFreeList = malloc(sizeof(int) * (size_t)enemyCap);
-
-  if (!pool->enemyBullets || !pool->enemyActiveIndices ||
-      !pool->enemyFreeList) {
-    /* Handle allocation failure */
-    free(pool->enemyBullets);
-    free(pool->enemyActiveIndices);
-    free(pool->enemyFreeList);
-    pool->enemyBullets = NULL;
-    pool->enemyActiveIndices = NULL;
-    pool->enemyFreeList = NULL;
-    pool->enemyCapacity = 0;
+  if (allocateSubPool(&pool->enemyBullets, &pool->enemyActiveIndices,
+                      &pool->enemyFreeList, &pool->enemyFreeListHead,
+                      enemyCap) == 0) {
+    pool->enemyCapacity = enemyCap;
   } else {
-    for (int i = 0; i < enemyCap; i++) {
-      pool->enemyBullets[i] = NULL;
-      pool->enemyFreeList[i] = i + 1;
-    }
-    pool->enemyFreeList[enemyCap - 1] = -1;
-    pool->enemyFreeListHead = 0;
+    pool->enemyCapacity = 0;
   }
 }
 
