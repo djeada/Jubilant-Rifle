@@ -131,9 +131,9 @@ void runMainMenu(SDL_Renderer *renderer, GameState *state) {
   SDL_Event event;
   bool menuRunning = true;
 
-  // Use window dimensions from your constants.
-  const int windowWidth = WINDOWED_MODE_WIDTH;
-  const int windowHeight = WINDOWED_MODE_HEIGHT;
+  // Get the actual window dimensions from the renderer.
+  int windowWidth, windowHeight;
+  SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
   // Button dimensions and positioning.
   const int buttonWidth = 250;
