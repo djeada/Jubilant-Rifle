@@ -8,11 +8,13 @@ typedef enum { BULLET_SOURCE_PLAYER, BULLET_SOURCE_ENEMY } BulletSource;
 typedef struct Bullet {
   Entity base; // Inheritance: Bullet “is-a” Entity.
   BulletSource source;
+  float rotation; // Rotation angle in degrees for rendering
 } Bullet;
 
 Bullet *bulletCreate(BulletSource source, float x, float y, float vx, float vy);
 void bulletUpdate(Bullet *bullet, float dt);
 bool isBulletAlive(const Bullet *bullet);
+float bulletGetRotation(const Bullet *bullet);
 
 #endif // BULLET_H
 

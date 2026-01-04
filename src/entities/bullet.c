@@ -1,6 +1,7 @@
 #include "entities/bullet.h"
 #include "utils/consts.h"
 
+#include <math.h>
 #include <stdlib.h>
 
 // Create a new bullet, initializing the base entity values and setting the
@@ -23,6 +24,10 @@ Bullet *bulletCreate(BulletSource source, float x, float y, float vx,
   bullet->base.update = (void (*)(Entity *, float))bulletUpdate;
 
   bullet->source = source;
+  
+  // Calculate rotation angle from velocity (in degrees)
+  bullet->rotation = atan2f(vy, vx) * 180.0f / M_PI;
+  
   return bullet;
 }
 
@@ -34,5 +39,11 @@ void bulletUpdate(Bullet *bullet, float dt) {
 
 bool isBulletAlive(const Bullet *bullet) {
   return isEntityAlive(&bullet->base);
+}
+
+float bulletGetRotation(const Bullet *bullet) {
+  if (!bullet)
+    return 0.0f;
+  return bullet->rotation;
 }
 
