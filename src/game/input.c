@@ -145,20 +145,6 @@ void inputStateClearFrame(InputState *state) {
   memset(state->actionReleased, 0, sizeof(state->actionReleased));
 }
 
-/**
- * Helper to find which action a key corresponds to.
- * Returns ACTION_COUNT if no action is found.
- */
-static GameAction findActionForKey(const InputConfig *config, SDL_Keycode key) {
-  for (int i = 0; i < ACTION_COUNT; i++) {
-    if (config->bindings[i].primaryKey == key ||
-        config->bindings[i].secondaryKey == key) {
-      return (GameAction)i;
-    }
-  }
-  return ACTION_COUNT;
-}
-
 void inputProcessKeyDown(InputState *state, const InputConfig *config,
                          SDL_Keycode key) {
   if (!state || !config)
