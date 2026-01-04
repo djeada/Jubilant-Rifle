@@ -274,6 +274,35 @@ static void applyEnemyPhysics(const Player *restrict player,
  * --------------------------------------------------------------------------- */
 
 /**
+ * @brief Compute the visible area (camera bounds) centered on player.
+ * @param player The player entity.
+ * @return SDL_Rect representing the visible area.
+ */
+static inline SDL_Rect computeVisibleArea(const Player *restrict player) {
+  SDL_Rect visible;
+  visible.w = GAME_WIDTH;
+  visible.h = GAME_HEIGHT;
+  visible.x = (int)(player->base.pos.x + SPRITE_WIDTH / 2 - GAME_WIDTH / 2);
+  visible.y = (int)(player->base.pos.y + HUMANOID_FRAME_HEIGHT / 2 - GAME_HEIGHT / 2);
+  return visible;
+}
+
+/**
+ * @brief Check if an entity position is within the visible area.
+ * @param x Entity X position.
+ * @param y Entity Y position.
+ * @param w Entity width.
+ * @param h Entity height.
+ * @param visible The visible area rectangle.
+ * @return true if entity is visible, false otherwise.
+ */
+static inline bool isEntityVisible(float x, float y, int w, int h,
+                                   const SDL_Rect *visible) {
+  const SDL_Rect entityRect = {(int)x, (int)y, w, h};
+  return SDL_HasIntersection(&entityRect, visible) != 0;
+}
+
+/**
  * @brief Cull bullets that have left the visible game area.
  *
  * Marks bullets as inactive when they move too far from the player,
@@ -326,10 +355,11 @@ static void handleBulletWindowCollision(BulletPool *restrict pool,
 }
 
 /**
- * @brief Handle bullet-entity collisions.
+ * @brief Handle bullet-entity collisions for visible entities only.
  *
  * Processes collisions between bullets and entities (player/enemies),
  * applying damage and marking collided bullets as dead.
+ * Only checks collisions for entities within the visible camera area.
  */
 static void handleBulletEntityCollision(BulletPool *restrict pool,
                                         Player *restrict player,
@@ -337,6 +367,9 @@ static void handleBulletEntityCollision(BulletPool *restrict pool,
                                         TrapArray *traps) {
   if (!pool || !player || !enemies)
     return;
+
+  /* Compute visible area for collision filtering */
+  const SDL_Rect visible = computeVisibleArea(player);
 
   SDL_Rect bulletRect, targetRect;
 
@@ -351,6 +384,11 @@ static void handleBulletEntityCollision(BulletPool *restrict pool,
     Bullet *restrict bullet = pool->enemyBullets[index];
 
     if (!bullet || !isEntityAlive(&bullet->base))
+      continue;
+
+    /* Skip bullets outside visible area */
+    if (!isEntityVisible(bullet->base.pos.x, bullet->base.pos.y,
+                         BULLET_WIDTH, BULLET_HEIGHT, &visible))
       continue;
 
     bulletRect.x = (int)bullet->base.pos.x;
@@ -380,6 +418,11 @@ static void handleBulletEntityCollision(BulletPool *restrict pool,
     if (!bullet || !isEntityAlive(&bullet->base))
       continue;
 
+    /* Skip bullets outside visible area */
+    if (!isEntityVisible(bullet->base.pos.x, bullet->base.pos.y,
+                         BULLET_WIDTH, BULLET_HEIGHT, &visible))
+      continue;
+
     bulletRect.x = (int)bullet->base.pos.x;
     bulletRect.y = (int)bullet->base.pos.y;
     bulletRect.w = BULLET_WIDTH;
@@ -387,12 +430,17 @@ static void handleBulletEntityCollision(BulletPool *restrict pool,
 
     bool bulletConsumed = false;
 
-    /* Check against all enemies */
+    /* Check against visible enemies only */
     for (int j = 0; j < enemies->count && !bulletConsumed; j++) {
       Enemy *restrict enemy = enemies->data[j];
       Entity *restrict enemyEntity = &enemy->base;
 
       if (!isEntityAlive(enemyEntity))
+        continue;
+
+      /* Skip enemies outside visible area */
+      if (!isEntityVisible(enemyEntity->pos.x, enemyEntity->pos.y,
+                           SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT, &visible))
         continue;
 
       targetRect.x = (int)enemyEntity->pos.x;
