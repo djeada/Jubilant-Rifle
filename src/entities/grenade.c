@@ -30,6 +30,7 @@ Grenade *grenadeCreate(GrenadeSource source, float x, float y, float vx, float v
   grenade->explosionRadius = GRENADE_EXPLOSION_RADIUS;
   grenade->explosionDamage = GRENADE_EXPLOSION_DAMAGE;
   grenade->explosionTimer = 0.0f;
+  grenade->rotation = 0.0f;
 
   return grenade;
 }
@@ -53,6 +54,9 @@ void grenadeUpdate(Grenade *grenade, float dt) {
     /* Update position */
     grenade->base.pos.x += grenade->base.vel.x * dt;
     grenade->base.pos.y += grenade->base.vel.y * dt;
+    
+    /* Animate rotation based on velocity */
+    grenade->rotation += (grenade->base.vel.x * 2.0f + grenade->base.vel.y) * dt;
     
     /* Update fuse timer */
     grenade->fuseTimer -= dt;

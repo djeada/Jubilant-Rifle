@@ -41,6 +41,7 @@ typedef struct Grenade {
   float explosionRadius; /**< Radius of explosion damage */
   int explosionDamage;   /**< Damage dealt by explosion */
   float explosionTimer;  /**< Timer for explosion animation */
+  float rotation;        /**< Rotation angle for visual effect */
 } Grenade;
 
 /* Creation / Destruction */

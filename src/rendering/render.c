@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <math.h>
 
 // ---------------------------------------------------------------------------
 // Utility inline functions
@@ -24,6 +25,15 @@ static inline int isRectVisible(const SDL_Rect *entityRect,
 static inline void applyCamera(SDL_Rect *dest, const SDL_Rect *camera) {
   dest->x -= camera->x;
   dest->y -= camera->y;
+}
+
+// Helper function to draw a filled circle approximation using rectangles
+static void drawFilledCircle(SDL_Renderer *renderer, int cx, int cy, int radius) {
+  for (int y = -radius; y <= radius; y++) {
+    int width = (int)(sqrt(radius * radius - y * y) * 2);
+    SDL_Rect line = {cx - width / 2, cy + y, width, 1};
+    SDL_RenderFillRect(renderer, &line);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +99,11 @@ void bulletPoolDraw(BulletPool *pool, SDL_Renderer *renderer,
 
       SDL_Rect dest = bulletRect;
       applyCamera(&dest, camera);
-      SDL_RenderCopy(renderer, tm->bulletTex, NULL, &dest);
+      
+      // Render with rotation for better aesthetics
+      double angle = bulletGetRotation(bullet);
+      SDL_Point center = {BULLET_SPRITE_WIDTH / 2, BULLET_SPRITE_HEIGHT / 2};
+      SDL_RenderCopyEx(renderer, tm->bulletTex, NULL, &dest, angle, &center, SDL_FLIP_NONE);
     }
   }
 
@@ -105,7 +119,11 @@ void bulletPoolDraw(BulletPool *pool, SDL_Renderer *renderer,
 
       SDL_Rect dest = bulletRect;
       applyCamera(&dest, camera);
-      SDL_RenderCopy(renderer, tm->bulletTex, NULL, &dest);
+      
+      // Render with rotation for better aesthetics
+      double angle = bulletGetRotation(bullet);
+      SDL_Point center = {BULLET_SPRITE_WIDTH / 2, BULLET_SPRITE_HEIGHT / 2};
+      SDL_RenderCopyEx(renderer, tm->bulletTex, NULL, &dest, angle, &center, SDL_FLIP_NONE);
     }
   }
 }
@@ -280,13 +298,25 @@ static void renderTraps(SDL_Renderer *renderer, const TrapArray *traps,
     switch (trap->type) {
     case TRAP_TYPE_FUEL_BARREL:
       if (trap->state == TRAP_STATE_TRIGGERED) {
-        /* Explosion effect - orange/red */
-        SDL_SetRenderDrawColor(renderer, 255, 100, 0, 200);
-        /* Draw explosion circle */
+        /* Enhanced explosion effect matching grenade style */
         int radius = (int)trap->effectRadius;
-        SDL_Rect explosion = {trapRect.x - radius, trapRect.y - radius, 
-                              radius * 2, radius * 2};
-        SDL_RenderFillRect(renderer, &explosion);
+        int cx = trapRect.x + trapRect.w / 2;
+        int cy = trapRect.y + trapRect.h / 2;
+        
+        /* Outer blast */
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 255, 150, 0, 180);
+        drawFilledCircle(renderer, cx, cy, radius);
+        
+        /* Middle flame ring */
+        SDL_SetRenderDrawColor(renderer, 255, 200, 50, 220);
+        drawFilledCircle(renderer, cx, cy, radius * 2 / 3);
+        
+        /* Hot core */
+        SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
+        drawFilledCircle(renderer, cx, cy, radius / 3);
+        
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
       } else if (trap->state != TRAP_STATE_DESTROYED) {
         /* Barrel - dark red */
         SDL_SetRenderDrawColor(renderer, 180, 50, 50, 255);
@@ -416,38 +446,59 @@ static void renderGrenades(SDL_Renderer *renderer, const GrenadePool *pool,
     applyCamera(&grenadeRect, camera);
     
     if (isGrenadeExploding(grenade)) {
-      /* Draw explosion */
-      int radius = (int)grenade->explosionRadius;
-      SDL_Rect explosion = {grenadeRect.x - radius + 8, 
-                            grenadeRect.y - radius + 8,
-                            radius * 2, radius * 2};
+      /* Improved explosion animation with dynamic sizing and color */
+      float progress = 1.0f - (grenade->explosionTimer / GRENADE_EXPLOSION_DURATION);
+      int baseRadius = (int)grenade->explosionRadius;
       
-      /* Multiple circles for explosion effect */
-      SDL_SetRenderDrawColor(renderer, 255, 200, 0, 200);
-      SDL_RenderFillRect(renderer, &explosion);
+      /* Outer expanding ring with fade */
+      int outerRadius = (int)(baseRadius * (0.5f + progress * 1.5f));
+      int alpha = (int)(255 * (1.0f - progress));
       
-      SDL_Rect innerExplosion = {explosion.x + radius / 3, 
-                                  explosion.y + radius / 3,
-                                  radius * 4 / 3, radius * 4 / 3};
-      SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255);
-      SDL_RenderFillRect(renderer, &innerExplosion);
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(renderer, 255, 150, 0, alpha / 2);
+      drawFilledCircle(renderer, grenadeRect.x + 8, grenadeRect.y + 8, outerRadius);
       
-      SDL_Rect coreExplosion = {explosion.x + radius / 2, 
-                                 explosion.y + radius / 2,
-                                 radius, radius};
-      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-      SDL_RenderFillRect(renderer, &coreExplosion);
+      /* Middle blast wave */
+      int midRadius = (int)(baseRadius * (0.7f + progress * 0.8f));
+      SDL_SetRenderDrawColor(renderer, 255, 200, 50, alpha);
+      drawFilledCircle(renderer, grenadeRect.x + 8, grenadeRect.y + 8, midRadius);
+      
+      /* Inner hot core with white flash at start */
+      int coreRadius = (int)(baseRadius * (0.5f + progress * 0.3f));
+      if (progress < 0.3f) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+      } else {
+        SDL_SetRenderDrawColor(renderer, 255, 100, 0, alpha);
+      }
+      drawFilledCircle(renderer, grenadeRect.x + 8, grenadeRect.y + 8, coreRadius);
+      
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     } else {
-      /* Draw grenade */
-      SDL_SetRenderDrawColor(renderer, 50, 100, 50, 255);
+      /* Enhanced grenade rendering with rotation */
+      SDL_Point center = {grenadeRect.x + 8, grenadeRect.y + 8};
+      
+      /* Draw grenade body with slight gradient effect */
+      SDL_SetRenderDrawColor(renderer, 40, 80, 40, 255);
       SDL_RenderFillRect(renderer, &grenadeRect);
       
-      /* Draw pin/fuse indicator based on remaining time */
-      if (grenade->fuseTimer < 0.5f) {
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      } else {
-        SDL_SetRenderDrawColor(renderer, 200, 150, 50, 255);
+      /* Add highlight for depth */
+      SDL_Rect highlight = {grenadeRect.x + 2, grenadeRect.y + 2, 6, 6};
+      SDL_SetRenderDrawColor(renderer, 70, 120, 70, 255);
+      SDL_RenderFillRect(renderer, &highlight);
+      
+      /* Draw pin/fuse indicator with pulsing effect when near detonation */
+      float fuseProgress = grenade->fuseTimer / GRENADE_FUSE_TIME;
+      if (fuseProgress < 0.3f) {
+        /* Pulsing red warning */
+        int pulseAlpha = (int)(200 + 55 * sin(grenade->fuseTimer * 20.0f));
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, pulseAlpha);
+        drawFilledCircle(renderer, center.x, center.y, 10);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
       }
+      
+      /* Draw fuse pin */
+      SDL_SetRenderDrawColor(renderer, 200, 150, 50, 255);
       SDL_Rect fuse = {grenadeRect.x + 6, grenadeRect.y - 4, 4, 6};
       SDL_RenderFillRect(renderer, &fuse);
     }
