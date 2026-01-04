@@ -96,12 +96,14 @@ int parseStringValue(const char *json, const char *key, char *value, size_t valu
     start = strchr(start, ':');
     if (!start)
         return -1;
-    // Skip the colon and any following whitespace.
+    // Skip the colon and any following whitespace (including newlines and tabs).
     start++;
-    while (*start == ' ' || *start == '\t')
+    while (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')
         start++;
     if (*start == '"')
         start++; // skip opening quote
+    else
+        return -1; // expecting a quoted string
     const char *end = strchr(start, '"');
     if (!end)
         return -1;
@@ -120,11 +122,15 @@ int parseIntValue(const char *json, const char *key, int *value) {
     start = strchr(start, ':');
     if (!start)
         return -1;
+    // Skip whitespace after colon
+    start++;
+    while (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')
+        start++;
     // Use strtol for robust conversion.
     char *endptr;
-    long num = strtol(start + 1, &endptr, 10);
-    if (start + 1 == endptr) {
-        return -1;
+    long num = strtol(start, &endptr, 10);
+    if (start == endptr) {
+        return -1; // no valid conversion
     }
     *value = (int)num;
     return 0;
