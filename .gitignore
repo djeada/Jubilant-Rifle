@@ -34,3 +34,6 @@
 *settings*
 build
 *.user
+
+# Analysis tools
+_codeql_detected_source_root

@@ -47,10 +47,15 @@ void enemyArrayUpdate(EnemyArray *arr, float dt, BulletPool *pool) {
 }
 
 void enemyArrayDestroy(EnemyArray *arr) {
+  if (!arr)
+    return;
   for (int i = 0; i < arr->count; i++) {
     if (arr->data[i])
-      entityDestroy((Entity *)arr->data[i]);
+      enemyDestroy(arr->data[i]);
   }
   free(arr->data);
+  arr->data = NULL;
+  arr->count = 0;
+  arr->capacity = 0;
 }
 

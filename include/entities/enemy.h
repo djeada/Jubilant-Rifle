@@ -11,6 +11,7 @@ typedef struct {
 
 /* Creation / Destruction */
 Enemy *enemyCreate(float x, float y);
+void enemyDestroy(Enemy *enemy);
 
 /* Update */
 void enemyUpdate(Entity *self, float dt);
