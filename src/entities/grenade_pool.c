@@ -2,8 +2,21 @@
 #include <math.h>
 #include <stdlib.h>
 
+/* ---------------------------------------------------------------------------
+ * Constants
+ * --------------------------------------------------------------------------- */
+
 #define GRENADE_THROW_SPEED 300.0f
-#define GRENADE_THROW_ANGLE 45.0f /* degrees */
+#define GRENADE_THROW_ANGLE_DEG 45.0f
+#define GRENADE_MIN_THROW_DISTANCE 1.0f
+
+/* Pre-computed angle in radians */
+static const float GRENADE_THROW_ANGLE_RAD =
+    GRENADE_THROW_ANGLE_DEG * 3.14159f / 180.0f;
+
+/* ---------------------------------------------------------------------------
+ * Pool Lifecycle
+ * --------------------------------------------------------------------------- */
 
 void grenadePoolInit(GrenadePool *pool) {
   if (!pool)
@@ -28,10 +41,15 @@ void grenadePoolDestroy(GrenadePool *pool) {
   pool->activeCount = 0;
 }
 
+/* ---------------------------------------------------------------------------
+ * Pool Operations
+ * --------------------------------------------------------------------------- */
+
 int grenadePoolAdd(GrenadePool *pool, Grenade *grenade) {
   if (!pool || !grenade)
     return -1;
 
+  /* Find first available slot */
   for (int i = 0; i < MAX_GRENADES; i++) {
     if (pool->grenades[i] == NULL) {
       pool->grenades[i] = grenade;
@@ -39,13 +57,15 @@ int grenadePoolAdd(GrenadePool *pool, Grenade *grenade) {
       return 0;
     }
   }
+
   return -1; /* Pool is full */
 }
 
 void grenadePoolUpdate(GrenadePool *pool, float dt) {
-  if (!pool)
+  if (!pool || dt < 0.0f)
     return;
 
+  /* Update all active grenades */
   for (int i = 0; i < MAX_GRENADES; i++) {
     if (pool->grenades[i]) {
       grenadeUpdate(pool->grenades[i], dt);
@@ -60,34 +80,38 @@ void grenadePoolCleanup(GrenadePool *pool) {
     return;
 
   for (int i = 0; i < MAX_GRENADES; i++) {
-    if (pool->grenades[i] && !isGrenadeActive(pool->grenades[i])) {
-      grenadeDestroy(pool->grenades[i]);
+    Grenade *grenade = pool->grenades[i];
+
+    if (grenade && !isGrenadeActive(grenade)) {
+      grenadeDestroy(grenade);
       pool->grenades[i] = NULL;
       pool->activeCount--;
     }
   }
 }
 
-void grenadePoolThrow(GrenadePool *pool, GrenadeSource source,
-                       float x, float y, float targetX, float targetY) {
+void grenadePoolThrow(GrenadePool *pool, GrenadeSource source, float x, float y,
+                      float targetX, float targetY) {
   if (!pool)
     return;
 
   /* Calculate throw direction */
-  float dx = targetX - x;
-  float dy = targetY - y;
-  float distance = sqrtf(dx * dx + dy * dy);
-  
-  if (distance < 1.0f)
+  const float dx = targetX - x;
+  const float dy = targetY - y;
+  const float distance = sqrtf(dx * dx + dy * dy);
+
+  if (distance < GRENADE_MIN_THROW_DISTANCE)
     return;
 
-  /* Normalize and apply throw speed with arc */
-  float angle = GRENADE_THROW_ANGLE * 3.14159f / 180.0f;
-  float vx = (dx / distance) * GRENADE_THROW_SPEED;
-  float vy = -GRENADE_THROW_SPEED * sinf(angle); /* Negative for upward arc */
-  
+  /* Calculate velocity with arc */
+  const float vx = (dx / distance) * GRENADE_THROW_SPEED;
+  const float vy = -GRENADE_THROW_SPEED * sinf(GRENADE_THROW_ANGLE_RAD);
+
   Grenade *grenade = grenadeCreate(source, x, y, vx, vy);
   if (grenade) {
-    grenadePoolAdd(pool, grenade);
+    if (grenadePoolAdd(pool, grenade) != 0) {
+      /* Pool was full, clean up */
+      grenadeDestroy(grenade);
+    }
   }
 }

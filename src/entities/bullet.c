@@ -4,13 +4,23 @@
 #include <math.h>
 #include <stdlib.h>
 
-// Create a new bullet, initializing the base entity values and setting the
-// source.
+/* ---------------------------------------------------------------------------
+ * Constants
+ * --------------------------------------------------------------------------- */
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+/* ---------------------------------------------------------------------------
+ * Bullet Creation
+ * --------------------------------------------------------------------------- */
+
 Bullet *bulletCreate(BulletSource source, float x, float y, float vx,
                      float vy) {
   Bullet *bullet = malloc(sizeof(Bullet));
   if (!bullet)
-    return NULL; // Check malloc result if desired
+    return NULL;
 
   bullet->base.type = ENTITY_BULLET;
   bullet->base.pos.x = x;
@@ -18,27 +28,35 @@ Bullet *bulletCreate(BulletSource source, float x, float y, float vx,
   bullet->base.vel.x = vx;
   bullet->base.vel.y = vy;
   bullet->base.health = 1;
+  bullet->base.direction = (vx >= 0.0f) ? DIRECTION_RIGHT : DIRECTION_LEFT;
   bullet->base.anim = NULL;
-  // Set the update function pointer. Note that we cast bulletUpdate to match
-  // the signature:
   bullet->base.update = (void (*)(Entity *, float))bulletUpdate;
 
   bullet->source = source;
-  
-  // Calculate rotation angle from velocity (in degrees)
-  bullet->rotation = atan2f(vy, vx) * 180.0f / M_PI;
-  
+
+  /* Calculate rotation angle from velocity (in degrees) */
+  bullet->rotation = atan2f(vy, vx) * (180.0f / (float)M_PI);
+
   return bullet;
 }
 
-// Update the bullet by updating its position and checking bounds.
+/* ---------------------------------------------------------------------------
+ * Bullet Update
+ * --------------------------------------------------------------------------- */
+
 void bulletUpdate(Bullet *bullet, float dt) {
-  // Update the entity’s position and timer etc.
+  if (!bullet || dt < 0.0f)
+    return;
+
   commonEntityUpdate(&bullet->base, dt);
 }
 
+/* ---------------------------------------------------------------------------
+ * Bullet Queries
+ * --------------------------------------------------------------------------- */
+
 bool isBulletAlive(const Bullet *bullet) {
-  return isEntityAlive(&bullet->base);
+  return bullet != NULL && isEntityAlive(&bullet->base);
 }
 
 float bulletGetRotation(const Bullet *bullet) {
@@ -46,4 +64,3 @@ float bulletGetRotation(const Bullet *bullet) {
     return 0.0f;
   return bullet->rotation;
 }
-
