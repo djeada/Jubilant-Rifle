@@ -1,8 +1,24 @@
 #include "entities/player.h"
+#include "utils/consts.h"
+#include <SDL2/SDL.h>
 #include <stdlib.h>
+
+#define MELEE_COOLDOWN 0.5f
+#define MELEE_RANGE 50
+#define MELEE_DAMAGE 30
+#define PLAYER_INITIAL_GRENADES 3
 
 void playerUpdate(Entity *entity, float dt) {
   Player *player = (Player *)entity;
+  
+  /* Update melee cooldown */
+  if (player->meleeTimer > 0) {
+    player->meleeTimer -= dt;
+    if (player->meleeTimer <= 0) {
+      player->isMeleeAttacking = false;
+    }
+  }
+  
   commonEntityUpdate(&player->base, dt);
 }
 
@@ -34,6 +50,13 @@ Player *playerCreate(float x, float y) {
   player->base.anim->currentFrame = 0;
   player->level = 1;
   player->base.direction = DIRECTION_LEFT;
+  
+  /* Initialize new player fields */
+  player->isClimbing = false;
+  player->isMeleeAttacking = false;
+  player->meleeTimer = 0.0f;
+  player->meleeDamage = MELEE_DAMAGE;
+  player->grenadeCount = PLAYER_INITIAL_GRENADES;
 
   return player;
 }
@@ -78,5 +101,77 @@ bool isPlayerAlive(const Player *player) {
 
 Direction getPlayerFacingDirection(const Player *player) {
   return player->base.direction;
+}
+
+void playerMeleeAttack(Player *player) {
+  if (!player || player->meleeTimer > 0)
+    return;
+  
+  player->isMeleeAttacking = true;
+  player->meleeTimer = MELEE_COOLDOWN;
+}
+
+bool playerMeleeHits(const Player *player, const SDL_Rect *targetRect) {
+  if (!player || !targetRect || !player->isMeleeAttacking)
+    return false;
+  
+  /* Calculate melee attack hitbox based on facing direction */
+  SDL_Rect meleeRect;
+  meleeRect.y = (int)player->base.pos.y;
+  meleeRect.w = MELEE_RANGE;
+  meleeRect.h = HUMANOID_FRAME_HEIGHT;
+  
+  if (player->base.direction == DIRECTION_RIGHT) {
+    meleeRect.x = (int)player->base.pos.x + SPRITE_WIDTH;
+  } else {
+    meleeRect.x = (int)player->base.pos.x - MELEE_RANGE;
+  }
+  
+  return SDL_HasIntersection(&meleeRect, targetRect);
+}
+
+int playerGetMeleeDamage(const Player *player) {
+  if (!player)
+    return 0;
+  return (int)player->meleeDamage;
+}
+
+void playerStartClimbing(Player *player) {
+  if (!player)
+    return;
+  player->isClimbing = true;
+  /* Stop horizontal movement while climbing */
+  player->base.vel.x = 0;
+}
+
+void playerStopClimbing(Player *player) {
+  if (!player)
+    return;
+  player->isClimbing = false;
+}
+
+bool playerIsClimbing(const Player *player) {
+  if (!player)
+    return false;
+  return player->isClimbing;
+}
+
+void playerAddGrenades(Player *player, int count) {
+  if (!player || count <= 0)
+    return;
+  player->grenadeCount += count;
+}
+
+bool playerUseGrenade(Player *player) {
+  if (!player || player->grenadeCount <= 0)
+    return false;
+  player->grenadeCount--;
+  return true;
+}
+
+int playerGetGrenadeCount(const Player *player) {
+  if (!player)
+    return 0;
+  return player->grenadeCount;
 }
 

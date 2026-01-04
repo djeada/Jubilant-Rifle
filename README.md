@@ -15,14 +15,27 @@
 - **Custom Key Bindings**: Remap controls to your preference
 - **Extensible Map System**: Dynamic map loading with JSON configuration
 - **Modular Architecture**: Clean, maintainable code with clear separation of concerns
+- **Level Timer**: Track your completion time for each level
+- **Ladders**: Climb between platforms for vertical movement
+- **Grenades**: Explosive combat for both players and enemies
+- **Melee Combat**: Close-quarters fighting for alternative combat style
+- **Environmental Traps**: Strategic hazards like fuel barrels that explode
+- **Flag Capture**: Capture flags as level objectives
+- **Parachuting Enemies**: Waves of enemies descend from above
 
 ## Gameplay Mechanics
 
 - **Movement**: Use **arrow keys** or **WASD** to move the character across platforms.
-- **Shooting**: Press **X** or **Left Ctrl** to shoot and eliminate enemies.
-- **Pause**: Press **P** or **Escape** to pause the game.
-- **Enemy Encounters**: Enemies are armed and will return fire.
+- **Shooting**: Press **Space** or **X** to shoot and eliminate enemies.
+- **Melee Attack**: Press **Z** or **Left Ctrl** for close-quarters combat.
+- **Throw Grenade**: Press **G** to throw a grenade (limited supply).
+- **Climb Ladders**: Press **Up/W** while on a ladder to climb.
+- **Pause**: Press **Escape** to return to menu.
+- **Enemy Encounters**: Enemies are armed and will return fire, plus throw grenades.
+- **Parachute Waves**: Enemy reinforcements drop from the sky periodically.
 - **Combo System**: Chain kills together for score multipliers.
+- **Trap Strategy**: Shoot fuel barrels near enemies for explosive damage.
+- **Flag Objectives**: Capture all flags to complete level objectives.
 - **Difficulty Scaling**: Enemies increase in numbers and develop tougher strategies as you advance.
 - **Objective**: Survive as long as possible and maximize your score.
 

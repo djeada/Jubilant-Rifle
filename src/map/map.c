@@ -1,4 +1,7 @@
 #include "map/map.h"
+#include "map/ladder.h"
+#include "map/trap.h"
+#include "map/flag.h"
 #include "utils/consts.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +50,9 @@ void mapInit(Map *map) {
     map->rect.y = 0;
     map->rect.w = 0;
     map->rect.h = 0;
+    map->ladders = NULL;
+    map->traps = NULL;
+    map->flags = NULL;
   }
 }
 
@@ -255,6 +261,30 @@ int parseMapFile(const char *filePath, Map *map) {
     return -1;
   }
 
+  /* Parse optional ladders */
+  LadderArray *ladders = malloc(sizeof(LadderArray));
+  if (ladders) {
+    ladderArrayInit(ladders);
+    parseLadders(data, ladders);
+    map->ladders = ladders;
+  }
+
+  /* Parse optional traps */
+  TrapArray *traps = malloc(sizeof(TrapArray));
+  if (traps) {
+    trapArrayInit(traps);
+    parseTraps(data, traps);
+    map->traps = traps;
+  }
+
+  /* Parse optional flags */
+  FlagArray *flags = malloc(sizeof(FlagArray));
+  if (flags) {
+    flagArrayInit(flags);
+    parseFlags(data, flags);
+    map->flags = flags;
+  }
+
   free(data);
   return 0;
 }
@@ -266,5 +296,26 @@ void mapDestructor(Map *map) {
         free(map->platforms);
         map->platforms = NULL;
         map->platformCount = 0;
+        
+        /* Destroy ladders */
+        if (map->ladders) {
+            ladderArrayDestroy((LadderArray *)map->ladders);
+            free(map->ladders);
+            map->ladders = NULL;
+        }
+        
+        /* Destroy traps */
+        if (map->traps) {
+            trapArrayDestroy((TrapArray *)map->traps);
+            free(map->traps);
+            map->traps = NULL;
+        }
+        
+        /* Destroy flags */
+        if (map->flags) {
+            flagArrayDestroy((FlagArray *)map->flags);
+            free(map->flags);
+            map->flags = NULL;
+        }
     }
 }
