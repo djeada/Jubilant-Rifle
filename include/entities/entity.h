@@ -1,43 +1,128 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+/**
+ * @file entity.h
+ * @brief Base entity system for game objects.
+ *
+ * Provides the foundation for all game entities including players,
+ * enemies, and bullets. Uses a component-like pattern for shared
+ * behavior and polymorphism through function pointers.
+ */
+
 #include "utils/point.h"
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
 /* --- Animation --- */
+
+/**
+ * @brief Animation data for animated entities.
+ */
 typedef struct {
-  SDL_Texture *tex;
-  int frameCount;
-  float frameDuration;
-  float timer;
-  int currentFrame;
+  SDL_Texture *tex;     /**< Texture containing animation frames */
+  int frameCount;       /**< Total number of frames in the animation */
+  float frameDuration;  /**< Duration of each frame in seconds */
+  float timer;          /**< Current animation timer */
+  int currentFrame;     /**< Currently displayed frame index */
 } Animation;
 
 /* --- Entity Types --- */
-typedef enum { ENTITY_PLAYER, ENTITY_ENEMY, ENTITY_BULLET } EntityType;
+
+/**
+ * @brief Types of entities in the game.
+ */
+typedef enum { 
+  ENTITY_PLAYER,  /**< Player-controlled character */
+  ENTITY_ENEMY,   /**< AI-controlled enemy */
+  ENTITY_BULLET   /**< Projectile entity */
+} EntityType;
 
 /* --- Direction --- */
-typedef enum { DIRECTION_LEFT, DIRECTION_RIGHT } Direction;
+
+/**
+ * @brief Facing direction for entities.
+ */
+typedef enum { 
+  DIRECTION_LEFT,   /**< Facing left */
+  DIRECTION_RIGHT   /**< Facing right */
+} Direction;
 
 /* --- Base Entity --- */
+
+/**
+ * @brief Base entity structure for all game objects.
+ *
+ * This structure provides common properties and behaviors for all
+ * entities in the game. Derived types embed this structure and
+ * extend it with their own data.
+ */
 typedef struct Entity {
-  EntityType type;
-  Point pos;
-  Point vel;
-  int health;
-  Direction direction;
-  Animation *anim;
+  EntityType type;      /**< Type of entity */
+  Point pos;            /**< Position in world coordinates */
+  Point vel;            /**< Velocity (units per second) */
+  int health;           /**< Current health points */
+  Direction direction;  /**< Facing direction */
+  Animation *anim;      /**< Animation data (can be NULL) */
+
+  /**
+   * @brief Update function pointer for polymorphic behavior.
+   * @param self Pointer to the entity.
+   * @param dt Delta time in seconds.
+   */
   void (*update)(struct Entity *self, float dt);
 } Entity;
 
 /* --- Entity API --- */
+
+/**
+ * @brief Create a new entity.
+ * @param type The type of entity to create.
+ * @param x Initial X position.
+ * @param y Initial Y position.
+ * @return Pointer to the new entity, or NULL on failure.
+ */
 Entity *entityCreate(EntityType type, float x, float y);
+
+/**
+ * @brief Destroy an entity and free its resources.
+ * @param e The entity to destroy.
+ */
 void entityDestroy(Entity *e);
+
+/**
+ * @brief Common update logic shared by all entities.
+ *
+ * Updates position based on velocity and advances animation.
+ *
+ * @param self The entity to update.
+ * @param dt Delta time in seconds.
+ */
 void commonEntityUpdate(Entity *self, float dt);
+
+/**
+ * @brief Check if an entity is alive (health > 0).
+ * @param e The entity to check.
+ * @return true if alive, false otherwise.
+ */
 bool isEntityAlive(const Entity *e);
+
+/**
+ * @brief Check if an entity is moving.
+ * @param e The entity to check.
+ * @return true if velocity is non-zero.
+ */
 bool isEntityMoving(const Entity *e);
 
-#endif // ENTITY_H
+/**
+ * @brief Get the bounding rectangle of an entity.
+ * @param e The entity.
+ * @param width Width of the entity.
+ * @param height Height of the entity.
+ * @return SDL_Rect representing the entity bounds.
+ */
+SDL_Rect entityGetBounds(const Entity *e, int width, int height);
+
+#endif /* ENTITY_H */
 

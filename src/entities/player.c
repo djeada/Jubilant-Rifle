@@ -11,10 +11,23 @@ Player *playerCreate(float x, float y) {
   if (!player)
     return NULL;
 
-  player->base = *entityCreate(ENTITY_PLAYER, x, y);
+  /* Create temporary entity to copy values from */
+  Entity *tempEntity = entityCreate(ENTITY_PLAYER, x, y);
+  if (!tempEntity) {
+    free(player);
+    return NULL;
+  }
+  player->base = *tempEntity;
+  free(tempEntity); /* Free the temporary entity, values are copied */
+
   player->base.update = playerUpdate;
   player->base.health = 100;
   player->base.anim = malloc(sizeof(Animation));
+  if (!player->base.anim) {
+    free(player);
+    return NULL;
+  }
+  player->base.anim->tex = NULL;
   player->base.anim->frameCount = 6;
   player->base.anim->frameDuration = 0.1f;
   player->base.anim->timer = 0;
@@ -27,7 +40,9 @@ Player *playerCreate(float x, float y) {
 
 void playerDestroy(Player *player) {
   if (player) {
-    entityDestroy(&player->base);
+    if (player->base.anim) {
+      free(player->base.anim);
+    }
     free(player);
   }
 }

@@ -10,20 +10,31 @@ Entity *entityCreate(EntityType type, float x, float y) {
   e->vel.x = 0;
   e->vel.y = 0;
   e->health = 100;
+  e->direction = DIRECTION_RIGHT;
   e->anim = NULL;
   e->update = NULL;
   return e;
 }
 
-void entityDestroy(Entity *e) { free(e); }
+void entityDestroy(Entity *e) {
+  if (e) {
+    if (e->anim) {
+      free(e->anim);
+    }
+    free(e);
+  }
+}
 
 void commonEntityUpdate(Entity *self, float dt) {
-  // Update position based on velocity.
+  if (!self)
+    return;
+
+  /* Update position based on velocity. */
   self->pos.x += self->vel.x * dt;
   self->pos.y += self->vel.y * dt;
 
-  // Update animation (if any).
-  if (self->anim) {
+  /* Update animation (if any). */
+  if (self->anim && self->anim->frameCount > 0) {
     self->anim->timer += dt;
     if (self->anim->timer >= self->anim->frameDuration) {
       self->anim->timer -= self->anim->frameDuration;
@@ -36,6 +47,19 @@ void commonEntityUpdate(Entity *self, float dt) {
 bool isEntityAlive(const Entity *e) { return e && e->health > 0; }
 
 bool isEntityMoving(const Entity *e) {
+  if (!e)
+    return false;
   return (e->vel.x != 0 || e->vel.y != 0);
+}
+
+SDL_Rect entityGetBounds(const Entity *e, int width, int height) {
+  SDL_Rect rect = {0, 0, 0, 0};
+  if (e) {
+    rect.x = (int)e->pos.x;
+    rect.y = (int)e->pos.y;
+    rect.w = width;
+    rect.h = height;
+  }
+  return rect;
 }
 

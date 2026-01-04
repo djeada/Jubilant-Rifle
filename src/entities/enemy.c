@@ -6,11 +6,24 @@ Enemy *enemyCreate(float x, float y) {
   if (!enemy)
     return NULL;
 
-  enemy->base = *entityCreate(ENTITY_ENEMY, x, y);
+  /* Create temporary entity to copy values from */
+  Entity *tempEntity = entityCreate(ENTITY_ENEMY, x, y);
+  if (!tempEntity) {
+    free(enemy);
+    return NULL;
+  }
+  enemy->base = *tempEntity;
+  free(tempEntity); /* Free the temporary entity, values are copied */
+
   enemy->base.health = 30;
   enemy->base.update = enemyUpdate;
   enemy->shootTimer = 2.0f;
   enemy->base.anim = malloc(sizeof(Animation));
+  if (!enemy->base.anim) {
+    free(enemy);
+    return NULL;
+  }
+  enemy->base.anim->tex = NULL;
   enemy->base.anim->frameCount = 6;
   enemy->base.anim->frameDuration = 0.2f;
   enemy->base.anim->timer = 0;
@@ -18,6 +31,15 @@ Enemy *enemyCreate(float x, float y) {
   enemy->base.direction = DIRECTION_LEFT;
 
   return enemy;
+}
+
+void enemyDestroy(Enemy *enemy) {
+  if (enemy) {
+    if (enemy->base.anim) {
+      free(enemy->base.anim);
+    }
+    free(enemy);
+  }
 }
 
 void enemyUpdate(Entity *self, float dt) {
