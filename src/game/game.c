@@ -210,7 +210,8 @@ void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
   SDL_Event e;
 
   while (*gameRunning && *gameState == STATE_GAME) {
-    handleGameEvents(&e, ctx->player, gameState, gameRunning, ctx->bulletPool);
+    handleGameEventsExtended(&e, ctx->player, gameState, gameRunning, 
+                              ctx->bulletPool, ctx->grenadePool);
 
     // Calculate delta time.
     Uint32 now = SDL_GetTicks();

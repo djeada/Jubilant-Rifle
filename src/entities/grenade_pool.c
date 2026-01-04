@@ -2,6 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define GRENADE_THROW_SPEED 300.0f
 #define GRENADE_THROW_ANGLE 45.0f /* degrees */
 
@@ -82,7 +86,7 @@ void grenadePoolThrow(GrenadePool *pool, GrenadeSource source,
     return;
 
   /* Normalize and apply throw speed with arc */
-  float angle = GRENADE_THROW_ANGLE * 3.14159f / 180.0f;
+  float angle = (float)(GRENADE_THROW_ANGLE * M_PI / 180.0);
   float vx = (dx / distance) * GRENADE_THROW_SPEED;
   float vy = -GRENADE_THROW_SPEED * sinf(angle); /* Negative for upward arc */
   

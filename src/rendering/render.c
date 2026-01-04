@@ -374,10 +374,18 @@ static void renderFlags(SDL_Renderer *renderer, TTF_Font *font,
       SDL_Rect progressFill = {flagRect.x, flagRect.y - 15, progressWidth, 10};
       SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
       SDL_RenderFillRect(renderer, &progressFill);
+      
+      /* Draw capture percentage text */
+      if (font) {
+        char progressText[16];
+        snprintf(progressText, sizeof(progressText), "%d%%", 
+                 (int)(flag->captureProgress * 100));
+        SDL_Color textColor = {255, 255, 255, 255};
+        renderText(renderer, font, progressText, 
+                   flagRect.x + flagRect.w / 2 - 15, flagRect.y - 30, textColor);
+      }
     }
   }
-  
-  (void)font; /* Unused for now, could be used for labels */
 }
 
 // ---------------------------------------------------------------------------
