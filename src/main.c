@@ -19,9 +19,10 @@ int initSDL() {
 }
 
 SDL_Window *createWindow() {
+  Uint32 flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
   SDL_Window *win = SDL_CreateWindow(
       "Jubilant Rifle", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, 0);
+      WINDOWED_MODE_WIDTH, WINDOWED_MODE_HEIGHT, flags);
   return win;
 }
 

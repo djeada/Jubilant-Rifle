@@ -207,7 +207,11 @@ void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
     enemyArrayUpdate(ctx->enemies, dt, ctx->bulletPool, ctx->player);
     applyPhysics(ctx->player, ctx->enemies, ctx->map, dt);
     bulletPoolUpdate(ctx->bulletPool, dt);
-    handleCollisions(ctx->bulletPool, ctx->player, ctx->enemies);
+    TrapArray *traps = NULL;
+    if (ctx->map->traps) {
+      traps = (TrapArray *)ctx->map->traps;
+    }
+    handleCollisions(ctx->bulletPool, ctx->player, ctx->enemies, traps);
 
     /* Update new gameplay features */
     updateParachuteSpawns(ctx, dt);

@@ -24,16 +24,12 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
         break;
       case SDLK_UP:
       case SDLK_w:
-        if (player->isClimbing) {
-          playerSetVerticalVelocity(player, -LADDER_CLIMB_SPEED);
-        } else if (player->base.vel.y == 0) {
-          playerSetVerticalVelocity(player, -PLAYER_JUMP_SPEED);
-        }
+        player->climbIntentUp = true;
+        player->jumpRequested = true;
         break;
       case SDLK_DOWN:
       case SDLK_s:
-        playerSetVerticalVelocity(player, LADDER_CLIMB_SPEED);
-        playerStartClimbing(player);
+        player->climbIntentDown = true;
         break;
       case SDLK_SPACE:
       case SDLK_x:
@@ -61,7 +57,8 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
       case SDLK_w:
       case SDLK_s:
         playerStopVertical(player);
-        playerStopClimbing(player);
+        player->climbIntentUp = false;
+        player->climbIntentDown = false;
         break;
       default:
         break;
@@ -94,16 +91,12 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
         break;
       case SDLK_UP:
       case SDLK_w:
-        if (player->isClimbing) {
-          playerSetVerticalVelocity(player, -LADDER_CLIMB_SPEED);
-        } else if (player->base.vel.y == 0) {
-          playerSetVerticalVelocity(player, -PLAYER_JUMP_SPEED);
-        }
+        player->climbIntentUp = true;
+        player->jumpRequested = true;
         break;
       case SDLK_DOWN:
       case SDLK_s:
-        playerSetVerticalVelocity(player, LADDER_CLIMB_SPEED);
-        playerStartClimbing(player);
+        player->climbIntentDown = true;
         break;
       case SDLK_SPACE:
       case SDLK_x:
@@ -142,7 +135,8 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
       case SDLK_w:
       case SDLK_s:
         playerStopVertical(player);
-        playerStopClimbing(player);
+        player->climbIntentUp = false;
+        player->climbIntentDown = false;
         break;
       default:
         break;

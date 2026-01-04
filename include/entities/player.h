@@ -8,10 +8,14 @@ typedef struct Player {
   Entity base;
   int level;
   bool isClimbing;        /**< Whether player is on a ladder */
+  bool climbIntentUp;     /**< Whether player is trying to climb up */
+  bool climbIntentDown;   /**< Whether player is trying to climb down */
+  bool jumpRequested;     /**< Whether a jump was requested this frame */
   bool isMeleeAttacking;  /**< Whether player is performing melee attack */
   float meleeTimer;       /**< Cooldown timer for melee attacks */
   float meleeDamage;      /**< Damage dealt by melee attacks */
   int grenadeCount;       /**< Number of grenades available */
+  int jumpsUsed;          /**< Number of jumps used since last landing */
 } Player;
 
 /* Creation / Destruction */
@@ -94,4 +98,3 @@ bool isPlayerAlive(const Player *player);
 Direction getPlayerFacingDirection(const Player *player);
 
 #endif // PLAYER_H
-

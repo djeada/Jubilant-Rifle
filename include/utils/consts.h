@@ -64,7 +64,7 @@
 
 /* --------------------- Player and Enemy Movement --------------------- */
 #define PLAYER_MOVE_SPEED 5
-#define PLAYER_JUMP_SPEED 200
+#define PLAYER_JUMP_SPEED 600
 #define PLAYER_FALL_INCREMENT 800
 
 #define ENEMY_MOVE_SPEED 60

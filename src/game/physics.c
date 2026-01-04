@@ -64,30 +64,57 @@ static void applyPlayerPhysics(Player *player, const Map *map, float dt) {
   const Ladder *ladder = NULL;
   if (map->ladders) {
     LadderArray *ladders = (LadderArray *)map->ladders;
-    SDL_Rect playerRect = {(int)player->base.pos.x,
-                            (int)player->base.pos.y,
-                            SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT};
-    ladder = ladderArrayCheckOverlap(ladders, &playerRect);
+    SDL_Rect probeRect = {0, 0, 0, 0};
+    if (player->climbIntentUp || player->climbIntentDown) {
+      probeRect.x = (int)player->base.pos.x;
+      probeRect.y = (int)(player->base.pos.y - 10);
+      probeRect.w = SPRITE_WIDTH;
+      probeRect.h = HUMANOID_FRAME_HEIGHT + 30;
+    } else {
+      probeRect.x = (int)(player->base.pos.x + (SPRITE_WIDTH / 2) - 5);
+      probeRect.y = (int)(player->base.pos.y - 5);
+      probeRect.w = 10;
+      probeRect.h = HUMANOID_FRAME_HEIGHT + 10;
+    }
+    ladder = ladderArrayCheckOverlap(ladders, &probeRect);
+  }
+
+  if (ladder && (player->climbIntentUp || player->climbIntentDown)) {
+    bool wasClimbing = player->isClimbing;
+    player->isClimbing = true;
+    player->base.vel.x = 0;
+    if (!wasClimbing) {
+      player->base.pos.x =
+          (float)(ladder->rect.x + (ladder->rect.w - SPRITE_WIDTH) / 2);
+    }
+    if (player->climbIntentUp) {
+      player->base.vel.y = -LADDER_CLIMB_SPEED;
+    } else {
+      player->base.vel.y = LADDER_CLIMB_SPEED;
+    }
+  } else if (!ladder) {
+    player->isClimbing = false;
   }
 
   if (player->isClimbing) {
-    if (ladder) {
-      player->base.vel.x = 0;
-    } else {
-      player->isClimbing = false;
-      if (player->base.vel.y < 0) {
-        player->base.vel.y = 0;
-      }
+    if (!player->climbIntentUp && !player->climbIntentDown) {
+      player->base.vel.y = 0;
     }
-  }
-
-  if (!player->isClimbing) {
+  } else {
+    if (player->jumpRequested && player->jumpsUsed < 2) {
+      player->base.vel.y = -PLAYER_JUMP_SPEED;
+      player->jumpsUsed++;
+    }
     player->base.vel.y += PLAYER_FALL_INCREMENT * dt;
   }
+  player->jumpRequested = false;
 
   commonEntityUpdate(&player->base, dt);
   resolvePlatformCollision(&player->base, map, SPRITE_WIDTH,
                            HUMANOID_FRAME_HEIGHT);
+  if (!player->isClimbing && player->base.vel.y == 0) {
+    player->jumpsUsed = 0;
+  }
 }
 
 static void applyEnemyPhysics(Player *player, EnemyArray *enemies,
@@ -195,7 +222,7 @@ void handleBulletWindowCollision(BulletPool *pool, Player *player) {
 }
 
 void handleBulletEntityCollision(BulletPool *pool, Player *player,
-                                 EnemyArray *enemies) {
+                                 EnemyArray *enemies, TrapArray *traps) {
   SDL_Rect bulletRect, targetRect;
 
   // --- Process enemy bullets hitting the player ---
@@ -218,6 +245,11 @@ void handleBulletEntityCollision(BulletPool *pool, Player *player,
     if (SDL_HasIntersection(&bulletRect, &targetRect)) {
       player->base.health -= 10;
       bullet->base.health = 0;
+    }
+    if (traps && bullet->base.health > 0) {
+      if (trapArrayTriggerAt(traps, bullet->base.pos.x, bullet->base.pos.y)) {
+        bullet->base.health = 0;
+      }
     }
   }
 
@@ -248,11 +280,17 @@ void handleBulletEntityCollision(BulletPool *pool, Player *player,
           enemyEntity->health = 0;
       }
     }
+    if (traps && bullet->base.health > 0) {
+      if (trapArrayTriggerAt(traps, bullet->base.pos.x, bullet->base.pos.y)) {
+        bullet->base.health = 0;
+      }
+    }
   }
 }
 
-void handleCollisions(BulletPool *pool, Player *player, EnemyArray *enemies) {
-  handleBulletEntityCollision(pool, player, enemies);
+void handleCollisions(BulletPool *pool, Player *player, EnemyArray *enemies,
+                      TrapArray *traps) {
+  handleBulletEntityCollision(pool, player, enemies, traps);
   handleBulletWindowCollision(pool, player);
 }
 

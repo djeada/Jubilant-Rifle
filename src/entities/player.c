@@ -52,10 +52,14 @@ Player *playerCreate(float x, float y) {
   
   /* Initialize new player fields */
   player->isClimbing = false;
+  player->climbIntentUp = false;
+  player->climbIntentDown = false;
+  player->jumpRequested = false;
   player->isMeleeAttacking = false;
   player->meleeTimer = 0.0f;
   player->meleeDamage = MELEE_DAMAGE;
   player->grenadeCount = PLAYER_INITIAL_GRENADES;
+  player->jumpsUsed = 0;
 
   return player;
 }
