@@ -65,11 +65,13 @@
 /* --------------------- Player and Enemy Movement --------------------- */
 #define PLAYER_MOVE_SPEED 5
 #define PLAYER_JUMP_SPEED 200
-#define PLAYER_FALL_INCREMENT 20
+#define PLAYER_FALL_INCREMENT 800
 
-#define ENEMY_MOVE_SPEED 2
+#define ENEMY_MOVE_SPEED 60
 #define ENEMY_JUMP_SPEED 200
-#define ENEMY_FALL_INCREMENT 20
+#define ENEMY_FALL_INCREMENT 800
+/* Enemy shooting */
+#define ENEMY_BULLET_SPEED 200
 
 /* --------------------- Other Gameplay Constants --------------------- */
 #define NUM_BULLETS 100
@@ -110,4 +112,3 @@
 #define TIMER_DISPLAY_Y 20
 
 #endif // CONSTS_H
-

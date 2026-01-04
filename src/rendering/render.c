@@ -6,6 +6,7 @@
 #include "entities/grenade.h"
 #include "entities/grenade_pool.h"
 #include "game/score.h"
+#include "entities/entity.h"
 #include "utils/consts.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -31,12 +32,15 @@ static inline void applyCamera(SDL_Rect *dest, const SDL_Rect *camera) {
 
 static void renderAnimatedEntity(SDL_Renderer *renderer, SDL_Texture *tex,
                                  const SDL_Rect *dest, const Animation *anim,
-                                 int frameW, int frameH) {
+                                 int frameW, int frameH,
+                                 Direction direction) {
   SDL_Rect src = {0, 0, frameW, frameH};
   if (anim && anim->frameCount > 0) {
     src.x = anim->currentFrame * frameW;
   }
-  SDL_RenderCopy(renderer, tex, &src, dest);
+  SDL_RendererFlip flip =
+      (direction == DIRECTION_LEFT) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+  SDL_RenderCopyEx(renderer, tex, &src, dest, 0.0, NULL, flip);
 }
 
 // ---------------------------------------------------------------------------
@@ -57,9 +61,17 @@ void playerDraw(Player *player, SDL_Renderer *renderer, TextureManager *tm,
   if (player->base.anim) {
     SDL_Rect src = {player->base.anim->currentFrame * SPRITE_WIDTH, 0,
                     SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT};
-    SDL_RenderCopy(renderer, tm->playerTex, &src, &playerDest);
+    SDL_RendererFlip flip = (player->base.direction == DIRECTION_LEFT)
+                                ? SDL_FLIP_HORIZONTAL
+                                : SDL_FLIP_NONE;
+    SDL_RenderCopyEx(renderer, tm->playerTex, &src, &playerDest, 0.0, NULL,
+                     flip);
   } else {
-    SDL_RenderCopy(renderer, tm->playerTex, NULL, &playerDest);
+    SDL_RendererFlip flip = (player->base.direction == DIRECTION_LEFT)
+                                ? SDL_FLIP_HORIZONTAL
+                                : SDL_FLIP_NONE;
+    SDL_RenderCopyEx(renderer, tm->playerTex, NULL, &playerDest, 0.0, NULL,
+                     flip);
   }
 }
 
@@ -111,7 +123,8 @@ void enemyArrayDraw(EnemyArray *arr, SDL_Renderer *renderer, TextureManager *tm,
       SDL_Rect dest = enemyRect;
       applyCamera(&dest, camera);
       renderAnimatedEntity(renderer, tm->enemyTex, &dest, enemy->anim,
-                           SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT);
+                           SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT,
+                           enemy->direction);
     }
   }
 }
@@ -571,4 +584,3 @@ void renderGame(GameContext *ctx) {
   // Present the final rendered frame.
   SDL_RenderPresent(ctx->renderer);
 }
-

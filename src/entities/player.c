@@ -19,7 +19,6 @@ void playerUpdate(Entity *entity, float dt) {
     }
   }
   
-  commonEntityUpdate(&player->base, dt);
 }
 
 Player *playerCreate(float x, float y) {
@@ -174,4 +173,3 @@ int playerGetGrenadeCount(const Player *player) {
     return 0;
   return player->grenadeCount;
 }
-

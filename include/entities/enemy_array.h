@@ -3,6 +3,7 @@
 
 #include "entities/bullet_pool.h"
 #include "entities/enemy.h"
+#include "entities/player.h"
 #include "entities/entity.h"
 #include <stdlib.h>
 
@@ -14,8 +15,8 @@ typedef struct {
 
 void enemyArrayInit(EnemyArray *arr);
 void enemyArrayAdd(EnemyArray *arr, Enemy *enemy);
-void enemyArrayUpdate(EnemyArray *arr, float dt, BulletPool *pool);
+void enemyArrayUpdate(EnemyArray *arr, float dt, BulletPool *pool,
+                      const Player *player);
 void enemyArrayDestroy(EnemyArray *arr);
 
 #endif // ENEMY_ARRAY_H
-

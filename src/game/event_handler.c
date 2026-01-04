@@ -1,4 +1,5 @@
 #include "game/event_handler.h"
+#include "utils/consts.h"
 
 void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
                       bool *gameRunning, BulletPool *bulletPool) {
@@ -23,13 +24,16 @@ void handleGameEvents(SDL_Event *e, Player *player, GameState *gameState,
         break;
       case SDLK_UP:
       case SDLK_w:
-        playerSetVerticalVelocity(player, -200);
-        /* Check if on ladder for climbing */
-        playerStartClimbing(player);
+        if (player->isClimbing) {
+          playerSetVerticalVelocity(player, -LADDER_CLIMB_SPEED);
+        } else if (player->base.vel.y == 0) {
+          playerSetVerticalVelocity(player, -PLAYER_JUMP_SPEED);
+        }
         break;
       case SDLK_DOWN:
       case SDLK_s:
-        playerSetVerticalVelocity(player, 200);
+        playerSetVerticalVelocity(player, LADDER_CLIMB_SPEED);
+        playerStartClimbing(player);
         break;
       case SDLK_SPACE:
       case SDLK_x:
@@ -90,12 +94,16 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
         break;
       case SDLK_UP:
       case SDLK_w:
-        playerSetVerticalVelocity(player, -200);
-        playerStartClimbing(player);
+        if (player->isClimbing) {
+          playerSetVerticalVelocity(player, -LADDER_CLIMB_SPEED);
+        } else if (player->base.vel.y == 0) {
+          playerSetVerticalVelocity(player, -PLAYER_JUMP_SPEED);
+        }
         break;
       case SDLK_DOWN:
       case SDLK_s:
-        playerSetVerticalVelocity(player, 200);
+        playerSetVerticalVelocity(player, LADDER_CLIMB_SPEED);
+        playerStartClimbing(player);
         break;
       case SDLK_SPACE:
       case SDLK_x:
@@ -142,4 +150,3 @@ void handleGameEventsExtended(SDL_Event *e, Player *player, GameState *gameState
     }
   }
 }
-

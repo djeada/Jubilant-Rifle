@@ -6,7 +6,6 @@
 #include "game/physics.h"
 #include "game/score.h"
 #include "map/map_manager.h"
-#include "map/ladder.h"
 #include "map/trap.h"
 #include "map/flag.h"
 #include "entities/grenade_pool.h"
@@ -32,7 +31,9 @@ static void updateParachuteSpawns(GameContext *ctx, float dt) {
       /* Pick a random platform as landing target */
       if (ctx->map->platformCount > 0) {
         size_t platformIndex = (size_t)(rand() % (int)ctx->map->platformCount);
-        float targetY = (float)ctx->map->platforms[platformIndex].y;
+        float targetY =
+            (float)(ctx->map->platforms[platformIndex].y -
+                    HUMANOID_FRAME_HEIGHT);
         
         Enemy *parachuteEnemy = enemyCreateParachuting(spawnX, spawnY, targetY);
         if (parachuteEnemy) {
@@ -97,27 +98,6 @@ static void updateFlags(GameContext *ctx, float dt) {
   /* Award points for captures */
   for (int i = 0; i < capturedCount; i++) {
     scoreRegisterFlagCapture(ctx->scoreTracker, FLAG_CAPTURE_POINTS);
-  }
-}
-
-/**
- * @brief Handle ladder climbing for the player.
- */
-static void updateLadderClimbing(GameContext *ctx) {
-  if (!ctx->map->ladders)
-    return;
-    
-  LadderArray *ladders = (LadderArray *)ctx->map->ladders;
-  
-  SDL_Rect playerRect = {(int)ctx->player->base.pos.x, 
-                          (int)ctx->player->base.pos.y,
-                          SPRITE_WIDTH, HUMANOID_FRAME_HEIGHT};
-  
-  const Ladder *ladder = ladderArrayCheckOverlap(ladders, &playerRect);
-  
-  if (ladder && ctx->player->isClimbing) {
-    /* Player is on a ladder and climbing - restrict horizontal movement */
-    ctx->player->base.vel.x = 0;
   }
 }
 
@@ -210,7 +190,8 @@ void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
   SDL_Event e;
 
   while (*gameRunning && *gameState == STATE_GAME) {
-    handleGameEvents(&e, ctx->player, gameState, gameRunning, ctx->bulletPool);
+    handleGameEventsExtended(&e, ctx->player, gameState, gameRunning,
+                             ctx->bulletPool, ctx->grenadePool);
 
     // Calculate delta time.
     Uint32 now = SDL_GetTicks();
@@ -223,7 +204,8 @@ void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
     if (ctx->player->base.update) {
       ctx->player->base.update(&ctx->player->base, dt);
     }
-    enemyArrayUpdate(ctx->enemies, dt, ctx->bulletPool);
+    enemyArrayUpdate(ctx->enemies, dt, ctx->bulletPool, ctx->player);
+    applyPhysics(ctx->player, ctx->enemies, ctx->map, dt);
     bulletPoolUpdate(ctx->bulletPool, dt);
     handleCollisions(ctx->bulletPool, ctx->player, ctx->enemies);
 
@@ -232,7 +214,6 @@ void gameLoop(GameContext *ctx, bool *gameRunning, GameState *gameState,
     updateGrenades(ctx, dt);
     updateTraps(ctx, dt);
     updateFlags(ctx, dt);
-    updateLadderClimbing(ctx);
     updateMeleeCombat(ctx);
 
     if (!isPlayerAlive(ctx->player)) {
@@ -369,4 +350,3 @@ void runGame(SDL_Renderer *renderer) {
     }
   }
 }
-
